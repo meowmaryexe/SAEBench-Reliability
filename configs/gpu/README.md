@@ -1,15 +1,24 @@
-# GPU configs — full Core / Loss Recovered reproduction
+# GPU configs — paper-scale reproduction (Core + AutoInterp)
 
-Everything needed to run the Core metric at **paper scale** on a GPU, using the methodology proven
-identical to SAEBench `core/main.py` (`saebench_core`; see `docs/logs/2026-06-22_08` and
-`tests/test_core_oracle.py`). Nothing here is meant to run on the CPU sandbox.
+Everything needed to run the metrics at **paper scale** on a GPU. Nothing here is meant to run on the CPU
+sandbox. The same `../registry.yaml` (models + SAE suites) is shared by both metrics.
 
 ## Files
-- **`core_gpu.yaml`** — the canonical eval config: dataset/ctx/counts (Table 4), special-token handling,
-  device, dtype. Methodology = `saebench_core`.
-- **`jobs.yaml`** — the full job matrix (6 suites × 42 SAEs = 252), grouped into compute tiers.
+- **`core_gpu.yaml`** — Core eval config: dataset/ctx/counts (Table 4), special-token handling, device,
+  dtype. Methodology = `saebench_core` (proven identical to `core/main.py`; `tests/test_core_oracle.py`).
+- **`autointerp_gpu.yaml`** — AutoInterp eval config: Table 5 (2M tokens, 1000 latents, example counts,
+  gpt-4o-mini judge). Deterministic pipeline proven identical to SAEBench (`tests/test_autointerp_oracle.py`).
+- **`jobs.yaml`** — the full Core job matrix (6 suites × 42 SAEs = 252), grouped into compute tiers.
 - **`../registry.yaml`** — base models + released SAE suite repos + per-suite folder layouts (two naming
-  conventions: adamkarvonen for Pythia + Gemma-4k, canrager for Gemma 16k/65k).
+  conventions: adamkarvonen for Pythia + Gemma-4k, canrager for Gemma 16k/65k). Shared by Core + AutoInterp.
+
+## Runners
+- Core:       `scripts/run_core_gpu.py --config configs/gpu/core_gpu.yaml --suite <name> --out ...`
+- AutoInterp: `scripts/run_autointerp_gpu.py --config configs/gpu/autointerp_gpu.yaml --suite <name>
+  --device cuda --judge_workers 10 --out ...`  (needs `openai_api_key.txt` at repo root, gitignored;
+  set `AUTOINTERP_REF_DIR` to a local mirror of `sae_bench_results_0125/autointerp/...` for the Δ column).
+  Both iterate a suite (7 arch × 6 sparsity), resolve repos/folders from the registry, build the
+  SAE-independent activation cache once, and write per-SAE results vs published.
 
 ## Suites (resolved in `registry.yaml`)
 | suite | model · layer | width | HF repo |

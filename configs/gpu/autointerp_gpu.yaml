@@ -29,6 +29,16 @@ eval:                               # AutoInterpEvalConfig defaults (paper)
 runtime:
   device: cuda
   dtype: float32
+  download_then_delete_ae: true     # fetch each ae.pt, eval, delete (bound disk)
+  judge_workers: 10                 # concurrent gpt-4o-mini calls (SAEBench uses ThreadPoolExecutor(10))
+
+# Launch (turnkey suite runner — analog of run_core_gpu.py):
+#   export OPENAI key at <repo>/openai_api_key.txt (gitignored)
+#   export AUTOINTERP_REF_DIR=<local mirror of sae_bench_results_0125/autointerp/...>   # optional, for Δ
+#   python scripts/run_autointerp_gpu.py --config configs/gpu/autointerp_gpu.yaml \
+#       --suite pythia-160m_4k --device cuda --judge_workers 10 \
+#       --out results/processed/autointerp/pythia-160m_4k_autointerp.json
+# The residual cache is built once per (model, n_tokens) and reused across all SAEs in the suite.
 
 # Suites: same 6 as Core (configs/registry.yaml). The residual cache is SAE-independent, so build it
 # once per (model, n_tokens) and reuse across all SAEs in a width suite.
