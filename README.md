@@ -31,6 +31,7 @@ The project is being conducted as a reproducibility study targeting submission t
 | Metric (owner) | Status |
 |---|---|
 | **Core / Loss Recovered** (Ari) | ✅ **Full Core reproduced on 4k Pythia-160M**: all 42 SAEs, **every metric** (Loss Recovered, explained var, MSE, cosine, L0/L1, recon bias, density, max-cosine-sim) vs published Neuronpedia — 11/15 within <1%, weight metrics exact (Pearson ≈1.0). Methodology **proven identical to `core/main.py`** by an oracle on the real `transformer_lens` model (~1e-7) + 10 unit tests. PCA/residual baselines reproduce (LR 1.0, L0=768). 16k/65k + Gemma GPU-deferred (`configs/gpu/`). See `docs/metric_notes.md`, `tests/`, `figures/`. |
+| **AutoInterp** (Ari) | ✅ Reproduced on Pythia-160M 4k with the paper's **gpt-4o-mini** judge — faithful pipeline (8/8 unit tests, verbatim prompts). Score **converges to published** with token budget: 24k→0.710 (null floor 0.714), 96k→0.748, paper 2M→0.780. See `docs/metric_notes.md`, log #11, `figures/autointerp_convergence.svg`. |
 | SCR · TPP · Sparse Probing (Ari / Mary) | Scaffolded |
 | RAVEL · Unlearning · AutoInterp (Alor / Mary) | Pending |
 

@@ -66,6 +66,49 @@ def fig_frontier(rows, title="Sparsity–Fidelity frontier (Core / Loss Recovere
     return "\n".join(s)
 
 
+def fig_autointerp_convergence(points, published, null_baseline,
+                               title="AutoInterp reproduction — score converges to published with token budget",
+                               subtitle="") -> str:
+    """points: list of (n_tokens, score). published: float (2M-token value). null_baseline: float."""
+    import math
+    W, H = 720, 420
+    ax0, ax1, ay0, ay1 = 80, 560, 80, 350
+    xs = [p[0] for p in points] + [2_000_000]
+    xlo, xhi = math.log10(min(xs)) - 0.1, math.log10(2_000_000) + 0.1
+    ylo, yhi = 0.66, 0.80
+    def X(v): return ax0 + (math.log10(v) - xlo) / (xhi - xlo) * (ax1 - ax0)
+    def Y(v): return ay1 - (v - ylo) / (yhi - ylo) * (ay1 - ay0)
+    s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="Inter,Arial,sans-serif">',
+         f'<rect width="{W}" height="{H}" fill="white"/>',
+         f'<text x="30" y="34" font-size="16.5" font-weight="700" fill="{INK}">{_esc(title)}</text>',
+         f'<text x="30" y="54" font-size="12" fill="#555">{_esc(subtitle)}</text>',
+         f'<line x1="{ax0}" y1="{ay1}" x2="{ax1}" y2="{ay1}" stroke="{INK}" stroke-width="1.2"/>',
+         f'<line x1="{ax0}" y1="{ay0}" x2="{ax0}" y2="{ay1}" stroke="{INK}" stroke-width="1.2"/>']
+    for gx in (24000, 96000, 500000, 2000000):
+        s.append(f'<line x1="{X(gx):.1f}" y1="{ay0}" x2="{X(gx):.1f}" y2="{ay1}" stroke="#f0f0f0"/>')
+        lab = f"{gx//1000}k" if gx < 1_000_000 else "2M"
+        s.append(f'<text x="{X(gx):.1f}" y="{ay1+16}" font-size="10" fill="#555" text-anchor="middle">{lab}</text>')
+    for gy in [0.68, 0.72, 0.76, 0.80]:
+        s.append(f'<text x="{ax0-6}" y="{Y(gy)+3:.1f}" font-size="10" fill="#555" text-anchor="end">{gy:.2f}</text>')
+    s.append(f'<text x="{(ax0+ax1)/2:.0f}" y="{ay1+36}" font-size="12" fill="{INK}" text-anchor="middle">activation tokens (log)</text>')
+    s.append(f'<text x="24" y="{(ay0+ay1)/2:.0f}" font-size="12" fill="{INK}" text-anchor="middle" transform="rotate(-90 24 {(ay0+ay1)/2:.0f})">AutoInterp score</text>')
+    # null baseline + published reference lines
+    s.append(f'<line x1="{ax0}" y1="{Y(null_baseline):.1f}" x2="{ax1}" y2="{Y(null_baseline):.1f}" stroke="#999" stroke-dasharray="3 3"/>')
+    s.append(f'<text x="{ax0+6}" y="{Y(null_baseline)-5:.1f}" font-size="10.5" fill="#999">null baseline (predict none) = {null_baseline:.3f}</text>')
+    s.append(f'<line x1="{ax0}" y1="{Y(published):.1f}" x2="{ax1}" y2="{Y(published):.1f}" stroke="{REF}" stroke-dasharray="5 4" stroke-width="1.4"/>')
+    s.append(f'<text x="{ax1-2}" y="{Y(published)-6:.1f}" font-size="11" fill="{REF}" text-anchor="end">published (2M) = {published:.3f}</text>')
+    # my points + connecting line
+    pts = sorted(points)
+    poly = " ".join(f"{X(x):.1f},{Y(y):.1f}" for x, y in pts)
+    s.append(f'<polyline points="{poly}" fill="none" stroke="{MINE}" stroke-width="2"/>')
+    for x, y in pts:
+        s.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" fill="{MINE}"/>')
+        s.append(f'<text x="{X(x):.1f}" y="{Y(y)-9:.1f}" font-size="10.5" fill="{MINE}" text-anchor="middle">{y:.3f}</text>')
+    s.append(f'<circle cx="{X(2_000_000):.1f}" cy="{Y(published):.1f}" r="4" fill="{REF}"/>')
+    s.append('</svg>')
+    return "\n".join(s)
+
+
 def fig_metric_agreement(summary, title="Full Core metric reproduction vs Neuronpedia",
                          subtitle="") -> str:
     """Horizontal bars: mean relative %% error per metric (42 SAEs) vs published, with Pearson."""

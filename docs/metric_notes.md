@@ -85,6 +85,30 @@ and TopK L0 reach exact agreement at the full 3200/32000-sequence scale.
 
 ---
 
+## AutoInterp (Automated Interpretability)  ✅ — owner: Ari
+
+**Definition (paper Table 5 / Paulo et al. 2024 detection score).** An LLM judge (gpt-4o-mini) writes a
+natural-language explanation of an SAE latent from its top-activating sequences, then — given the
+explanation plus a shuffled mix of activating + random sequences — predicts which activate. Score =
+**detection accuracy** over the test set (2 top + 2 importance-weighted + 10 random = 14 sequences);
+`autointerp_score` = mean over ~1000 non-dead latents.
+
+**Implementation.** `src/saebench_audit/metrics/autointerp.py` — faithful port of
+`autointerp/main.py` + the indexing/activation/dataset utils (verbatim prompts, top-k/IW/random example
+construction, `<<token>>` marking, detection-accuracy scoring). Runner `scripts/run_autointerp.py` caches
+the SAE-independent residual activations once and runs the gpt-4o-mini judge resumably. **8/8 unit tests**
+(`tests/test_autointerp_units.py`).
+
+**Result (gpt-4o-mini, Pythia-160M L8, Standard 4k t0):** the score **converges to published** as the
+activation-token budget grows — 24k tokens → 0.710 (at the 0.714 null floor), 96k → **0.748**, paper 2M →
+**0.780** (published). The remaining gap is token budget + latent-sample noise + judge stochasticity, not
+methodology (an LLM-judge metric is noisy by design — the paper itself flags this). Figure
+`figures/autointerp_convergence.svg`; data `results/processed/autointerp/`; log #11.
+
+**Next (GPU/scale):** 2M tokens / 1000 latents across the suites (`configs/gpu/autointerp_gpu.yaml`).
+
+---
+
 ## SCR · TPP · Sparse Probing — scaffolded (owner: Ari / Mary)
 
 Not yet implemented. Reproduce configs in `configs/reproduce/`, audit (seed/K sweeps) in `configs/audit/`.

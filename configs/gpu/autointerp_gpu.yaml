@@ -1,0 +1,36 @@
+# AutoInterp evaluation — GPU, paper scale (Table 5). Judge = gpt-4o-mini (OpenAI API).
+# Consumed by: scripts/run_autointerp.py (set --n_tokens / --n_latents to these and run on cuda).
+#
+# Methodology is identical to the CPU validation; only the token budget + latent count scale up.
+
+metric: autointerp
+judge:
+  model: gpt-4o-mini
+  api: openai                       # requires openai_api_key (keep out of the repo; .gitignore blocks it)
+
+eval:                               # AutoInterpEvalConfig defaults (paper)
+  dataset_name: monology/pile-uncopyrighted
+  llm_context_size: 128
+  total_tokens: 2000000             # paper Table 5
+  n_latents: 1000                   # non-dead latents interpreted
+  dead_latent_threshold: 15
+  random_seed: 42
+  buffer: 10
+  act_threshold_frac: 0.01
+  # generation: 10 top + 5 importance-weighted ; scoring: 2 top + 2 iw + 10 random (detection accuracy)
+  n_top_ex_for_generation: 10
+  n_iw_sampled_ex_for_generation: 5
+  n_top_ex_for_scoring: 2
+  n_iw_sampled_ex_for_scoring: 2
+  n_random_ex_for_scoring: 10
+  max_tokens_in_explanation: 30
+  use_demos_in_explanation: true
+
+runtime:
+  device: cuda
+  dtype: float32
+
+# Suites: same 6 as Core (configs/registry.yaml). The residual cache is SAE-independent, so build it
+# once per (model, n_tokens) and reuse across all SAEs in a width suite.
+# Reference: adamkarvonen/sae_bench_results_0125 -> autointerp/<suite>/...  (autointerp_score per SAE).
+# Cost: gpt-4o-mini ~tens of dollars for the full 252-SAE x 1000-latent run.
