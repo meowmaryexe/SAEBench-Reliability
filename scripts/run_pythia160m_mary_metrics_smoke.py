@@ -1,15 +1,29 @@
 """
 Smoke runner for Mary-owned SAEBench metrics on Pythia-160M dictionary-learning SAEs.
 
-Goal:
-- Use the actual SAEBench Pythia-160M custom SAE loading path.
-- Run only Mary-owned metrics: TPP, SCR, Sparse Probing.
-- Start with one SAE location before scaling.
+Run from the SAEBench repo root, for example:
+
+python /content/SAEBench-Reliability/scripts/run_pythia160m_mary_metrics_smoke.py
 """
 
-# TODO:
-# 1. Import custom SAE loading helpers from SAEBench.
-# 2. Enumerate Pythia-160M SAE locations from HuggingFace.
-# 3. Filter to one SAE for smoke testing.
-# 4. Run TPP, SCR, and Sparse Probing.
-# 5. Save outputs under results/raw/reproduction_smoke/.
+from sae_bench.custom_saes.run_all_evals_dictionary_learning_saes import (
+    get_all_hf_repo_autoencoders,
+)
+
+REPO_ID = "adamkarvonen/saebench_pythia-160m-deduped_width-2pow14_date-0108"
+
+
+def main() -> None:
+    print(f"Enumerating SAE locations from: {REPO_ID}")
+
+    sae_locations = get_all_hf_repo_autoencoders(REPO_ID)
+
+    print(f"Found {len(sae_locations)} SAE locations")
+
+    print("\nFirst 20 SAE locations:")
+    for location in sae_locations[:20]:
+        print(location)
+
+
+if __name__ == "__main__":
+    main()
