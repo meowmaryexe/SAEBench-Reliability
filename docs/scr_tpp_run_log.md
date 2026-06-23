@@ -245,11 +245,20 @@ Global max difference: 0.07869108679148029
 
 ## Reliability Experiment Plan
 
+### Reproduction
+
+1. Reproduce TPP benchmark runs.
+2. Reproduce SCR benchmark runs.
+3. Reproduce Sparse Probing benchmark runs.
+4. Investigate and restore the intended Pythia-160M evaluation path.
+
+### Audit Experiments
+
 1. Single-SAE seed sweep (5-10 seeds).
 2. Multiple-SAE seed sweep.
 3. Ranking stability across seeds.
 4. SCR vs TPP correlation analysis.
-5. Pythia-160M loading-path investigation.
+5. Additional variance-source analysis as needed.
 
 ## Current Status
 
@@ -260,7 +269,12 @@ Completed:
 - Benchmark outputs archived in `results/raw/smoke_tests/`.
 - Colab workflow established for future experiments.
 
-Next immediate objective:
+Next immediate objectives:
 
-- Implement a controlled seed sweep for SCR and TPP.
-- Quantify metric variance across seeds before scaling to multiple SAEs.
+1. Reproduce Sparse Probing acceptance tests on CUDA.
+2. Establish smoke-test execution paths for all three audit metrics:
+   - TPP
+   - SCR
+   - Sparse Probing
+3. Build reusable scripts for faithful reproduction runs.
+4. Investigate the Pythia-160M SAE loading-path issue.
