@@ -96,7 +96,9 @@ Stopped manually.
 
 ### Reason
 
-The process stayed alive but produced no output JSON and appeared to be crawling/stalled on local Apple Silicon MPS.
+### Reason
+
+The process continued running and producing probe-training output, but no evaluation artifacts had been written after an extended runtime. The run was stopped manually to investigate a more controlled acceptance-test path.
 
 ### Notes
 
@@ -240,3 +242,25 @@ Global max difference: 0.07869108679148029
 - SCR acceptance test passes on CUDA without modifying benchmark code.
 - This confirms that the local MacBook failure was an MPS/hardware limitation, not a benchmark-code issue.
 - SCR and TPP smoke tests now both pass on Colab CUDA.
+
+## Reliability Experiment Plan
+
+1. Single-SAE seed sweep (5-10 seeds).
+2. Multiple-SAE seed sweep.
+3. Ranking stability across seeds.
+4. SCR vs TPP correlation analysis.
+5. Pythia-160M loading-path investigation.
+
+## Current Status
+
+Completed:
+
+- SCR acceptance test reproduced successfully on CUDA.
+- TPP acceptance test reproduced successfully on CUDA.
+- Benchmark outputs archived in `results/raw/smoke_tests/`.
+- Colab workflow established for future experiments.
+
+Next immediate objective:
+
+- Implement a controlled seed sweep for SCR and TPP.
+- Quantify metric variance across seeds before scaling to multiple SAEs.
