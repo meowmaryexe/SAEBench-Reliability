@@ -140,3 +140,65 @@ extend to all 7 architectures × 6 sparsities (Stage-1 reproduction on GPU), we 
 
 ## Amendments
 *(none yet)*
+
+---
+
+# Pre-Registration — SCR / TPP / Sparse Probing Reliability Audit
+
+**Project:** SAEBench reproducibility study (Karvonen et al., 2025; Chanin et al., 2026)
+**Component:** SCR, TPP, and Sparse Probing
+**Owner:** Mary
+**Date written:** 2026-06-23
+**Status:** Pre-reproduction infrastructure validated; audit protocol to be finalized before seed-sweep experiments.
+
+## Scope
+
+This audit targets the three benchmark metrics identified as the highest-priority reliability concerns:
+
+- TPP
+- SCR
+- Sparse Probing
+
+These metrics were selected because they contain stochastic components including probe training, dataset sampling, feature selection, and randomized optimization procedures.
+
+## Current Status
+
+Completed before preregistration:
+
+- SCR acceptance test reproduced on CUDA.
+- TPP acceptance test reproduced on CUDA.
+- Sparse Probing acceptance test reproduced on CUDA.
+- Pythia-160M loading-path investigation completed.
+- Dictionary-learning SAE loading path validated.
+- Initial Pythia-160M TPP benchmark execution completed.
+
+## Audit Questions
+
+1. How sensitive are metric values to random seed variation?
+2. Do architecture rankings remain stable across repeated runs?
+3. Are some sparsity regimes more sensitive to randomness than others?
+4. Do SCR and TPP capture distinct information or largely the same signal?
+5. Are reported architecture gaps substantially larger than run-to-run variance?
+
+## Planned Experiments
+
+### Stage 1: Faithful Reproduction
+
+- Reproduce released benchmark results on Pythia-160M.
+- Reproduce released benchmark results on Gemma-2-2B.
+- Validate outputs against published benchmark artifacts where available.
+
+### Stage 2: Reliability Audit
+
+- Single-SAE seed sweeps.
+- Multi-SAE seed sweeps.
+- Architecture-ranking stability analysis.
+- SCR/TPP correlation analysis.
+- Variance decomposition where feasible.
+
+## Reporting Commitments
+
+- Report both confirming and non-confirming results.
+- Preserve all raw outputs.
+- Record all deviations from the released benchmark configuration.
+- Distinguish reproduction findings from reliability-audit findings.
