@@ -1,0 +1,214 @@
+{
+  "eval_type_id": "sparse_probing",
+  "eval_config": {
+    "random_seed": 44,
+    "dataset_names": [
+      "LabHC/bias_in_bios_class_set1"
+    ],
+    "probe_train_set_size": 4000,
+    "probe_test_set_size": 1000,
+    "context_length": 128,
+    "sae_batch_size": 125,
+    "llm_batch_size": 512,
+    "llm_dtype": "float32",
+    "model_name": "pythia-70m-deduped",
+    "k_values": [
+      1,
+      2,
+      5,
+      10,
+      20,
+      50,
+      100
+    ],
+    "lower_vram_usage": true
+  },
+  "eval_id": "cf65abc5-c93d-41ef-91cf-16ab3b429b55",
+  "datetime_epoch_millis": 1782201071045,
+  "eval_result_metrics": {
+    "llm": {
+      "llm_test_accuracy": 0.9534000515937805,
+      "llm_top_1_test_accuracy": 0.7586,
+      "llm_top_2_test_accuracy": 0.8046,
+      "llm_top_5_test_accuracy": 0.8480000000000001,
+      "llm_top_10_test_accuracy": 0.8878,
+      "llm_top_20_test_accuracy": 0.9054,
+      "llm_top_50_test_accuracy": 0.9301999999999999,
+      "llm_top_100_test_accuracy": 0.9400000000000001
+    },
+    "sae": {
+      "sae_test_accuracy": -1.0,
+      "sae_top_1_test_accuracy": 0.7727999999999999,
+      "sae_top_2_test_accuracy": 0.8364,
+      "sae_top_5_test_accuracy": 0.8802,
+      "sae_top_10_test_accuracy": 0.8946,
+      "sae_top_20_test_accuracy": 0.9118,
+      "sae_top_50_test_accuracy": 0.9366,
+      "sae_top_100_test_accuracy": 0.9394
+    }
+  },
+  "eval_result_details": [
+    {
+      "dataset_name": "LabHC/bias_in_bios_class_set1_results",
+      "llm_test_accuracy": 0.9534000515937805,
+      "llm_top_1_test_accuracy": 0.7586,
+      "llm_top_2_test_accuracy": 0.8046,
+      "llm_top_5_test_accuracy": 0.8480000000000001,
+      "llm_top_10_test_accuracy": 0.8878,
+      "llm_top_20_test_accuracy": 0.9054,
+      "llm_top_50_test_accuracy": 0.9301999999999999,
+      "llm_top_100_test_accuracy": 0.9400000000000001,
+      "sae_test_accuracy": -1.0,
+      "sae_top_1_test_accuracy": 0.7727999999999999,
+      "sae_top_2_test_accuracy": 0.8364,
+      "sae_top_5_test_accuracy": 0.8802,
+      "sae_top_10_test_accuracy": 0.8946,
+      "sae_top_20_test_accuracy": 0.9118,
+      "sae_top_50_test_accuracy": 0.9366,
+      "sae_top_100_test_accuracy": 0.9394
+    }
+  ],
+  "sae_bench_commit_hash": "8042bb3828c6340da8d12062324e92b2077c571c",
+  "sae_lens_id": "blocks.4.hook_resid_post__trainer_10",
+  "sae_lens_release_id": "sae_bench_pythia70m_sweep_topk_ctx128_0730",
+  "sae_lens_version": "6.44.4",
+  "sae_cfg_dict": {
+    "d_in": 512,
+    "d_sae": 16384,
+    "dtype": "float32",
+    "device": "cuda",
+    "apply_b_dec_to_input": true,
+    "normalize_activations": "none",
+    "reshape_activations": "none",
+    "metadata": {
+      "sae_lens_version": "6.44.4",
+      "sae_lens_training_version": null,
+      "model_name": "pythia-70m-deduped",
+      "hook_name": "blocks.4.hook_resid_post",
+      "hook_head_index": null,
+      "prepend_bos": true,
+      "dataset_path": "monology/pile-uncopyrighted",
+      "context_size": 128,
+      "neuronpedia_id": "pythia-70m-deduped/4-sae_bench-topk-res-16k__trainer_10_step_final",
+      "hook_layer": 4,
+      "dataset_trust_remote_code": null,
+      "model_from_pretrained_kwargs": {},
+      "exclude_special_tokens": null
+    },
+    "k": 80,
+    "rescale_acts_by_decoder_norm": false,
+    "architecture": "topk"
+  },
+  "eval_result_unstructured": {
+    "LabHC/bias_in_bios_class_set1_results": {
+      "sae_test_accuracy": {
+        "-1": -1
+      },
+      "llm_test_accuracy": {
+        "0": 0.9310000538825989,
+        "1": 0.9490000605583191,
+        "2": 0.9420000314712524,
+        "6": 0.9850000739097595,
+        "9": 0.9600000381469727
+      },
+      "llm_top_1_test_accuracy": {
+        "0": 0.691,
+        "1": 0.752,
+        "2": 0.688,
+        "6": 0.852,
+        "9": 0.81
+      },
+      "llm_top_2_test_accuracy": {
+        "0": 0.729,
+        "1": 0.791,
+        "2": 0.754,
+        "6": 0.879,
+        "9": 0.87
+      },
+      "llm_top_5_test_accuracy": {
+        "0": 0.788,
+        "1": 0.84,
+        "2": 0.805,
+        "6": 0.886,
+        "9": 0.921
+      },
+      "llm_top_10_test_accuracy": {
+        "0": 0.832,
+        "1": 0.901,
+        "2": 0.845,
+        "6": 0.929,
+        "9": 0.932
+      },
+      "llm_top_20_test_accuracy": {
+        "0": 0.845,
+        "1": 0.91,
+        "2": 0.871,
+        "6": 0.969,
+        "9": 0.932
+      },
+      "llm_top_50_test_accuracy": {
+        "0": 0.889,
+        "1": 0.935,
+        "2": 0.9,
+        "6": 0.976,
+        "9": 0.951
+      },
+      "llm_top_100_test_accuracy": {
+        "0": 0.903,
+        "1": 0.941,
+        "2": 0.911,
+        "6": 0.982,
+        "9": 0.963
+      },
+      "sae_top_1_test_accuracy": {
+        "0": 0.727,
+        "1": 0.662,
+        "2": 0.603,
+        "6": 0.943,
+        "9": 0.929
+      },
+      "sae_top_2_test_accuracy": {
+        "0": 0.748,
+        "1": 0.736,
+        "2": 0.812,
+        "6": 0.951,
+        "9": 0.935
+      },
+      "sae_top_5_test_accuracy": {
+        "0": 0.789,
+        "1": 0.853,
+        "2": 0.866,
+        "6": 0.957,
+        "9": 0.936
+      },
+      "sae_top_10_test_accuracy": {
+        "0": 0.801,
+        "1": 0.891,
+        "2": 0.879,
+        "6": 0.959,
+        "9": 0.943
+      },
+      "sae_top_20_test_accuracy": {
+        "0": 0.834,
+        "1": 0.927,
+        "2": 0.876,
+        "6": 0.972,
+        "9": 0.95
+      },
+      "sae_top_50_test_accuracy": {
+        "0": 0.892,
+        "1": 0.94,
+        "2": 0.906,
+        "6": 0.984,
+        "9": 0.961
+      },
+      "sae_top_100_test_accuracy": {
+        "0": 0.894,
+        "1": 0.945,
+        "2": 0.913,
+        "6": 0.985,
+        "9": 0.96
+      }
+    }
+  }
+}
