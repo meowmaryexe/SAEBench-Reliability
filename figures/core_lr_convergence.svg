@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 430" font-family="Inter,Arial,sans-serif">
+<rect width="720" height="430" fill="white"/>
+<text x="30" y="34" font-size="18" font-weight="700" fill="#1a1a2e">Convergence to the bundle (exact per-document run)</text>
+<text x="30" y="55" font-size="12" fill="#555">Standard 4k SAE · Pythia-160M L8 · running means vs document count</text>
+<clipPath id="clipL"><rect x="60" y="110" width="270" height="264"/></clipPath>
+<text x="60" y="94" font-size="13" font-weight="700" fill="#1a1a2e">Running H_orig (model CE)</text>
+<line x1="60" y1="374" x2="330" y2="374" stroke="#1a1a2e" stroke-width="1.2"/>
+<line x1="60" y1="110" x2="60" y2="374" stroke="#1a1a2e" stroke-width="1.2"/>
+<line x1="60" y1="310.9" x2="330" y2="310.9" stroke="#c44e3a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="328" y="305.9" font-size="11" fill="#c44e3a" text-anchor="end">bundle 2.591</text>
+<polyline points="60.0,521.6 64.3,275.1 68.6,206.0 72.9,245.4 77.1,242.6 81.4,258.5 85.7,252.2 90.0,255.2 94.3,231.4 98.6,213.4 102.9,236.8 107.1,232.5 111.4,226.7 115.7,263.4 120.0,259.2 124.3,249.1 128.6,250.7 132.9,248.6 137.1,258.0 141.4,263.0 145.7,276.3 150.0,289.9 154.3,301.5 158.6,301.2 162.9,291.3 167.1,313.9 171.4,311.1 175.7,303.7 180.0,304.6 184.3,300.5 188.6,309.0 192.9,301.0 197.1,297.9 201.4,298.1 205.7,292.0 210.0,287.4 214.3,289.7 218.6,291.2 222.9,293.3 227.1,287.7 231.4,295.7 235.7,293.1 240.0,299.4 244.3,298.2 248.6,294.5 252.9,294.8 257.1,288.5 261.4,285.1 265.7,279.8 270.0,284.8 274.3,281.0 278.6,279.2 282.9,281.6 287.1,282.2 291.4,277.0 295.7,274.6 300.0,274.6 304.3,278.8 308.6,285.7 312.9,286.4 317.1,290.6 321.4,292.9 325.7,295.2 330.0,289.5" fill="none" stroke="#3a6ea5" stroke-width="2" clip-path="url(#clipL)"/>
+<circle cx="330.0" cy="289.5" r="3.5" fill="#3a6ea5"/>
+<text x="330.0" y="281.5" font-size="11" fill="#3a6ea5" text-anchor="end">2.656</text>
+<text x="54" y="378.0" font-size="10" fill="#555" text-anchor="end">2.400</text>
+<text x="54" y="114.0" font-size="10" fill="#555" text-anchor="end">3.200</text>
+<text x="195" y="408" font-size="11" fill="#555" text-anchor="middle"># documents</text>
+<clipPath id="clipR"><rect x="400" y="110" width="270" height="264"/></clipPath>
+<text x="400" y="94" font-size="13" font-weight="700" fill="#1a1a2e">Running Loss Recovered</text>
+<line x1="400" y1="374" x2="670" y2="374" stroke="#1a1a2e" stroke-width="1.2"/>
+<line x1="400" y1="110" x2="400" y2="374" stroke="#1a1a2e" stroke-width="1.2"/>
+<line x1="400" y1="236.1" x2="670" y2="236.1" stroke="#c44e3a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="668" y="231.1" font-size="11" fill="#c44e3a" text-anchor="end">bundle 0.9872</text>
+<polyline points="400.0,57.9 404.3,187.6 408.6,213.2 412.9,197.3 417.1,232.6 421.4,226.3 425.7,240.0 430.0,236.6 434.3,232.1 438.6,248.6 442.9,243.8 447.1,247.8 451.4,251.0 455.7,244.2 460.0,256.6 464.3,258.1 468.6,255.6 472.9,262.9 477.1,272.2 481.4,260.5 485.7,266.5 490.0,259.9 494.3,254.5 498.6,254.7 502.9,256.0 507.1,261.4 511.4,268.5 515.7,266.9 520.0,257.6 524.3,260.1 528.6,259.1 532.9,257.0 537.1,257.4 541.4,256.4 545.7,255.8 550.0,257.5 554.3,254.9 558.6,255.6 562.9,255.4 567.1,252.8 571.4,250.1 575.7,251.8 580.0,249.1 584.3,247.9 588.6,248.2 592.9,249.8 597.1,251.4 601.4,257.7 605.7,257.6 610.0,256.1 614.3,255.5 618.6,255.9 622.9,256.8 627.1,258.7 631.4,260.8 635.7,261.9 640.0,261.0 644.3,259.7 648.6,256.8 652.9,256.8 657.1,255.6 661.4,257.6 665.7,257.1 670.0,252.6" fill="none" stroke="#2e8b57" stroke-width="2" clip-path="url(#clipR)"/>
+<circle cx="670.0" cy="252.6" r="3.5" fill="#2e8b57"/>
+<text x="670.0" y="244.6" font-size="11" fill="#2e8b57" text-anchor="end">0.9866</text>
+<text x="394" y="378.0" font-size="10" fill="#555" text-anchor="end">0.9820</text>
+<text x="394" y="114.0" font-size="10" fill="#555" text-anchor="end">0.9920</text>
+<text x="535" y="408" font-size="11" fill="#555" text-anchor="middle"># documents</text>
+</svg>

@@ -4,6 +4,12 @@ __pycache__/
 venv/
 .env
 
+# secrets — never commit API keys
+openai_api_key.txt
+.openai_key
+*api_key*
+*.key
+
 results/raw/*
 results/processed/*
 !results/raw/.gitkeep

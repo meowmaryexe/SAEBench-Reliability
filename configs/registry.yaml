@@ -1,0 +1,66 @@
+# Registry of base models and released SAE suites — single source of truth for HF repos + folder
+# layouts. Reproduction consumes released SAE *weights* only (no SAE training). Each SAE folder holds
+# ae.pt + config.json + eval_results.json at: <arch_folder>/resid_post_layer_<L>/trainer_<i>  (i in 0..5).
+#
+# Verified against HuggingFace 2026-06-22.
+
+models:
+  pythia-160m-deduped:
+    hf_repo: EleutherAI/pythia-160m-deduped
+    resid_post_layer: 8
+    d_model: 768
+    hook_name: blocks.8.hook_resid_post
+    role: anchor (small / cross-model)
+  gemma-2-2b:
+    hf_repo: google/gemma-2-2b
+    resid_post_layer: 12
+    d_model: 2304
+    hook_name: blocks.12.hook_resid_post
+    role: anchor (headline Figure 2 reproduction)
+
+# Canonical architecture keys -> our loader arch (saebench_audit.sae_models.load_sae).
+architectures: [standard, topk, batchtopk, jumprelu, gated, matryoshka, panneal]
+loader_arch:
+  standard: standard
+  topk: topk
+  batchtopk: batchtopk
+  jumprelu: jumprelu
+  gated: gated
+  matryoshka: matryoshka
+  panneal: standard          # PAnneal uses the AutoEncoder (Standard) class
+
+# Two folder-naming conventions are used across the released suites:
+folder_conventions:
+  adamkarvonen:               # Pythia (all widths) + Gemma-2-2b 4k  →  "<Pascal>_<modeltag>__<date>"
+    standard:   "Standard_{modeltag}__{date}"
+    topk:       "TopK_{modeltag}__{date}"
+    batchtopk:  "BatchTopK_{modeltag}__{date}"
+    jumprelu:   "JumpRelu_{modeltag}__{date}"
+    gated:      "GatedSAE_{modeltag}__{date}"
+    matryoshka: "MatryoshkaBatchTopK_{modeltag}__{date}"
+    panneal:    "PAnneal_{modeltag}__{date}"
+  canrager:                   # Gemma-2-2b 16k/65k  →  "gemma-2-2b_<snake>_width-2pow<W>_date-<date>"
+    standard:   "gemma-2-2b_standard_new_width-2pow{wpow}_date-{date}"
+    topk:       "gemma-2-2b_top_k_width-2pow{wpow}_date-{date}"
+    batchtopk:  "gemma-2-2b_batch_top_k_width-2pow{wpow}_date-{date}"
+    jumprelu:   "gemma-2-2b_jump_relu_width-2pow{wpow}_date-{date}"
+    gated:      "gemma-2-2b_gated_width-2pow{wpow}_date-{date}"
+    matryoshka: "gemma-2-2b_matryoshka_batch_top_k_width-2pow{wpow}_date-{date}"
+    panneal:    "gemma-2-2b_p_anneal_width-2pow{wpow}_date-{date}"
+
+# The released SAE suites (7 architectures x 6 sparsities each). subpath =
+#   <folder_conventions[convention][arch]>/resid_post_layer_<layer>/trainer_<i>
+sae_suites:
+  pythia-160m_4k:   {model: pythia-160m-deduped, layer: 8,  wpow: 12, width: 4096,  convention: adamkarvonen, modeltag: pythia-160m-deduped, date: "0108", hf_repo: adamkarvonen/saebench_pythia-160m-deduped_width-2pow12_date-0108}
+  pythia-160m_16k:  {model: pythia-160m-deduped, layer: 8,  wpow: 14, width: 16384, convention: adamkarvonen, modeltag: pythia-160m-deduped, date: "0108", hf_repo: adamkarvonen/saebench_pythia-160m-deduped_width-2pow14_date-0108}
+  pythia-160m_65k:  {model: pythia-160m-deduped, layer: 8,  wpow: 16, width: 65536, convention: adamkarvonen, modeltag: pythia-160m-deduped, date: "0108", hf_repo: adamkarvonen/saebench_pythia-160m-deduped_width-2pow16_date-0108}
+  gemma-2-2b_4k:    {model: gemma-2-2b,          layer: 12, wpow: 12, width: 4096,  convention: adamkarvonen, modeltag: gemma-2-2b,          date: "0108", hf_repo: adamkarvonen/saebench_gemma-2-2b_width-2pow12_date-0108}
+  gemma-2-2b_16k:   {model: gemma-2-2b,          layer: 12, wpow: 14, width: 16384, convention: canrager,     date: "0107", hf_repo: canrager/saebench_gemma-2-2b_width-2pow14_date-0107}
+  gemma-2-2b_65k:   {model: gemma-2-2b,          layer: 12, wpow: 16, width: 65536, convention: canrager,     date: "0107", hf_repo: canrager/saebench_gemma-2-2b_width-2pow16_date-0107}
+
+# Published reference values (the canonical Core numbers, for the cross-check):
+reference_results:
+  hf_dataset: adamkarvonen/sae_bench_results_0125     # all SAEBench eval results + PCA/residual baselines
+  neuronpedia: https://www.neuronpedia.org/sae-bench/info
+
+# Validated so far (CPU): pythia-160m_4k, all 7 archs x 6 sparsities (see docs/logs/07, 08).
