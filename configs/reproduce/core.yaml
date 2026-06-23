@@ -1,0 +1,46 @@
+# Core / Loss Recovered — reproduction config.
+# Consumed by: scripts/run_metric.py --metric core --variant <name>
+# The metric is "reproduce-only" (deterministic, large clean gaps; nothing to audit beyond baselines).
+metric: core_loss_recovered
+owner: ari
+
+model: EleutherAI/pythia-160m-deduped     # anchor; Gemma run uses google/gemma-2-2b
+layer: 8                                   # resid_post layer (Gemma: 12)
+intervention: resid_post
+
+# Loss Recovered = (H* - H0) / (H_orig - H0)   [SAEBench Eq. 4]
+# CE = mean next-token cross-entropy over real (non-pad) targets.
+
+variants:
+  paper:            # authoritative paper procedure (SAEBench Table 4 / CoreEvalConfig)
+    dataset: Skylion007/openwebtext
+    context_size: 128
+    prepend_bos: true
+    tokenize_mode: packed
+    batch_size_prompts: 16
+    n_reconstruction_seqs_full: 3200     # Table 4 (use on GPU)
+    n_sparsity_seqs_full: 32000          # Table 4 (use on GPU)
+    n_reconstruction_seqs_cpu: 256       # CPU validation subset
+
+  bundle_match:     # packed bundle-match (diagnostic; absolute CE inflated vs bundle)
+    dataset: monology/pile-uncopyrighted
+    context_size: 1024
+    prepend_bos: false
+    tokenize_mode: packed
+    batch_size_prompts: 2
+    n_reconstruction_seqs_cpu: 24
+
+  bundle_exact:     # EXACT dictionary_learning loss_recovered path -> matches eval_results.json
+    dataset: monology/pile-uncopyrighted
+    context_size: 1024
+    prepend_bos: false
+    tokenize_mode: per_document
+    batch_size_prompts: 2
+    n_reconstruction_seqs_cpu: 128
+
+# Pre-registered tolerances (see docs/preregistration.md):
+tolerances:
+  loss_recovered_abs: 0.01
+  l0_rel: 0.05
+  h_orig_abs: 0.05
+  h0_rel: 0.05

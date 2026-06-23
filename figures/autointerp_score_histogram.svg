@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="Inter,Arial,sans-serif">
+<rect width="720" height="380" fill="white"/>
+<text x="30" y="32" font-size="16.5" font-weight="700" fill="#1a1a2e">AutoInterp per-latent detection scores</text>
+<text x="30" y="52" font-size="12" fill="#555">Standard 4k SAE, Pythia-160M L8, gpt-4o-mini, n=40 latents @ 96k tokens</text>
+<line x1="60" y1="300" x2="680" y2="300" stroke="#1a1a2e" stroke-width="1.2"/>
+<text x="80.7" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.00</text>
+<text x="122.0" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.07</text>
+<text x="163.3" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.14</text>
+<text x="204.7" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.21</text>
+<text x="246.0" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.29</text>
+<text x="287.3" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.36</text>
+<rect x="310.0" y="246.9" width="37.3" height="53.1" fill="#3a6ea5" opacity="0.85"/>
+<text x="328.7" y="242.9" font-size="9.5" fill="#1a1a2e" text-anchor="middle">3</text>
+<text x="328.7" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.43</text>
+<text x="370.0" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.50</text>
+<rect x="392.7" y="282.3" width="37.3" height="17.7" fill="#3a6ea5" opacity="0.85"/>
+<text x="411.3" y="278.3" font-size="9.5" fill="#1a1a2e" text-anchor="middle">1</text>
+<text x="411.3" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.57</text>
+<rect x="434.0" y="229.2" width="37.3" height="70.8" fill="#3a6ea5" opacity="0.85"/>
+<text x="452.7" y="225.2" font-size="9.5" fill="#1a1a2e" text-anchor="middle">4</text>
+<text x="452.7" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.64</text>
+<rect x="475.3" y="70.0" width="37.3" height="230.0" fill="#3a6ea5" opacity="0.85"/>
+<text x="494.0" y="66.0" font-size="9.5" fill="#1a1a2e" text-anchor="middle">13</text>
+<text x="494.0" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.71</text>
+<rect x="516.7" y="176.2" width="37.3" height="123.8" fill="#3a6ea5" opacity="0.85"/>
+<text x="535.3" y="172.2" font-size="9.5" fill="#1a1a2e" text-anchor="middle">7</text>
+<text x="535.3" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.79</text>
+<rect x="558.0" y="176.2" width="37.3" height="123.8" fill="#3a6ea5" opacity="0.85"/>
+<text x="576.7" y="172.2" font-size="9.5" fill="#1a1a2e" text-anchor="middle">7</text>
+<text x="576.7" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.86</text>
+<rect x="599.3" y="229.2" width="37.3" height="70.8" fill="#3a6ea5" opacity="0.85"/>
+<text x="618.0" y="225.2" font-size="9.5" fill="#1a1a2e" text-anchor="middle">4</text>
+<text x="618.0" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">0.93</text>
+<rect x="640.7" y="282.3" width="37.3" height="17.7" fill="#3a6ea5" opacity="0.85"/>
+<text x="659.3" y="278.3" font-size="9.5" fill="#1a1a2e" text-anchor="middle">1</text>
+<text x="659.3" y="314.0" font-size="8.5" fill="#888" text-anchor="middle">1.00</text>
+<line x1="513.6" y1="62" x2="513.6" y2="300" stroke="#3a6ea5" stroke-dasharray="4 3" stroke-width="1.4"/>
+<text x="513.6" y="58" font-size="10" fill="#3a6ea5" text-anchor="middle">mean 0.748</text>
+<line x1="494.0" y1="62" x2="494.0" y2="300" stroke="#999" stroke-dasharray="4 3" stroke-width="1.4"/>
+<text x="494.0" y="58" font-size="10" fill="#999" text-anchor="middle">null 0.714</text>
+<line x1="532.2" y1="62" x2="532.2" y2="300" stroke="#c44e3a" stroke-dasharray="4 3" stroke-width="1.4"/>
+<text x="532.2" y="58" font-size="10" fill="#c44e3a" text-anchor="middle">published 0.780</text>
+<text x="370" y="330" font-size="11.5" fill="#1a1a2e" text-anchor="middle">detection accuracy (k correct / 14)</text>
+</svg>

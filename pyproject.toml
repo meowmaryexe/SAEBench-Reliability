@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "saebench-audit"
+version = "0.1.0"
+description = "Independent reproduction and reliability audit of SAEBench evaluation metrics."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "transformers>=4.44",
+    "datasets",
+    "safetensors",
+    "huggingface_hub",
+    "zstandard",   # the Pile shards (monology/pile-uncopyrighted) are zstd-compressed
+    "numpy",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Run without installing by adding ./src to PYTHONPATH (scripts do this automatically).

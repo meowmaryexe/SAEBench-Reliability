@@ -19,12 +19,36 @@ Our current focus is:
 The project is being conducted as a reproducibility study targeting submission to TMLR and consideration for the NeurIPS 2026 Machine Learning Reproducibility Challenge (MLRC).
 
 ## Repository Structure
-- `configs/` - Experiment configurations
-- `docs/` - Project notes and preregistration
-- `figures/` - Generated figures and visualizations
-- `results/` - Raw and processed experiment outputs
-- `scripts/` - Entry-point scripts
-- `src/` - Core source code
+- `configs/` - Experiment configurations (`reproduce/`, `audit/`) + `registry.yaml`
+- `docs/` - Project notes, pre-registration, per-metric notes, dated logs
+- `figures/` - Generated figures and visualizations (SVG, via `scripts/make_figures.py`)
+- `results/` - Raw per-batch (`raw/`) and aggregated (`processed/`) outputs, by metric
+- `scripts/` - Entry-point scripts (`run_metric.py`, `aggregate_results.py`, `make_figures.py`)
+- `src/` - Core source: the `saebench_audit` package (`io`, `schema`, `statistics`, `plotting`, `sae_models`, `metrics/`)
+
+## Status (2026-06-22)
+
+| Metric (owner) | Status |
+|---|---|
+| **Core / Loss Recovered** (Ari) | ✅ **Full Core reproduced on 4k Pythia-160M**: all 42 SAEs, **every metric** (Loss Recovered, explained var, MSE, cosine, L0/L1, recon bias, density, max-cosine-sim) vs published Neuronpedia — 11/15 within <1%, weight metrics exact (Pearson ≈1.0). Methodology **proven identical to `core/main.py`** by an oracle on the real `transformer_lens` model (~1e-7) + 10 unit tests. PCA/residual baselines reproduce (LR 1.0, L0=768). 16k/65k + Gemma GPU-deferred (`configs/gpu/`). See `docs/metric_notes.md`, `tests/`, `figures/`. |
+| **AutoInterp** (Ari) | ✅ Reproduced on Pythia-160M 4k with the paper's **gpt-4o-mini** judge — faithful pipeline (8/8 unit tests, verbatim prompts). Score **converges to published** with token budget: 24k→0.710 (null floor 0.714), 96k→0.748, paper 2M→0.780. See `docs/metric_notes.md`, log #11, `figures/autointerp_convergence.svg`. |
+| SCR · TPP · Sparse Probing (Ari / Mary) | Scaffolded |
+| RAVEL · Unlearning · AutoInterp (Alor / Mary) | Pending |
+
+### Run the Core metric (CPU; resumable — re-invoke until `ALL_BATCHES_DONE`)
+
+```bash
+python scripts/run_metric.py --metric core --variant bundle_exact \
+  --local_model <PYTHIA_DIR> --local_sae_dir <SAE_DIR> --arch standard --layer 8 \
+  --n_seqs 128 --batch 2 --workdir results/raw/core_loss_recovered/standard_4k_t0_bundle_exact
+python scripts/aggregate_results.py \
+  --workdir results/raw/core_loss_recovered/standard_4k_t0_bundle_exact \
+  --out results/processed/core_loss_recovered/standard_4k_t0_bundle_exact.json
+python scripts/make_figures.py
+```
+
+On GPU, the `paper` variant scales to the full Table-4 counts (`--n_seqs 3200 --batch 16`); switch the
+model to `google/gemma-2-2b --layer 12` for the headline reproduction. Models/SAEs: `configs/registry.yaml`.
 
 # References 
 Karvonen et al. (2025). SAEBench: A Comprehensive Benchmark for Sparse Autoencoders in Language Model Interpretability.

@@ -1,0 +1,35 @@
+# Canonical SAEBench Core / Loss Recovered evaluation — GPU, paper scale.
+# Methodology = saebench_core (PROVEN identical to sae_bench/evals/core/main.py; see docs/logs/08).
+# Consumed by: scripts/run_core_gpu.py --config configs/gpu/core_gpu.yaml --suite <name>
+#
+# These are the exact SAEBench Table 4 / CoreEvalConfig settings. Nothing here runs on CPU at this
+# scale — intended for an A100-class GPU.
+
+methodology: saebench_core          # packed BOS tokens; CE & L0 exclude {bos,eos,pad}; sae.decode(sae.encode)
+
+eval:
+  dataset: Skylion007/openwebtext
+  context_size: 128                 # Table 4
+  batch_size_prompts: 16            # CoreEvalConfig default
+  n_reconstruction_seqs: 3200       # Table 4 (loss recovered)  = 200 batches x 16
+  n_sparsity_seqs: 32000            # Table 4 (sparsity)        = 2000 batches x 16
+  prepend_bos: true                 # transformer_lens ActivationsStore default
+  exclude_special_tokens_from_reconstruction: false   # core/main.py default (reconstruct all positions)
+  ignore_tokens: [bos, eos, pad]    # excluded from the CE mean and L0 (core/main.py line ~1101)
+  seed: 0
+
+runtime:
+  device: cuda
+  dtype: float32                    # CoreEvalConfig default (llm_dtype). For Gemma on smaller GPUs,
+                                    # bfloat16 is acceptable but will perturb the low-order digits.
+  download_then_delete_ae: true     # bound disk: fetch each ae.pt, eval, delete
+
+# Reference for the cross-check (canonical published Core values):
+reference:
+  hf_dataset: adamkarvonen/sae_bench_results_0125
+  tolerance_loss_recovered_abs: 0.01      # pre-registered (docs/preregistration.md)
+  tolerance_l0_rel: 0.05
+
+# Optional efficiency: H_orig and H0 are SAE-independent, so the runner may compute them once per
+# token pool and reuse across all SAEs in a suite (see scripts/run_core_gpu.py --share_baseline).
+share_baseline: true

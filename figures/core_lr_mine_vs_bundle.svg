@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 430" font-family="Inter,Arial,sans-serif">
+<rect width="720" height="430" fill="white"/>
+<text x="30" y="34" font-size="19" font-weight="700" fill="#1a1a2e">Core / Loss Recovered — mine vs SAEBench released</text>
+<text x="30" y="54" font-size="12.5" fill="#555">Standard 4k SAE · Pythia-160M L8 · exact per-document path (128 docs) vs bundled eval_results.json</text>
+<circle cx="250" cy="408" r="6" fill="#3a6ea5"/><text x="262" y="412" font-size="12" fill="#1a1a2e">mine</text>
+<circle cx="340" cy="408" r="6" fill="#c44e3a"/><text x="352" y="412" font-size="12" fill="#1a1a2e">bundle (ref)</text>
+<text x="235" y="84" font-size="13" font-weight="600" fill="#1a1a2e" text-anchor="end">Loss Recovered</text>
+<rect x="250" y="70" width="295.2" height="9" rx="4" fill="#c44e3a" opacity="0.30"/>
+<rect x="250" y="83" width="295.0" height="9" rx="4" fill="#3a6ea5"/>
+<text x="557.2" y="89" font-size="12.5" fill="#1a1a2e">0.9866  vs  0.9872</text>
+<text x="757.2" y="89" font-size="12.5" font-weight="700" fill="#2e8b57">&#916; 0.1%</text>
+<text x="235" y="150" font-size="13" font-weight="600" fill="#1a1a2e" text-anchor="end">L0</text>
+<rect x="250" y="136" width="295.2" height="9" rx="4" fill="#c44e3a" opacity="0.30"/>
+<rect x="250" y="149" width="294.2" height="9" rx="4" fill="#3a6ea5"/>
+<text x="557.2" y="155" font-size="12.5" fill="#1a1a2e">464.0  vs  465.6</text>
+<text x="757.2" y="155" font-size="12.5" font-weight="700" fill="#2e8b57">&#916; 0.3%</text>
+<text x="235" y="216" font-size="13" font-weight="600" fill="#1a1a2e" text-anchor="end">H_orig (CE)</text>
+<rect x="250" y="202" width="295.2" height="9" rx="4" fill="#c44e3a" opacity="0.30"/>
+<rect x="250" y="215" width="302.6" height="9" rx="4" fill="#3a6ea5"/>
+<text x="557.2" y="221" font-size="12.5" fill="#1a1a2e">2.656  vs  2.591</text>
+<text x="757.2" y="221" font-size="12.5" font-weight="700" fill="#2e8b57">&#916; 2.5%</text>
+<text x="235" y="282" font-size="13" font-weight="600" fill="#1a1a2e" text-anchor="end">H* (recon CE)</text>
+<rect x="250" y="268" width="295.2" height="9" rx="4" fill="#c44e3a" opacity="0.30"/>
+<rect x="250" y="281" width="302.4" height="9" rx="4" fill="#3a6ea5"/>
+<text x="557.2" y="287" font-size="12.5" fill="#1a1a2e">2.775  vs  2.709</text>
+<text x="757.2" y="287" font-size="12.5" font-weight="700" fill="#2e8b57">&#916; 2.4%</text>
+<text x="235" y="348" font-size="13" font-weight="600" fill="#1a1a2e" text-anchor="end">H0 (zero-abl)</text>
+<rect x="250" y="334" width="295.2" height="9" rx="4" fill="#c44e3a" opacity="0.30"/>
+<rect x="250" y="347" width="283.6" height="9" rx="4" fill="#3a6ea5"/>
+<text x="557.2" y="353" font-size="12.5" fill="#1a1a2e">12.470  vs  12.979</text>
+<text x="757.2" y="353" font-size="12.5" font-weight="700" fill="#2e8b57">&#916; 3.9%</text>
+</svg>
