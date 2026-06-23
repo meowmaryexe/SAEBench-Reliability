@@ -44,3 +44,22 @@ Build a minimal runner that:
 2. Filters to one SAE location for smoke testing.
 3. Runs only `tpp`, `scr`, and `sparse_probing`.
 4. Writes outputs under `results/raw/reproduction_smoke/`.
+
+## Colab Enumeration Result
+
+Date: 2026-06-23
+
+The Pythia-160M 16k-width repo successfully enumerated 42 SAE locations.
+
+This matches the expected structure:
+
+- 7 architectures
+- 6 trainer/L0 settings per architecture
+- layer 8 residual stream
+
+Example locations:
+
+- `BatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0`
+- `JumpRelu_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0`
+- `GatedSAE_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0`
+
