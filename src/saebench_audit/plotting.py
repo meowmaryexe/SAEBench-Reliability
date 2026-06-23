@@ -66,6 +66,65 @@ def fig_frontier(rows, title="Sparsity–Fidelity frontier (Core / Loss Recovere
     return "\n".join(s)
 
 
+def fig_autointerp_score_hist(scores, mean, published, null_baseline, subtitle="") -> str:
+    """Histogram of per-latent detection scores (each is k/14)."""
+    import math
+    from collections import Counter
+    W, H = 720, 380
+    ax0, ax1, ay0, ay1 = 60, 680, 70, 300
+    # detection scores are multiples of 1/14
+    bins = [round(i / 14, 4) for i in range(15)]
+    c = Counter(round(s, 4) for s in scores)
+    counts = [c.get(b, 0) for b in bins]
+    ymax = max(counts) or 1
+    bw = (ax1 - ax0) / 15
+    def Y(v): return ay1 - v / ymax * (ay1 - ay0)
+    s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="Inter,Arial,sans-serif">',
+         f'<rect width="{W}" height="{H}" fill="white"/>',
+         f'<text x="30" y="32" font-size="16.5" font-weight="700" fill="{INK}">AutoInterp per-latent detection scores</text>',
+         f'<text x="30" y="52" font-size="12" fill="#555">{_esc(subtitle)}</text>',
+         f'<line x1="{ax0}" y1="{ay1}" x2="{ax1}" y2="{ay1}" stroke="{INK}" stroke-width="1.2"/>']
+    for i, (b, n) in enumerate(zip(bins, counts)):
+        x = ax0 + i * bw
+        if n:
+            s.append(f'<rect x="{x+2:.1f}" y="{Y(n):.1f}" width="{bw-4:.1f}" height="{ay1-Y(n):.1f}" fill="{MINE}" opacity="0.85"/>')
+            s.append(f'<text x="{x+bw/2:.1f}" y="{Y(n)-4:.1f}" font-size="9.5" fill="{INK}" text-anchor="middle">{n}</text>')
+        s.append(f'<text x="{x+bw/2:.1f}" y="{ay1+14:.1f}" font-size="8.5" fill="#888" text-anchor="middle">{b:.2f}</text>')
+    for v, col, lab in [(mean, MINE, f"mean {mean:.3f}"), (null_baseline, "#999", f"null {null_baseline:.3f}"),
+                        (published, REF, f"published {published:.3f}")]:
+        xx = ax0 + (v * 14) * bw + bw / 2
+        s.append(f'<line x1="{xx:.1f}" y1="{ay0-8}" x2="{xx:.1f}" y2="{ay1}" stroke="{col}" stroke-dasharray="4 3" stroke-width="1.4"/>')
+        s.append(f'<text x="{xx:.1f}" y="{ay0-12}" font-size="10" fill="{col}" text-anchor="middle">{lab}</text>')
+    s.append(f'<text x="{(ax0+ax1)/2:.0f}" y="{ay1+30}" font-size="11.5" fill="{INK}" text-anchor="middle">detection accuracy (k correct / 14)</text>')
+    s.append('</svg>')
+    return "\n".join(s)
+
+
+def fig_autointerp_showcase(rows, subtitle="") -> str:
+    """Table: latent -> gpt-4o-mini explanation -> score, for a sample of latents."""
+    W = 760; rowh = 26; H = 80 + rowh * (len(rows) + 1)
+    s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="Inter,Arial,sans-serif">',
+         f'<rect width="{W}" height="{H}" fill="white"/>',
+         f'<text x="30" y="32" font-size="16.5" font-weight="700" fill="{INK}">AutoInterp explanations (gpt-4o-mini judge)</text>',
+         f'<text x="30" y="52" font-size="12" fill="#555">{_esc(subtitle)}</text>']
+    y0 = 72
+    s.append(f'<text x="40" y="{y0}" font-size="11" font-weight="700" fill="{INK}">latent</text>')
+    s.append(f'<text x="110" y="{y0}" font-size="11" font-weight="700" fill="{INK}">explanation</text>')
+    s.append(f'<text x="{W-70}" y="{y0}" font-size="11" font-weight="700" fill="{INK}">score</text>')
+    for i, r in enumerate(rows):
+        y = y0 + 12 + (i + 1) * rowh
+        sc = r["score"]
+        col = OK if sc and sc >= 0.78 else (MINE if sc and sc >= 0.715 else "#b8860b")
+        if i % 2 == 0:
+            s.append(f'<rect x="30" y="{y-rowh+8:.0f}" width="{W-60}" height="{rowh}" fill="#f7f7fa"/>')
+        s.append(f'<text x="40" y="{y}" font-size="11" fill="{INK}">{r["latent"]}</text>')
+        expl = _esc((r.get("explanation") or "")[:78])
+        s.append(f'<text x="110" y="{y}" font-size="11" fill="#333">{expl}</text>')
+        s.append(f'<text x="{W-70}" y="{y}" font-size="11" font-weight="700" fill="{col}">{"" if sc is None else f"{sc:.3f}"}</text>')
+    s.append('</svg>')
+    return "\n".join(s)
+
+
 def fig_autointerp_convergence(points, published, null_baseline,
                                title="AutoInterp reproduction — score converges to published with token budget",
                                subtitle="") -> str:

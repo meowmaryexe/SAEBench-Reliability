@@ -52,6 +52,31 @@ def main():
         open(os.path.join(FIG, "core_full_metrics_vs_neuronpedia.svg"), "w").write(svg5)
         print("wrote figures/core_full_metrics_vs_neuronpedia.svg")
 
+    # --- AutoInterp figures ---
+    aproc = os.path.join(ROOT, "results", "processed", "autointerp")
+    conv = os.path.join(aproc, "autointerp_vs_published.json")
+    if os.path.exists(conv):
+        c = json.load(open(conv))
+        pts = [(p["n_tokens"], p["autointerp_score"]) for p in c["convergence_standard_t0"] if p["n_tokens"] < 2_000_000]
+        open(os.path.join(FIG, "autointerp_convergence.svg"), "w").write(
+            plotting.fig_autointerp_convergence(pts, 0.7803, c["null_baseline"],
+                subtitle="Standard 4k SAE, Pythia-160M L8, judge = gpt-4o-mini (the paper's judge)"))
+        print("wrote figures/autointerp_convergence.svg")
+    r96 = os.path.join(aproc, "standard_4k_t0_autointerp_96k.json")
+    if os.path.exists(r96):
+        d = json.load(open(r96))
+        rows = [r for r in d["per_latent"] if r.get("score") is not None]
+        scores = [r["score"] for r in rows]
+        open(os.path.join(FIG, "autointerp_score_histogram.svg"), "w").write(
+            plotting.fig_autointerp_score_hist(scores, d["autointerp_score"], 0.7803, 0.7143,
+                subtitle=f"Standard 4k SAE, Pythia-160M L8, gpt-4o-mini, n={len(scores)} latents @ 96k tokens"))
+        rs = sorted(rows, key=lambda r: -r["score"])
+        sample = rs[:4] + rs[len(rs)//2-2:len(rs)//2+2] + rs[-4:]
+        open(os.path.join(FIG, "autointerp_explanations_showcase.svg"), "w").write(
+            plotting.fig_autointerp_showcase(sample,
+                subtitle="Standard 4k SAE, Pythia-160M L8 — sample latents (high / mid / low detection score)"))
+        print("wrote figures/autointerp_score_histogram.svg + autointerp_explanations_showcase.svg")
+
 
 if __name__ == "__main__":
     main()
