@@ -139,3 +139,33 @@ Command:
 
 Notes:
 Use real GPU or reduce config sizes for future smoke tests.
+
+## Failed Local Attempt: TPP Acceptance Test on MPS
+
+### Command
+
+```bash
+python -m pytest -s tests/acceptance/test_scr_and_tpp.py::test_tpp_end_to_end_different_seed
+```
+
+### Result
+
+Failed due to local Apple Silicon MPS out-of-memory.
+
+### Error Summary
+
+```text
+RuntimeError: MPS backend out of memory
+MPS allocated: 9.91 GiB
+Other allocations: 7.84 GiB
+Max allowed: 18.13 GiB
+Tried to allocate 1.95 GiB
+```
+
+### Interpretation
+
+The reduced official TPP acceptance test reached the SAE encoding path but exceeded available local MPS memory. This appears to be a hardware/backend limitation rather than a benchmark implementation issue.
+
+### Next Step
+
+Move SCR/TPP smoke tests to a CUDA GPU environment, starting with Google Colab.
