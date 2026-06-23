@@ -126,3 +126,16 @@ Pythia-160M was the intended first target, but `get_saes_from_regex()` returned 
 Current hypothesis: Pythia-160M SAEs may require a custom loading path rather than the SAE Lens registry path used by `scr_and_tpp/main.py`.
 
 For now, Pythia-70M is being used only as a smoke test to verify the SCR/TPP execution path.
+
+### Run 001: TPP smoke test, Pythia-70M
+
+Status: stopped manually.
+
+Reason:
+Process stayed alive but produced no output JSON and appeared to be crawling/stalled on local MPS.
+
+Command:
+[paste command]
+
+Notes:
+Use real GPU or reduce config sizes for future smoke tests.
