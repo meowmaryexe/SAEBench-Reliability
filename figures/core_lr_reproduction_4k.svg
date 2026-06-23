@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 500" font-family="Inter,Arial,sans-serif">
+<rect width="520" height="500" fill="white"/>
+<text x="30" y="32" font-size="17" font-weight="700" fill="#1a1a2e">Reproduction: mine vs released</text>
+<text x="30" y="52" font-size="12" fill="#555">Pythia-160M L8 · 4k width · 7 architectures × 6 sparsities · per-document ctx1024</text>
+<line x1="80.0" y1="430.0" x2="430.0" y2="70.0" stroke="#bbb" stroke-dasharray="5 4"/>
+<text x="426.0" y="86.0" font-size="10" fill="#999" text-anchor="end">y = x</text>
+<line x1="80" y1="430" x2="430" y2="430" stroke="#1a1a2e" stroke-width="1.2"/>
+<line x1="80" y1="70" x2="80" y2="430" stroke="#1a1a2e" stroke-width="1.2"/>
+<text x="60.1" y="445" font-size="9.5" fill="#555" text-anchor="middle">0.90</text>
+<text x="74" y="453.5" font-size="9.5" fill="#555" text-anchor="end">0.90</text>
+<text x="132.6" y="445" font-size="9.5" fill="#555" text-anchor="middle">0.92</text>
+<text x="74" y="378.9" font-size="9.5" fill="#555" text-anchor="end">0.92</text>
+<text x="205.2" y="445" font-size="9.5" fill="#555" text-anchor="middle">0.94</text>
+<text x="74" y="304.3" font-size="9.5" fill="#555" text-anchor="end">0.94</text>
+<text x="277.7" y="445" font-size="9.5" fill="#555" text-anchor="middle">0.96</text>
+<text x="74" y="229.7" font-size="9.5" fill="#555" text-anchor="end">0.96</text>
+<text x="350.2" y="445" font-size="9.5" fill="#555" text-anchor="middle">0.98</text>
+<text x="74" y="155.1" font-size="9.5" fill="#555" text-anchor="end">0.98</text>
+<text x="422.7" y="445" font-size="9.5" fill="#555" text-anchor="middle">1.00</text>
+<text x="74" y="80.5" font-size="9.5" fill="#555" text-anchor="end">1.00</text>
+<circle cx="197.8" cy="286.7" r="3.4" fill="#2e8b57" opacity="0.85"/>
+<circle cx="279.3" cy="209.7" r="3.4" fill="#2e8b57" opacity="0.85"/>
+<circle cx="334.7" cy="158.9" r="3.4" fill="#2e8b57" opacity="0.85"/>
+<circle cx="377.8" cy="120.0" r="3.4" fill="#2e8b57" opacity="0.85"/>
+<circle cx="406.6" cy="92.1" r="3.4" fill="#2e8b57" opacity="0.85"/>
+<circle cx="420.1" cy="79.3" r="3.4" fill="#2e8b57" opacity="0.85"/>
+<circle cx="418.9" cy="82.5" r="3.4" fill="#d98c00" opacity="0.85"/>
+<circle cx="407.6" cy="91.4" r="3.4" fill="#d98c00" opacity="0.85"/>
+<circle cx="388.9" cy="111.1" r="3.4" fill="#d98c00" opacity="0.85"/>
+<circle cx="345.2" cy="153.3" r="3.4" fill="#d98c00" opacity="0.85"/>
+<circle cx="294.5" cy="204.7" r="3.4" fill="#d98c00" opacity="0.85"/>
+<circle cx="245.4" cy="252.8" r="3.4" fill="#d98c00" opacity="0.85"/>
+<circle cx="177.6" cy="315.5" r="3.4" fill="#8e44ad" opacity="0.85"/>
+<circle cx="279.2" cy="216.1" r="3.4" fill="#8e44ad" opacity="0.85"/>
+<circle cx="340.9" cy="159.5" r="3.4" fill="#8e44ad" opacity="0.85"/>
+<circle cx="381.2" cy="120.1" r="3.4" fill="#8e44ad" opacity="0.85"/>
+<circle cx="409.8" cy="91.2" r="3.4" fill="#8e44ad" opacity="0.85"/>
+<circle cx="420.1" cy="80.8" r="3.4" fill="#8e44ad" opacity="0.85"/>
+<circle cx="168.7" cy="323.0" r="3.4" fill="#16a3a3" opacity="0.85"/>
+<circle cx="267.0" cy="226.2" r="3.4" fill="#16a3a3" opacity="0.85"/>
+<circle cx="327.0" cy="170.2" r="3.4" fill="#16a3a3" opacity="0.85"/>
+<circle cx="373.8" cy="124.7" r="3.4" fill="#16a3a3" opacity="0.85"/>
+<circle cx="402.7" cy="99.2" r="3.4" fill="#16a3a3" opacity="0.85"/>
+<circle cx="420.1" cy="79.9" r="3.4" fill="#16a3a3" opacity="0.85"/>
+<circle cx="410.7" cy="91.8" r="3.4" fill="#7f8c8d" opacity="0.85"/>
+<circle cx="397.7" cy="106.9" r="3.4" fill="#7f8c8d" opacity="0.85"/>
+<circle cx="370.9" cy="132.5" r="3.4" fill="#7f8c8d" opacity="0.85"/>
+<circle cx="299.1" cy="201.4" r="3.4" fill="#7f8c8d" opacity="0.85"/>
+<circle cx="236.1" cy="262.5" r="3.4" fill="#7f8c8d" opacity="0.85"/>
+<circle cx="180.4" cy="313.2" r="3.4" fill="#7f8c8d" opacity="0.85"/>
+<circle cx="376.4" cy="123.7" r="3.4" fill="#c44e3a" opacity="0.85"/>
+<circle cx="355.3" cy="145.8" r="3.4" fill="#c44e3a" opacity="0.85"/>
+<circle cx="322.5" cy="176.7" r="3.4" fill="#c44e3a" opacity="0.85"/>
+<circle cx="260.4" cy="242.7" r="3.4" fill="#c44e3a" opacity="0.85"/>
+<circle cx="202.0" cy="306.0" r="3.4" fill="#c44e3a" opacity="0.85"/>
+<circle cx="98.6" cy="411.3" r="3.4" fill="#c44e3a" opacity="0.85"/>
+<circle cx="197.2" cy="310.8" r="3.4" fill="#3a6ea5" opacity="0.85"/>
+<circle cx="273.5" cy="216.9" r="3.4" fill="#3a6ea5" opacity="0.85"/>
+<circle cx="330.9" cy="164.0" r="3.4" fill="#3a6ea5" opacity="0.85"/>
+<circle cx="372.5" cy="122.4" r="3.4" fill="#3a6ea5" opacity="0.85"/>
+<circle cx="407.7" cy="92.3" r="3.4" fill="#3a6ea5" opacity="0.85"/>
+<circle cx="418.8" cy="80.7" r="3.4" fill="#3a6ea5" opacity="0.85"/>
+<text x="255" y="466" font-size="12" fill="#1a1a2e" text-anchor="middle">Released Loss Recovered (bundled eval_results.json)</text>
+<text x="24" y="250" font-size="12" fill="#1a1a2e" text-anchor="middle" transform="rotate(-90 24 250)">My Loss Recovered</text>
+<text x="94" y="86" font-size="11" fill="#1a1a2e">n = 42 SAEs (7 arch &#215; 6 sparsity)</text>
+<text x="94" y="102" font-size="11" fill="#1a1a2e">max |&#916;| = 0.0059  ·  mean |&#916;| = 0.0013</text>
+<text x="94" y="118" font-size="11" fill="#2e8b57">Pearson r = 0.9984  ·  all within &#177;0.01</text>
+</svg>

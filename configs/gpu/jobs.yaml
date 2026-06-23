@@ -1,0 +1,41 @@
+# Full Core / Loss Recovered job matrix for GPU, organized into compute tiers (project plan §4).
+# Each job = one SAE suite (resolves to 7 architectures x 6 sparsities = 42 SAEs).
+# Run with: scripts/run_core_gpu.py --config configs/gpu/core_gpu.yaml --suite <suite>
+# Suites + repos are defined in configs/registry.yaml.
+
+archs: [standard, topk, batchtopk, jumprelu, gated, matryoshka, panneal]
+trainers: [0, 1, 2, 3, 4, 5]        # the 6 sparsity levels per architecture
+
+tiers:
+  tier0_headline:
+    description: Paper headline — 65k Gemma-2-2B, the central Figure 2 reproduction.
+    suites: [gemma-2-2b_65k]
+    n_saes: 42
+
+  tier1_scaling_and_crossmodel:
+    description: Dictionary-size scaling (add 4k/16k) + cross-model (Pythia-160M all widths).
+    suites: [gemma-2-2b_4k, gemma-2-2b_16k, pythia-160m_4k, pythia-160m_16k, pythia-160m_65k]
+    n_saes: 210
+    note: pythia-160m_4k already reproduced on CPU (docs/logs/07) — rerun under saebench_core to publish
+          canonical-methodology numbers and confirm CPU↔GPU agreement.
+
+  full:
+    description: Everything — 6 suites x 42 SAEs.
+    suites: [pythia-160m_4k, pythia-160m_16k, pythia-160m_65k, gemma-2-2b_4k, gemma-2-2b_16k, gemma-2-2b_65k]
+    n_saes: 252
+
+# Compute estimates (planning, ±50%; anchored to paper Appendix A: RTX3090, 16k Gemma ≈ 9 min/SAE Core).
+# Core is the cheapest of the 8 metrics; deterministic.
+compute_estimates:
+  per_sae_minutes:
+    pythia-160m_4k: 1      # tiny model, small SAE
+    pythia-160m_16k: 2
+    pythia-160m_65k: 4
+    gemma-2-2b_4k: 5
+    gemma-2-2b_16k: 9      # Appendix A anchor
+    gemma-2-2b_65k: 16
+  tier0_gpu_hours: ~11     # 42 x 16 min
+  full_gpu_hours: ~40      # all 252 SAEs, single A100; ~1 day. Parallelize across GPUs to compress.
+
+# After running: aggregate (scripts/aggregate_results.py), then compare to reference_results
+# (configs/registry.yaml -> adamkarvonen/sae_bench_results_0125) against the pre-registered tolerances.
