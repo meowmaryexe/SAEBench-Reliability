@@ -8,6 +8,8 @@ results/raw/*
 results/processed/*
 !results/raw/.gitkeep
 !results/processed/.gitkeep
+!results/raw/smoke_tests/
+!results/raw/smoke_tests/**
 
 *.log
 .DS_Store

@@ -1,0 +1,122 @@
+{
+  "sae_bench_pythia70m_sweep_topk_ctx128_0730_blocks.4.hook_resid_post__trainer_10": {
+    "eval_type_id": "scr",
+    "eval_config": {
+      "random_seed": 48,
+      "dataset_names": [
+        "LabHC/bias_in_bios_class_set1"
+      ],
+      "perform_scr": true,
+      "early_stopping_patience": 20,
+      "train_set_size": 4000,
+      "test_set_size": 1000,
+      "context_length": 128,
+      "probe_train_batch_size": 16,
+      "probe_test_batch_size": 500,
+      "probe_epochs": 20,
+      "probe_lr": 0.001,
+      "probe_l1_penalty": 0.001,
+      "sae_batch_size": 250,
+      "llm_batch_size": 500,
+      "llm_dtype": "float32",
+      "lower_vram_usage": true,
+      "model_name": "pythia-70m-deduped",
+      "n_values": [
+        10
+      ],
+      "column1_vals_lookup": {
+        "LabHC/bias_in_bios_class_set1": [
+          [
+            "professor",
+            "nurse"
+          ]
+        ]
+      }
+    },
+    "eval_id": "3b870e32-4fc7-4a12-90b5-679c29fdb2e7",
+    "datetime_epoch_millis": 1782199563895,
+    "eval_result_metrics": {
+      "scr_metrics": {
+        "scr_dir1_threshold_2": null,
+        "scr_metric_threshold_2": null,
+        "scr_dir2_threshold_2": null,
+        "scr_dir1_threshold_5": null,
+        "scr_metric_threshold_5": null,
+        "scr_dir2_threshold_5": null,
+        "scr_dir1_threshold_10": 0.8357665734093227,
+        "scr_metric_threshold_10": 0.8357665734093227,
+        "scr_dir2_threshold_10": 0.5411764623384583,
+        "scr_dir1_threshold_20": null,
+        "scr_metric_threshold_20": null,
+        "scr_dir2_threshold_20": null,
+        "scr_dir1_threshold_50": null,
+        "scr_metric_threshold_50": null,
+        "scr_dir2_threshold_50": null,
+        "scr_dir1_threshold_100": null,
+        "scr_metric_threshold_100": null,
+        "scr_dir2_threshold_100": null,
+        "scr_dir1_threshold_500": null,
+        "scr_metric_threshold_500": null,
+        "scr_dir2_threshold_500": null
+      }
+    },
+    "eval_result_details": [
+      {
+        "dataset_name": "LabHC/bias_in_bios_class_set1_scr_professor_nurse_results",
+        "scr_dir1_threshold_2": null,
+        "scr_metric_threshold_2": null,
+        "scr_dir2_threshold_2": null,
+        "scr_dir1_threshold_5": null,
+        "scr_metric_threshold_5": null,
+        "scr_dir2_threshold_5": null,
+        "scr_dir1_threshold_10": 0.8357665734093227,
+        "scr_metric_threshold_10": 0.8357665734093227,
+        "scr_dir2_threshold_10": 0.5411764623384583,
+        "scr_dir1_threshold_20": null,
+        "scr_metric_threshold_20": null,
+        "scr_dir2_threshold_20": null,
+        "scr_dir1_threshold_50": null,
+        "scr_metric_threshold_50": null,
+        "scr_dir2_threshold_50": null,
+        "scr_dir1_threshold_100": null,
+        "scr_metric_threshold_100": null,
+        "scr_dir2_threshold_100": null,
+        "scr_dir1_threshold_500": null,
+        "scr_metric_threshold_500": null,
+        "scr_dir2_threshold_500": null
+      }
+    ],
+    "sae_bench_commit_hash": "8042bb3828c6340da8d12062324e92b2077c571c",
+    "sae_lens_id": "blocks.4.hook_resid_post__trainer_10",
+    "sae_lens_release_id": "sae_bench_pythia70m_sweep_topk_ctx128_0730",
+    "sae_lens_version": "6.44.4",
+    "sae_cfg_dict": {
+      "d_in": 512,
+      "d_sae": 16384,
+      "dtype": "float32",
+      "device": "cuda",
+      "apply_b_dec_to_input": true,
+      "normalize_activations": "none",
+      "reshape_activations": "none",
+      "metadata": {
+        "sae_lens_version": "6.44.4",
+        "sae_lens_training_version": null,
+        "model_name": "pythia-70m-deduped",
+        "hook_name": "blocks.4.hook_resid_post",
+        "hook_head_index": null,
+        "prepend_bos": true,
+        "dataset_path": "monology/pile-uncopyrighted",
+        "context_size": 128,
+        "neuronpedia_id": "pythia-70m-deduped/4-sae_bench-topk-res-16k__trainer_10_step_final",
+        "hook_layer": 4,
+        "dataset_trust_remote_code": null,
+        "model_from_pretrained_kwargs": {},
+        "exclude_special_tokens": null
+      },
+      "k": 80,
+      "rescale_acts_by_decoder_norm": false,
+      "architecture": "topk"
+    },
+    "eval_result_unstructured": null
+  }
+}
