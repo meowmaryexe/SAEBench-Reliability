@@ -33,12 +33,13 @@ per-document path, 12 docs, shared baseline (`scripts/run_suite.py`):
 
 | Metric | Result |
 |---|---|
-| max \|Δ Loss Recovered\| vs released | **0.0059** (mean 0.0013) — all within the 0.01 band ✅ |
+| max \|Δ Loss Recovered\| vs released | **0.0051** (mean 0.0013) — all within the 0.01 band ✅ |
 | L0 relative error | max **3.8%**, mean 1.8% — all within 5% ✅ |
 | mine vs released Loss Recovered | **Pearson r = 0.9984, Spearman ρ = 0.9966** ✅ |
 
-Per-architecture max \|ΔLR\|: Standard 0.0010 · TopK 0.0038 · BatchTopK 0.0059 · JumpRelu 0.0038 ·
-GatedSAE 0.0019 · Matryoshka 0.0042 · PAnneal 0.0036. TopK-family L0 reproduces the exact k
+(exclude_special_tokens_from_reconstruction=True, matching the published run; see log #12.)
+Per-architecture max \|ΔLR\|: Standard 0.0051 · TopK 0.0027 · BatchTopK 0.0029 · JumpRelu 0.0026 ·
+GatedSAE 0.0017 · Matryoshka 0.0026 · PAnneal 0.0020. TopK-family L0 reproduces the exact k
 (20/40/80/160/320/640). The sparsity–fidelity frontier and architecture ranking reproduce (figures
 `core_lr_frontier_4k.svg`, `core_lr_reproduction_4k.svg`). Full detail: `logs/2026-06-22_07`.
 

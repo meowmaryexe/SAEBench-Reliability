@@ -14,7 +14,10 @@ eval:
   n_reconstruction_seqs: 3200       # Table 4 (loss recovered)  = 200 batches x 16
   n_sparsity_seqs: 32000            # Table 4 (sparsity)        = 2000 batches x 16
   prepend_bos: true                 # transformer_lens ActivationsStore default
-  exclude_special_tokens_from_reconstruction: false   # core/main.py default (reconstruct all positions)
+  exclude_special_tokens_from_reconstruction: true    # the PUBLISHED 0125 run used True (verified in its
+                                    # eval_config). Effect on Loss Recovered is ~1e-4 (BOS-only recon), but
+                                    # set True for exact faithfulness. NOTE: SAEBench's *function* default is
+                                    # False; the published *run* passed --exclude_special_tokens_from_reconstruction.
   ignore_tokens: [bos, eos, pad]    # excluded from the CE mean and L0 (core/main.py line ~1101)
   seed: 0
 

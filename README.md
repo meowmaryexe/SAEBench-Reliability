@@ -28,6 +28,9 @@ The project is being conducted as a reproducibility study targeting submission t
 
 ## Status (2026-06-22)
 
+**Running at paper scale on a GPU** (Core + AutoInterp, both anchor models × 4k/16k/65k): see the
+step-by-step runbook **[`docs/GPU_SETUP.md`](docs/GPU_SETUP.md)**.
+
 | Metric (owner) | Status |
 |---|---|
 | **Core / Loss Recovered** (Ari) | ✅ **Full Core reproduced on 4k Pythia-160M**: all 42 SAEs, **every metric** (Loss Recovered, explained var, MSE, cosine, L0/L1, recon bias, density, max-cosine-sim) vs published Neuronpedia — 11/15 within <1%, weight metrics exact (Pearson ≈1.0). Methodology **proven identical to `core/main.py`** by an oracle on the real `transformer_lens` model (~1e-7) + 10 unit tests. PCA/residual baselines reproduce (LR 1.0, L0=768). 16k/65k + Gemma GPU-deferred (`configs/gpu/`). See `docs/metric_notes.md`, `tests/`, `figures/`. |

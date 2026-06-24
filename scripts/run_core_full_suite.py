@@ -74,13 +74,24 @@ def build_baseline(model, layer, recon_batches, sparsity_batches, special, path)
 
 
 @torch.no_grad()
-def eval_sae(model, sae, layer, base, special):
-    # reconstruction CE (per-SAE forward) + Loss Recovered
+def eval_sae(model, sae, layer, base, special, exclude_special=True):
+    # reconstruction CE (per-SAE forward) + Loss Recovered.
+    # exclude_special=True (the PUBLISHED 0125 setting): keep the ORIGINAL activation at BOS/EOS/PAD
+    # positions and reconstruct only the rest (matches core/main.py standard_replacement_hook + mask).
+    lm = get_decoder_layers(model)[layer]
     co, cs, ca = [], [], []
     for rb in base["recon"]:
         bt = rb["tokens"]
-        with ResidPostIntervention(model, layer, sae, "recon"):
-            ce_s = per_token_ce(model(bt).logits, bt)
+        rmask = not_special_mask(bt, special) if exclude_special else torch.ones_like(bt, dtype=torch.bool)
+
+        def recon_hook(m, i, o):
+            is_t = isinstance(o, tuple); x = o[0] if is_t else o
+            xh = sae.decode(sae.encode(x.to(torch.float32))).to(x.dtype)
+            xh = torch.where(rmask[..., None], xh, x)
+            return (xh,) + tuple(o[1:]) if is_t else xh
+
+        h = lm.register_forward_hook(recon_hook)
+        ce_s = per_token_ce(model(bt).logits, bt); h.remove()
         m = not_special_mask(bt, special)[:, :-1]
         co.append(rb["ce_orig"][m]); cs.append(ce_s[m]); ca.append(rb["ce_abl"][m])
     ce_o = torch.cat(co).mean(); ce_s = torch.cat(cs).mean(); ce_a = torch.cat(ca).mean()
