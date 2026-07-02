@@ -109,6 +109,45 @@ methodology (an LLM-judge metric is noisy by design — the paper itself flags t
 
 ---
 
+## Absorption (first-letter feature absorption) 🚧 (reproduce-only) — owner: Alor
+
+**Definition (paper App. D / Table 8).** For each first letter, a ground-truth LR probe is trained on
+the residual stream over an ICL spelling task; k-sparse probing finds the SAE's main/split latents.
+**Absorption** is when, on a probe true-positive token, the main latents don't fire but a probe-aligned
+latent carries the concept. Two headline scores reported: `mean_absorption_fraction_score` and
+`mean_full_absorption_score` (+ `mean_num_split_features` and the three `std_dev_*`).
+
+**Implementation — wrap upstream.** `src/saebench_audit/metrics/absorption.py` is a thin wrapper around
+`sae_bench.evals.absorption` (sae-bench 0.6.0): we run the authors' code end-to-end inside this repo's
+resumable per-SAE `run_absorption.py → aggregate_results.py --metric absorption` flow, exposing the four
+hardcoded thresholds as config for the Stage-2 audit toggle. (Matches the Probe-Rig "wrap, don't
+reimplement" spec; independent reimplementation deferred.) **Runs under a dedicated pinned venv**
+(`/Users/alor/saebench-absorption-env/.venv`): `sae_bench` + `sae_lens` + `transformer_lens 2.16.1`
+with **`transformers` pinned `<5`** — transformers 5 removed `GPTNeoXConfig.rotary_pct`, which
+transformer_lens 2.16.1 still reads when loading Pythia (Mary's shared venv has transformers 5.x and
+currently cannot load Pythia via transformer_lens). Kept isolated so the shared venv is untouched.
+
+**Two code-vs-paper faithfulness facts (we adopt the shipped code to match numbers):**
+1. **Shipped thresholds ≠ Table 8.** Cosine gate **0.1** (fraction) / **0.025** (full), projection-
+   proportion **0.4**, max-absorbing-latents **3** — hardcoded module constants
+   (`feature_absorption.py:34-44`), vs Table 8's τ_ps=−1, τ_pa=0, A_max=dict. Stage-1 uses shipped;
+   toggling to Table 8 is a Stage-2 audit action (forces a rerun — the raw df is cached by
+   (layer, sae_name) only).
+2. **`random_seed=42` is declared but never applied** → run-to-run drift. We report both scores + their
+   std devs and characterize drift explicitly; the reproduction bar is drift-aware (see preregistration).
+
+**SAE loading.** Released dictionary_learning SAEs (`ae.pt`+`config.json`) are loaded into sae_lens-
+compatible objects via upstream `TRAINER_LOADERS` and handed to `run_eval` as `[(name, sae)]`.
+
+**Status.** Wrapper + resumable runner + aggregation + 8/8 unit tests
+(`tests/test_absorption_units.py`) landed. Green pipeline on Pythia-160M 4k Standard trainer_0 (CPU) →
+then 42-SAE suite + published comparison. Feasibility watch: the `min_feats_for_eval=20` /
+`min_GT_probe_f1=0.6` guard may trip on small-model SAEs (documented as a finding if it does — the paper
+does report Pythia-160M absorption). **Configs:** `configs/reproduce/absorption.yaml`. **Pre-reg:**
+`docs/preregistration.md` (Absorption).
+
+---
+
 ## SCR · TPP · Sparse Probing 🚧 (owner: Mary)
 
 ### Current Status

@@ -202,3 +202,87 @@ Completed before preregistration:
 - Preserve all raw outputs.
 - Record all deviations from the released benchmark configuration.
 - Distinguish reproduction findings from reliability-audit findings.
+
+---
+
+# Pre-Registration — Feature Absorption Reproduction
+
+**Project:** SAEBench reproducibility study (Karvonen et al., 2025, arXiv:2503.09532)
+**Component:** Feature Absorption (first-letter) — a concept-detection / disentanglement metric,
+load-bearing for the Matryoshka claim.
+**Owner:** Alor
+**Date written:** 2026-07-01
+**Status:** Locked before producing any Absorption numbers (Principles I & III — pre-register the bar).
+
+Absorption is on the project's **"reproduce only"** list: the paper shows 30–40% architecture gaps that
+dwarf run-to-run noise, so the metric is robustly discriminative and its low audit yield is deferred to
+Stage 2. This section fixes what we compute, how we obtain it, and what "reproduced" means.
+
+## 1. What Absorption is (paper definition, Appendix D / Table 8)
+
+For each first letter, a ground-truth logistic-regression probe is trained on the model's residual
+stream over an ICL spelling task ("{word} has the first letter:"). k-sparse probing identifies the SAE's
+"main"/split latents for that letter. **Absorption** occurs on probe true-positive tokens where the main
+latents do **not** fire yet a probe-aligned latent carries the concept. Two headline scores (both
+reported): **`mean_absorption_fraction_score`** (fraction of the probe projection carried by absorbing
+latents, averaged over letters) and **`mean_full_absorption_score`** (rate of single-latent full
+absorption). We also record `mean_num_split_features` and all three `std_dev_*` fields.
+
+## 2. Implementation & exact configuration
+
+**Approach: wrap upstream.** Stage-1 faithful numbers come from running the authors' code
+(`sae_bench.evals.absorption`, sae-bench 0.6.0) end-to-end, packaged in this repo's resumable
+`run_absorption.py → aggregate_results.py --metric absorption` flow
+(`src/saebench_audit/metrics/absorption.py`). This matches the Probe-Rig "wrap, don't reimplement"
+design spec for probe-family metrics; independent reimplementation is deferred to Stage 2.
+
+**Shipped constants (used verbatim for Stage 1).** The code hardcodes four thresholds as module
+constants (`feature_absorption.py:34-44`) that **differ from Table 8**. To reproduce the paper's numbers
+we use the **shipped** values, exposing them as config for the audit toggle:
+
+| Threshold | Shipped (used) | Table 8 (audit) | Consumed at |
+|---|---|---|---|
+| absorption-fraction cosine gate (τ_ps) | **0.1** | −1 | `feature_absorption_calculator.py:181` |
+| full-absorption cosine gate | **0.025** | — | `:108-109` |
+| projection-proportion gate (τ_pa) | **0.4** | 0 | `:119`, `:206` |
+| max-absorbing-latents (A_max) | **3** | dict size | `:190` |
+
+Other faithful defaults: `f1_jump_threshold=0.03`, `max_k_value=10`, GT-probe filter `min_GT_probe_f1=0.6`,
+`min_feats_for_eval=20`, 80/20 split, GT probe = torch-BCE multi-probe (Adam, 50 epochs). Anchor:
+Pythia-160M-deduped L8, 4k Standard trainer_0 on CPU (green pipeline) → all 7 architectures × 6
+sparsities. `llm_batch_size` affects only speed/memory, not the metric.
+
+**Seed is inert (a genuine reliability gap).** `random_seed=42` is declared but never applied upstream
+(no `random.seed`/`manual_seed`; `probing.py:276` uses `random.sample`, shuffled DataLoaders/ICL), so
+results **drift run-to-run**. We characterize this drift explicitly (§4) rather than pretend determinism.
+
+## 3. Validation reference
+
+The released per-SAE `eval_results.json` bundle does **not** carry absorption; the published Pythia-160M
+absorption values live in the results repo `adamkarvonen/sae_bench_results_0125` (the same source the Core
+full-suite comparison used). Comparison is drop-in via a `published_ref.json` placed in the run workdir.
+
+## 4. Pre-registered, drift-aware tolerances ("reproduced" means…)
+
+Because no seed is applied, **exact matching is impossible**. We first measure our own run-to-run drift by
+re-running one SAE (Standard 4k trainer_0) N≥3 times; call its per-score standard deviation σ_drift.
+
+| Quantity | Tolerance for "reproduced" | Rationale |
+|---|---|---|
+| `mean_absorption_fraction_score` / `mean_full_absorption_score` (per SAE) | \|mine − published\| ≤ **max(0.05, 2·σ_drift)** | absolute band that absorbs the un-seeded drift; well below the 30–40% architecture gaps |
+| **Architecture ranking** (the real bar) | Spearman **ρ ≥ 0.9** vs published ordering on each score, no inversion of a pair whose published gap > 0.05 | the load-bearing claim is a ranking, and the gaps are large |
+
+Qualitative findings we pre-commit to testing: (i) Matryoshka has low absorption (strong); (ii) plain
+ReLU/Standard is comparatively high; (iii) non-hierarchical architectures worsen (inverse-scale) with
+width. If a value lands outside its band the first hypothesis is our own bug (Principle V).
+
+## 5. Commitments (anti-confirmation-bias)
+
+- Report **both** headline scores and the observed run-to-run drift with equal prominence.
+- Do **not** tune the harness or lower the `min_GT_probe_f1` / `min_feats_for_eval` guards to force a
+  number. If a real released SAE trips the min-features guard, that is itself a documented finding.
+- We use the shipped (not Table 8) thresholds for reproduction; the Table-8 vs shipped discrepancy is a
+  **Stage-2 audit** question, not a reproduction change.
+- All code, configs, per-SAE raw JSON, and these tolerances are released.
+
+*Locked 2026-07-01. Any later change to §1–§4 must be recorded as a dated amendment.*

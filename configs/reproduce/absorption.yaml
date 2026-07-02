@@ -1,0 +1,39 @@
+# Absorption (first-letter feature absorption) — reproduction config.
+# Consumed by: scripts/run_absorption.py  (which wraps upstream sae_bench.evals.absorption).
+# Stage-1 "reproduce only": we run the authors' code with the SHIPPED thresholds and match numbers.
+metric: absorption
+owner: alor
+
+model_name: pythia-160m-deduped              # transformer_lens name (Gemma run: gemma-2-2b, layer 12)
+layer: 8                                       # resid_post layer
+sae_repo: adamkarvonen/saebench_pythia-160m-deduped_width-2pow12_date-0108   # 4k width (2^12)
+device: cpu
+llm_dtype: float32
+llm_batch_size: 32                             # inference batching only — does NOT affect the metric
+
+# Upstream AbsorptionEvalConfig defaults (eval_config.py). random_seed is DECLARED BUT INERT upstream
+# (no seed call anywhere) -> expect run-to-run drift; we report both scores + their per-letter std devs.
+random_seed: 42
+f1_jump_threshold: 0.03
+max_k_value: 10
+prompt_template: "{word} has the first letter:"
+prompt_token_pos: -6
+min_GT_probe_f1: 0.6
+min_feats_for_eval: 20
+
+# The four thresholds the upstream code HARDCODES as module constants (feature_absorption.py:34-44).
+# Stage-1 faithful reproduction uses the SHIPPED values below. Table 8 states DIFFERENT values
+# (tau_ps=-1, tau_pa=0, A_max=dict size) — those are the AUDIT toggle (--cos_frac/--proj_prop/... ,
+# which force a rerun). See docs/preregistration.md (Absorption) and the code-vs-paper ledger.
+thresholds_shipped:
+  absorption_fraction_probe_cos_sim_threshold: 0.1     # tau_ps (fraction score);  Table 8: -1
+  full_absorption_probe_cos_sim_threshold: 0.025       # cos gate (full score only)
+  probe_projection_proportion_threshold: 0.4           # tau_pa;                    Table 8: 0
+  absorption_fraction_max_absorbing_latents: 3         # A_max;                     Table 8: dict size
+
+# Pre-registered, drift-aware bar (see docs/preregistration.md — Absorption):
+tolerances:
+  # exact match impossible (no seed); band is drift-aware and the real bar is the architecture ranking.
+  mean_score_abs_drift_band: 0.05     # |mine - published| within ~1 SD of run-to-run drift
+  ranking_spearman_min: 0.9           # architecture ordering (both scores) vs published
+  report_both_scores: true            # mean_absorption_fraction_score AND mean_full_absorption_score
