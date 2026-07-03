@@ -146,7 +146,9 @@ compatible objects via upstream `TRAINER_LOADERS` and handed to `run_eval` as `[
 fraction metric was redefined between PR #48 (added it, no thresholds) and PR #62 (added cos-gate + top-3
 cap + proportion floor). So the reproduction baseline for the *fraction* is the 0.3.2-era code; *full* is
 version-stable. Quick repro: `python tests/test_absorption_version_drift.py`. Full detail + PR history +
-regeneration commands: **`docs/findings/absorption_version_drift.md`**.
+regeneration commands: **`docs/findings/absorption_version_drift.md`**. A second version delta (0.6.0's
+`min_GT_probe_f1`/`min_feats_for_eval` guards, absent in 0.3.2) and a full code-vs-paper audit of the
+probe/k-sparse/prompt pipeline (covering the wrap's blind spot): **`docs/findings/absorption_pipeline_ledger.md`**.
 
 **Status.** Wrapper + resumable runner + aggregation + unit tests (`tests/test_absorption_units.py`) +
 version-drift test (`tests/test_absorption_version_drift.py`) landed. Green pipeline on Pythia-160M 4k

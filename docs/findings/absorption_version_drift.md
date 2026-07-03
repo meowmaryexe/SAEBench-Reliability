@@ -87,6 +87,16 @@ python3.11 -m venv /Users/alor/saebench-absorption-env/.venv
 (The `transformers<5` pin is required: transformers 5 removed `GPTNeoXConfig.rotary_pct`, which
 transformer_lens reads when loading Pythia.)
 
+## A second version delta: the aggregation guards
+
+The fraction formula isn't the only thing that changed between the published (0.3.2) and current (0.6.0)
+code. 0.6.0 also added two **aggregation guards** that did not exist in 0.3.2: a per-letter filter
+(`min_GT_probe_f1=0.6`) and an abort (`min_feats_for_eval=20`). The published `0125` results averaged all
+26 letters unconditionally with no abort path; current code averages only the letters that clear F1 > 0.6
+(and can emit nothing for an SAE). So reproducing the published absorption requires pinning 0.3.2 for
+*both* reasons — the formula and the guards. Details + the full pipeline audit:
+[`absorption_pipeline_ledger.md`](absorption_pipeline_ledger.md).
+
 ## Open question (the one that matters for the paper)
 
 The absolute fraction number is version-dependent, but the paper's Absorption *claim* is an **architecture
