@@ -94,6 +94,16 @@ def main():
             f.write(json.dumps(row) + "\n")
         done[row["sae_name"]] = row
 
+    # Config depends only on args (not the per-SAE location), so build it once and reuse.
+    cfg = absorp.AbsorptionConfig(
+        model_name=args.model_name, llm_dtype=args.llm_dtype, llm_batch_size=args.llm_batch_size,
+        device=args.device,
+        absorption_fraction_probe_cos_sim_threshold=args.cos_frac,
+        full_absorption_probe_cos_sim_threshold=args.cos_full,
+        probe_projection_proportion_threshold=args.proj_prop,
+        absorption_fraction_max_absorbing_latents=args.max_absorb,
+    )
+
     t0, processed, n_total = time.time(), 0, len(locations)
     for location in locations:
         name = _sae_name(args.sae_repo, location)
@@ -110,14 +120,6 @@ def main():
         if processed > 0 and time.time() - t0 > args.max_seconds:
             break
 
-        cfg = absorp.AbsorptionConfig(
-            model_name=args.model_name, llm_dtype=args.llm_dtype, llm_batch_size=args.llm_batch_size,
-            device=args.device,
-            absorption_fraction_probe_cos_sim_threshold=args.cos_frac,
-            full_absorption_probe_cos_sim_threshold=args.cos_full,
-            probe_projection_proportion_threshold=args.proj_prop,
-            absorption_fraction_max_absorbing_latents=args.max_absorb,
-        )
         print(f"[absorption] {name} (arch={arch})", flush=True)
         sae = absorp.load_released_sae(args.sae_repo, location, model_name=args.model_name,
                                        device=args.device, dtype=args.llm_dtype)
@@ -127,14 +129,7 @@ def main():
         processed += 1
 
     json.dump({"metric": "absorption", "sae_repo": args.sae_repo, "model_name": args.model_name,
-               "layer": args.layer, "config": absorp.AbsorptionConfig(
-                   model_name=args.model_name, llm_dtype=args.llm_dtype,
-                   llm_batch_size=args.llm_batch_size, device=args.device,
-                   absorption_fraction_probe_cos_sim_threshold=args.cos_frac,
-                   full_absorption_probe_cos_sim_threshold=args.cos_full,
-                   probe_projection_proportion_threshold=args.proj_prop,
-                   absorption_fraction_max_absorbing_latents=args.max_absorb).to_dict(),
-               "n_saes": n_total},
+               "layer": args.layer, "config": cfg.to_dict(), "n_saes": n_total},
               open(os.path.join(args.workdir, "run_meta.json"), "w"), indent=2)
 
     n_done = len([r for r in done.values() if r.get("status") == "ok"])

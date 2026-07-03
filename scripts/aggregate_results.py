@@ -12,7 +12,7 @@ JSON (results/processed/<metric>/<name>.json).
     --workdir results/raw/absorption/standard_4k_t0 \
     --out results/processed/absorption/standard_4k_t0.json
 """
-import argparse, json, os, sys
+import argparse, os, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 from saebench_audit.io import read_jsonl, write_json, _maybe_json

@@ -139,9 +139,19 @@ currently cannot load Pythia via transformer_lens). Kept isolated so the shared 
 **SAE loading.** Released dictionary_learning SAEs (`ae.pt`+`config.json`) are loaded into sae_lens-
 compatible objects via upstream `TRAINER_LOADERS` and handed to `run_eval` as `[(name, sae)]`.
 
-**Status.** Wrapper + resumable runner + aggregation + 8/8 unit tests
-(`tests/test_absorption_units.py`) landed. Green pipeline on Pythia-160M 4k Standard trainer_0 (CPU) →
-then 42-SAE suite + published comparison. Feasibility watch: the `min_feats_for_eval=20` /
+**⚠ Finding — `absorption_fraction` is version-dependent (~10×).** On Pythia-160M 4k Standard trainer_0,
+`mean_full_absorption_score` reproduces the published value under both sae-bench versions, but
+`mean_absorption_fraction_score` reproduces **only under the release that produced the published results**
+(sae-bench 0.3.2: 0.164 vs published 0.155); under current code (0.6.0) it collapses to 0.016. Cause: the
+fraction metric was redefined between PR #48 (added it, no thresholds) and PR #62 (added cos-gate + top-3
+cap + proportion floor). So the reproduction baseline for the *fraction* is the 0.3.2-era code; *full* is
+version-stable. Quick repro: `python tests/test_absorption_version_drift.py`. Full detail + PR history +
+regeneration commands: **`docs/findings/absorption_version_drift.md`**.
+
+**Status.** Wrapper + resumable runner + aggregation + unit tests (`tests/test_absorption_units.py`) +
+version-drift test (`tests/test_absorption_version_drift.py`) landed. Green pipeline on Pythia-160M 4k
+Standard trainer_0 (CPU) → published comparison done (see finding above) → then 42-SAE suite / ranking
+stability under both fraction definitions. Feasibility watch: the `min_feats_for_eval=20` /
 `min_GT_probe_f1=0.6` guard may trip on small-model SAEs (documented as a finding if it does — the paper
 does report Pythia-160M absorption). **Configs:** `configs/reproduce/absorption.yaml`. **Pre-reg:**
 `docs/preregistration.md` (Absorption).

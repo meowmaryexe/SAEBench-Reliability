@@ -286,3 +286,17 @@ width. If a value lands outside its band the first hypothesis is our own bug (Pr
 - All code, configs, per-SAE raw JSON, and these tolerances are released.
 
 *Locked 2026-07-01. Any later change to §1–§4 must be recorded as a dated amendment.*
+
+### Amendment 2026-07-02 — reproduction baseline for `absorption_fraction`
+
+Empirically, the published `absorption_fraction` (results repo `sae_bench_results_0125`) is reproduced by
+the release that generated it — **sae-bench 0.3.2** (`@141aff72`): 0.164 vs published 0.155 on Standard 4k
+trainer_0, within the drift band. Current code (**0.6.0**) *redefined* the fraction metric (PR #62:
+cos-gate + top-3 cap + proportion floor) and yields ~10× lower values (0.016). Therefore:
+- The **faithful reproduction baseline for the fraction score is the 0.3.2-era code**, not 0.6.0.
+- `mean_full_absorption_score` is version-stable (reproduces under both) and needs no version pin.
+- Under §4, the fraction "reproduced" check is evaluated against the 0.3.2 run.
+- The shipped-vs-Table-8 note in §2 is superseded for the fraction by this shipped-vs-published-results
+  finding: the 0.6.0 shipped constants do **not** reproduce the published fraction.
+Evidence + mechanism: `docs/findings/absorption_version_drift.md`; regression test:
+`tests/test_absorption_version_drift.py`.

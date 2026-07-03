@@ -32,8 +32,6 @@ from __future__ import annotations
 import os
 from dataclasses import asdict, dataclass
 
-METRIC_NAME = "absorption"
-
 # Shipped upstream thresholds (feature_absorption.py:34-44). Stage-1 uses these verbatim.
 SHIPPED_ABSORPTION_FRACTION_COS = 0.1
 SHIPPED_FULL_ABSORPTION_COS = 0.025
