@@ -27,6 +27,7 @@ run_one () {  # $1=version tag  $2=venv python  $3=suite
   local tag="$1" py="$2" suite="$3"
   local raw="results/raw/absorption/${suite}_${tag}"
   local proc="results/processed/absorption/${suite}_${tag}.json"
+  mkdir -p "$raw" results/processed/absorption   # ensure log/output dirs exist before tee/aggregate
   echo ">>> [$tag] $suite : running (resumable) under $py"
   # re-invoke until ALL_SAES_DONE (the runner is per-SAE resumable + time-boxed)
   until "$py" scripts/run_absorption.py --suite "$suite" --device "$DEVICE" \
