@@ -210,3 +210,86 @@ meaningful once all 42 ran — the report warns on partial runs). Then confirm t
 Same box, bigger model. Changes: `huggingface-cli login` (accept the Gemma license); uncomment the Gemma
 suites in `run_absorption_suite.sh`; run with `DEVICE=cuda LLM_DTYPE=bfloat16`. Cost ~$4–24 per
 width/version (see `configs/gpu/absorption_gpu.yaml`). Everything else — record, guardrails — is identical.
+
+---
+
+# Appendix — first-time CPU run, every command in order (copy-paste)
+
+## ON YOUR MAC (local terminal)
+```bash
+# 0. prereq: AWS CLI logged in (run `aws configure` once if this errors)
+aws sts get-caller-identity
+# (also set a $20 budget once: Console -> Billing -> Budgets -> Create -> Cost budget)
+
+# 1. key pair (your SSH login key) -> saves absorption-key.pem locally
+aws ec2 create-key-pair --region us-east-1 --key-name absorption-key \
+  --query 'KeyMaterial' --output text > absorption-key.pem
+chmod 400 absorption-key.pem
+
+# 2. security group (firewall) + allow SSH from only your IP
+VPC=$(aws ec2 describe-vpcs --region us-east-1 --filters Name=isDefault,Values=true \
+  --query 'Vpcs[0].VpcId' --output text)
+SG=$(aws ec2 create-security-group --region us-east-1 --group-name absorption-sg \
+  --description "SSH for absorption run" --vpc-id "$VPC" --query 'GroupId' --output text)
+MYIP=$(curl -s https://checkip.amazonaws.com)
+aws ec2 authorize-security-group-ingress --region us-east-1 --group-id "$SG" \
+  --protocol tcp --port 22 --cidr "${MYIP}/32"
+
+# 3. Ubuntu 22.04 image id
+AMI=$(aws ssm get-parameter --region us-east-1 \
+  --name /aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id \
+  --query Parameter.Value --output text)
+
+# 4. launch the CPU box
+aws ec2 run-instances --region us-east-1 \
+  --image-id "$AMI" --instance-type c6i.4xlarge \
+  --key-name absorption-key --security-group-ids "$SG" \
+  --instance-initiated-shutdown-behavior terminate \
+  --block-device-mappings '[{"DeviceName":"/dev/sda1","Ebs":{"VolumeSize":40,"VolumeType":"gp3"}}]' \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=absorption-pythia-cpu}]' --count 1
+
+# 5. wait ~60s, get its IP, SSH in
+sleep 60
+IP=$(aws ec2 describe-instances --region us-east-1 \
+  --filters Name=tag:Name,Values=absorption-pythia-cpu Name=instance-state-name,Values=running \
+  --query 'Reservations[].Instances[].PublicIpAddress' --output text)
+echo "IP=$IP"
+ssh -i absorption-key.pem ubuntu@"$IP"
+```
+
+## ON THE EC2 BOX (after the ssh prompt shows `ubuntu@ip-...`)
+```bash
+# 6. dead-man's switch: auto-terminate in 16h no matter what
+sudo shutdown -h +960 &
+
+# 7. tools + repo
+sudo apt-get update -y && sudo apt-get install -y git python3-venv python3-pip
+git clone https://github.com/meowmaryexe/SAEBench-Reliability.git && cd SAEBench-Reliability
+git checkout alor/ravel-abs-unlearning
+
+# 8. two pinned venvs
+python3 -m venv ~/venv-060 && ~/venv-060/bin/pip -q install -U pip \
+  && ~/venv-060/bin/pip -q install "sae-bench" "transformers>=4.51,<5"
+python3 -m venv ~/venv-032 && ~/venv-032/bin/pip -q install -U pip \
+  && ~/venv-032/bin/pip -q install \
+     "sae-bench @ git+https://github.com/adamkarvonen/SAEBench.git@141aff72928f7588c1451bed47c401e1d565d471" \
+     "sae_lens==5.3.1" "transformers>=4.40,<5"
+
+# 9. run (in tmux so it survives an SSH drop). ~8-10h, terminates the box on success.
+tmux new -s abs
+VENV_032=~/venv-032/bin/python VENV_060=~/venv-060/bin/python \
+  DEVICE=cpu AUTO_SHUTDOWN=1 \
+  bash scripts/run_absorption_suite.sh 2>&1 | tee suite.log
+# detach: Ctrl-b then d   |   reconnect later: ssh back in, then `tmux attach -t abs`
+
+# 10. when it's done (before auto-shutdown), commit the run record
+git config user.email you@example.com && git config user.name you
+git add docs/run_records/absorption/ \
+  && git commit -m "Pythia absorption suite run record (both versions)" && git push
+```
+
+## BACK ON YOUR MAC — confirm it's gone
+```bash
+aws ec2 describe-instances --region us-east-1 --filters Name=tag:Name,Values=absorption-pythia-cpu \
+  --query 'Reservations[].Instances[].State.Name' --output text   # expect: terminated
+```
