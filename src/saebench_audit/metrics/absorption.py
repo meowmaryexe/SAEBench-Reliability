@@ -244,9 +244,10 @@ def load_released_sae(
         local_dir=download_location,
     )
     with open(cfg_path) as f:
-        trainer_class = json.load(f)["trainer"]["trainer_class"]
-    # Tolerate the sae-bench 0.3.2 loader-key typo ('Matroyshka' vs 'Matryoshka') and minor renames:
-    # try the reported name plus both Matryoshka<->Matroyshka spellings.
+        config = json.load(f)
+    trainer_class = config["trainer"]["trainer_class"]
+    # Tolerate the sae-bench 0.3.2 loader typo ('Matroyshka' vs 'Matryoshka') and minor renames:
+    # pick the loader whose key matches the reported name or a Matryoshka<->Matroyshka respelling.
     candidates = [trainer_class,
                   trainer_class.replace("Matryoshka", "Matroyshka"),
                   trainer_class.replace("Matroyshka", "Matryoshka")]
@@ -255,6 +256,14 @@ def load_released_sae(
         raise ValueError(
             f"Unknown trainer_class {trainer_class!r}; known: {sorted(TRAINER_LOADERS)}"
         )
+    if key != trainer_class:
+        # 0.3.2's Matryoshka loader *also* asserts the (typo'd) trainer_class name internally after
+        # building the SAE, raising otherwise. The SAE weights are identical; only this metadata string
+        # differs. Patch the cached config in place so the loader accepts it — verified the loader re-reads
+        # this cached file (force_download=False) without clobbering the edit.
+        config["trainer"]["trainer_class"] = key
+        with open(cfg_path, "w") as f:
+            json.dump(config, f)
     return TRAINER_LOADERS[key](
         repo_id=repo_id,
         filename=f"{location}/ae.pt",
