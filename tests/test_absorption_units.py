@@ -133,6 +133,8 @@ def test_threshold_override_monkeypatches_upstream():
 def test_build_eval_config_matches_fields():
     if not _has_sae_bench():
         print("  (skip build_eval_config: sae_bench not importable)"); return
+    import dataclasses
+    from sae_bench.evals.absorption.eval_config import AbsorptionEvalConfig
     cfg = absorp.AbsorptionConfig(llm_batch_size=7)
     ec = absorp.build_eval_config(cfg)
     assert ec.model_name == cfg.model_name
@@ -140,8 +142,11 @@ def test_build_eval_config_matches_fields():
     assert ec.llm_dtype == cfg.llm_dtype
     assert ec.f1_jump_threshold == cfg.f1_jump_threshold
     assert ec.max_k_value == cfg.max_k_value
-    assert ec.min_GT_probe_f1 == cfg.min_GT_probe_f1
-    assert ec.min_feats_for_eval == cfg.min_feats_for_eval
+    # version-aware: 0.3.2 lacks these fields, so only assert the ones the installed config has
+    present = {f.name for f in dataclasses.fields(AbsorptionEvalConfig)}
+    for name in ("min_GT_probe_f1", "min_feats_for_eval"):
+        if name in present:
+            assert getattr(ec, name) == getattr(cfg, name)
 
 
 if __name__ == "__main__":

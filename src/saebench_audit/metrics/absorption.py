@@ -93,26 +93,68 @@ class AbsorptionConfig:
 
 
 def build_eval_config(cfg: AbsorptionConfig):
-    """Translate our AbsorptionConfig into the upstream `AbsorptionEvalConfig`."""
+    """Translate our AbsorptionConfig into the upstream `AbsorptionEvalConfig`.
+
+    Version-aware: only fields present on the installed `AbsorptionEvalConfig` are passed. sae-bench
+    0.3.2 (the version behind the published results) lacks `min_GT_probe_f1`, `min_feats_for_eval`,
+    `eval_k_sparse_probe_batch_size`, so passing them would raise. This lets one runner work under both
+    0.3.2 and 0.6.0.
+    """
+    import dataclasses
+
     from sae_bench.evals.absorption.eval_config import AbsorptionEvalConfig
 
-    eval_cfg = AbsorptionEvalConfig(
-        model_name=cfg.model_name,
-        random_seed=cfg.random_seed,
-        f1_jump_threshold=cfg.f1_jump_threshold,
-        max_k_value=cfg.max_k_value,
-        prompt_template=cfg.prompt_template,
-        prompt_token_pos=cfg.prompt_token_pos,
-        min_GT_probe_f1=cfg.min_GT_probe_f1,
-        min_feats_for_eval=cfg.min_feats_for_eval,
-        k_sparse_probe_l1_decay=cfg.k_sparse_probe_l1_decay,
-        k_sparse_probe_batch_size=cfg.k_sparse_probe_batch_size,
-        k_sparse_probe_num_epochs=cfg.k_sparse_probe_num_epochs,
-        eval_k_sparse_probe_batch_size=cfg.eval_k_sparse_probe_batch_size,
-    )
+    wanted = {
+        "model_name": cfg.model_name,
+        "random_seed": cfg.random_seed,
+        "f1_jump_threshold": cfg.f1_jump_threshold,
+        "max_k_value": cfg.max_k_value,
+        "prompt_template": cfg.prompt_template,
+        "prompt_token_pos": cfg.prompt_token_pos,
+        "min_GT_probe_f1": cfg.min_GT_probe_f1,
+        "min_feats_for_eval": cfg.min_feats_for_eval,
+        "k_sparse_probe_l1_decay": cfg.k_sparse_probe_l1_decay,
+        "k_sparse_probe_batch_size": cfg.k_sparse_probe_batch_size,
+        "k_sparse_probe_num_epochs": cfg.k_sparse_probe_num_epochs,
+        "eval_k_sparse_probe_batch_size": cfg.eval_k_sparse_probe_batch_size,
+    }
+    available = {f.name for f in dataclasses.fields(AbsorptionEvalConfig)}
+    eval_cfg = AbsorptionEvalConfig(**{k: v for k, v in wanted.items() if k in available})
     eval_cfg.llm_batch_size = cfg.llm_batch_size
     eval_cfg.llm_dtype = cfg.llm_dtype
     return eval_cfg
+
+
+_TORCH_LOAD_PATCHED = False
+
+
+def ensure_torch_load_shim() -> None:
+    """Force `torch.load(weights_only=False)` (trusted local files). sae-bench 0.3.2 pickles a
+    LinearProbe and reloads it via torch.load; torch >=2.6 defaults weights_only=True and refuses.
+    Harmless on 0.6.0. Applied lazily so this module still imports without torch (plain-python tests)."""
+    global _TORCH_LOAD_PATCHED
+    if _TORCH_LOAD_PATCHED:
+        return
+    import torch
+
+    _orig = torch.load
+
+    def _patched(*a, **k):
+        k.setdefault("weights_only", False)
+        return _orig(*a, **k)
+
+    torch.load = _patched
+    _TORCH_LOAD_PATCHED = True
+
+
+def installed_sae_bench_version() -> str:
+    """The installed sae-bench version string (recorded in run_meta so runs are attributable)."""
+    import importlib.metadata as md
+
+    try:
+        return md.version("sae-bench")
+    except Exception:
+        return "unknown"
 
 
 def apply_threshold_overrides(cfg: AbsorptionConfig) -> bool:
@@ -201,6 +243,7 @@ def run_absorption(
     details, or `{"status": "insufficient_features"}` if the SAE trips the min-features guard."""
     from sae_bench.evals.absorption import main as absorption_main
 
+    ensure_torch_load_shim()
     os.makedirs(workdir, exist_ok=True)
 
     if apply_threshold_overrides(cfg) and not force_rerun:

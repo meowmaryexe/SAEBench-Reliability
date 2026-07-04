@@ -1,0 +1,39 @@
+# Absorption — GPU/cloud reproduction config (Pythia now; Gemma configured but not yet run).
+# Consumed by: scripts/run_absorption_suite.sh (which calls scripts/run_absorption.py --suite <name>).
+# Wraps upstream sae_bench.evals.absorption under two pinned venvs (see docs/aws_absorption_runbook.md).
+metric: absorption
+owner: alor
+
+# Run BOTH versions: 0.3.2 reproduces the published fraction; 0.6.0 = current code (redefined fraction
+# + new guards). See docs/findings/absorption_version_drift.md and absorption_pipeline_ledger.md.
+versions:
+  v0.3.2: {venv_env: VENV_032}   # sae-bench @141aff72 + sae_lens 5.3.1 (matches published `0125`)
+  v0.6.0: {venv_env: VENV_060}   # current sae-bench (transformers<5)
+
+runtime:
+  device: cuda            # cpu also works (Pythia is tiny); cuda rehearses the Gemma path
+  llm_dtype: float32      # Gemma: use bfloat16
+  llm_batch_size: 32      # inference batching only — does NOT affect the metric
+
+# Suites (registry.yaml keys). RUN NOW = Pythia only. Gemma suites are listed + ready (one flag each),
+# but commented in the driver until we choose to run them.
+suites_now:
+  - pythia-160m_4k
+suites_gemma_later:       # uncomment in scripts/run_absorption_suite.sh when moving to Gemma
+  - gemma-2-2b_4k         # ~5 min/SAE
+  - gemma-2-2b_16k        # ~9 min/SAE (Appendix-A anchor)
+  - gemma-2-2b_65k        # ~16 min/SAE (Figure-2 headline); Gemma is HF-gated → huggingface-cli login
+
+# Shipped thresholds (faithful; the audit toggles these). 0.3.2 uses a single cos gate internally.
+thresholds_shipped:
+  absorption_fraction_probe_cos_sim_threshold: 0.1
+  full_absorption_probe_cos_sim_threshold: 0.025
+  probe_projection_proportion_threshold: 0.4
+  absorption_fraction_max_absorbing_latents: 3
+
+reference:
+  results_repo: adamkarvonen/sae_bench_results_0125   # published; fetched via fetch_published_absorption.py
+  drift_band_abs: 0.05          # |mine - published| (no seed upstream -> drift-aware)
+  ranking_spearman_min: 0.9     # architecture-ordering agreement
+
+# Cost: Pythia both versions ~1.5 GPU-h (~$2). Guardrails live in the runbook + driver (auto-shutdown).

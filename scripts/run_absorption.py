@@ -24,11 +24,31 @@ import os
 import sys
 import time
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.insert(0, os.path.join(ROOT, "src"))
 from saebench_audit.metrics import absorption as absorp
 
 # Default suite: Pythia-160M-deduped, 4k width (2^12), layer 8 (configs/registry.yaml: pythia-160m_4k).
 DEFAULT_REPO = "adamkarvonen/saebench_pythia-160m-deduped_width-2pow12_date-0108"
+
+
+def _resolve_suite(suite: str) -> dict:
+    """Resolve a registry suite name (e.g. pythia-160m_4k, gemma-2-2b_4k) to model_name/layer/sae_repo.
+
+    This is how you switch models/widths — Pythia now, Gemma later — with a single `--suite` flag; the
+    Gemma suites are already defined in configs/registry.yaml, so no code change is needed to run them.
+    """
+    import yaml
+
+    reg = yaml.safe_load(open(os.path.join(ROOT, "configs", "registry.yaml")))
+    suites = reg.get("sae_suites", {})
+    if suite not in suites:
+        raise SystemExit(f"Unknown suite {suite!r}. Available: {sorted(suites)}")
+    s = suites[suite]
+    model = s.get("model") or reg.get("models", {}).get(s.get("modeltag"), {}).get("tl_name")
+    if not model:
+        raise SystemExit(f"Suite {suite!r} has no `model` field in registry.yaml; add one to run it.")
+    return {"model_name": model, "layer": int(s["layer"]), "sae_repo": s["hf_repo"]}
 
 
 def _arch_from_location(location: str) -> str:
@@ -55,6 +75,8 @@ def _discover_locations(repo_id: str, layer: int):
 
 def main():
     ap = argparse.ArgumentParser(description="Absorption (SAEBench) — resumable per-SAE runner")
+    ap.add_argument("--suite", default=None,
+                    help="registry suite name (e.g. pythia-160m_4k, gemma-2-2b_4k); sets model/layer/repo")
     ap.add_argument("--model_name", default="pythia-160m-deduped", help="transformer_lens model name")
     ap.add_argument("--sae_repo", default=DEFAULT_REPO, help="HuggingFace dictionary_learning SAE repo")
     ap.add_argument("--sae_location", action="append", default=None,
@@ -73,6 +95,10 @@ def main():
     ap.add_argument("--proj_prop", type=float, default=absorp.SHIPPED_PROJECTION_PROPORTION)
     ap.add_argument("--max_absorb", type=int, default=absorp.SHIPPED_MAX_ABSORBING_LATENTS)
     args = ap.parse_args()
+
+    if args.suite:  # registry-driven: sets model/layer/repo (Pythia now, Gemma later, no code change)
+        r = _resolve_suite(args.suite)
+        args.model_name, args.layer, args.sae_repo = r["model_name"], r["layer"], r["sae_repo"]
 
     os.makedirs(args.workdir, exist_ok=True)
     locations = args.sae_location or _discover_locations(args.sae_repo, args.layer)
@@ -128,8 +154,10 @@ def main():
         del sae
         processed += 1
 
-    json.dump({"metric": "absorption", "sae_repo": args.sae_repo, "model_name": args.model_name,
-               "layer": args.layer, "config": cfg.to_dict(), "n_saes": n_total},
+    json.dump({"metric": "absorption", "suite": args.suite, "sae_repo": args.sae_repo,
+               "model_name": args.model_name, "layer": args.layer,
+               "sae_bench_version": absorp.installed_sae_bench_version(),
+               "config": cfg.to_dict(), "n_saes": n_total},
               open(os.path.join(args.workdir, "run_meta.json"), "w"), indent=2)
 
     n_done = len([r for r in done.values() if r.get("status") == "ok"])
