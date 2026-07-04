@@ -38,16 +38,27 @@ run_one () {  # $1=version tag  $2=venv python  $3=suite
   echo "$proc"
 }
 
+TS="$(date -u +%Y%m%dT%H%M%SZ)"
 for suite in "${SUITES[@]}"; do
   P032="$(run_one v0.3.2 "$VENV_032" "$suite" | tail -1)"
   P060="$(run_one v0.6.0 "$VENV_060" "$suite" | tail -1)"
+
+  # ---- durable, git-tracked run record for recordkeeping (self-contained; raw stays referenced) ----
+  REC="docs/run_records/absorption/${suite}_${TS}"
+  mkdir -p "$REC"
   echo "=================  REPORT: $suite  ================="
   "$VENV_060" scripts/absorption_suite_report.py \
      --v032 "$P032" --v060 "$P060" \
-     --published "results/raw/absorption/${suite}_v0.3.2/published_ref.json"
+     --published "results/raw/absorption/${suite}_v0.3.2/published_ref.json" \
+     | tee "$REC/report.txt"
+  "$VENV_060" scripts/absorption_run_record.py --suite "$suite" --record_dir "$REC" \
+     --v032_workdir "results/raw/absorption/${suite}_v0.3.2" \
+     --v060_workdir "results/raw/absorption/${suite}_v0.6.0" \
+     --v032_processed "$P032" --v060_processed "$P060" --report "$REC/report.txt"
+  echo ">>> run record: $REC/ (run_record.md, run_record.json, report.txt)"
 done
 
-echo ">>> ALL SUITES DONE"
+echo ">>> ALL SUITES DONE — records under docs/run_records/absorption/*_${TS}/"
 if [[ "${AUTO_SHUTDOWN:-0}" == "1" ]]; then
   echo ">>> AUTO_SHUTDOWN=1 → shutting down in 60s (Ctrl-C to cancel)…"; sleep 60; sudo shutdown -h now
 fi

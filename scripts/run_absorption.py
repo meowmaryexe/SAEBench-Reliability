@@ -157,6 +157,7 @@ def main():
     json.dump({"metric": "absorption", "suite": args.suite, "sae_repo": args.sae_repo,
                "model_name": args.model_name, "layer": args.layer,
                "sae_bench_version": absorp.installed_sae_bench_version(),
+               "provenance": absorp.environment_provenance(args.device),
                "config": cfg.to_dict(), "n_saes": n_total},
               open(os.path.join(args.workdir, "run_meta.json"), "w"), indent=2)
 

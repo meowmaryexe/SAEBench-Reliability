@@ -157,6 +157,42 @@ def installed_sae_bench_version() -> str:
         return "unknown"
 
 
+def environment_provenance(device: str = "") -> dict:
+    """Best-effort environment/provenance for recordkeeping: package versions, python, host, GPU, git.
+    Everything is wrapped so a missing tool (e.g. no nvidia-smi / not a git checkout) never fails a run."""
+    import datetime
+    import importlib.metadata as md
+    import platform
+    import socket
+    import subprocess
+    import sys
+
+    def _v(pkg):
+        try:
+            return md.version(pkg)
+        except Exception:
+            return None
+
+    def _cmd(args):
+        try:
+            return subprocess.check_output(args, text=True, stderr=subprocess.DEVNULL).strip()
+        except Exception:
+            return None
+
+    return {
+        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+        "python": sys.version.split()[0],
+        "platform": platform.platform(),
+        "hostname": socket.gethostname(),
+        "device": device,
+        "packages": {p: _v(p) for p in
+                     ["sae-bench", "sae_lens", "transformer_lens", "transformers", "torch", "numpy"]},
+        "git_sha": _cmd(["git", "rev-parse", "HEAD"]),
+        "git_dirty": bool(_cmd(["git", "status", "--porcelain"])),
+        "gpu": _cmd(["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader"]),
+    }
+
+
 def apply_threshold_overrides(cfg: AbsorptionConfig) -> bool:
     """Monkeypatch the four hardcoded thresholds onto the upstream `feature_absorption` module
     (they are copied into the calculator at feature_absorption.py:214-217). Returns True if any
