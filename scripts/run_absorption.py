@@ -147,11 +147,15 @@ def main():
             break
 
         print(f"[absorption] {name} (arch={arch})", flush=True)
-        sae = absorp.load_released_sae(args.sae_repo, location, model_name=args.model_name,
-                                       device=args.device, dtype=args.llm_dtype)
-        res = absorp.run_absorption(cfg, sae, name, args.workdir, force_rerun=args.force_rerun)
+        try:
+            sae = absorp.load_released_sae(args.sae_repo, location, model_name=args.model_name,
+                                           device=args.device, dtype=args.llm_dtype)
+            res = absorp.run_absorption(cfg, sae, name, args.workdir, force_rerun=args.force_rerun)
+            del sae
+        except Exception as e:  # one bad SAE must not halt (or infinite-loop) the whole suite
+            print(f"[absorption] ERROR on {name}: {type(e).__name__}: {e}", flush=True)
+            res = {"status": "error", "sae_name": name, "error": f"{type(e).__name__}: {e}"}
         _record({"sae_name": name, "arch": arch, "location": location, **res})
-        del sae
         processed += 1
 
     json.dump({"metric": "absorption", "suite": args.suite, "sae_repo": args.sae_repo,

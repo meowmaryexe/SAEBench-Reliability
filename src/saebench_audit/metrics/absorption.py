@@ -245,11 +245,17 @@ def load_released_sae(
     )
     with open(cfg_path) as f:
         trainer_class = json.load(f)["trainer"]["trainer_class"]
-    if trainer_class not in TRAINER_LOADERS:
+    # Tolerate the sae-bench 0.3.2 loader-key typo ('Matroyshka' vs 'Matryoshka') and minor renames:
+    # try the reported name plus both Matryoshka<->Matroyshka spellings.
+    candidates = [trainer_class,
+                  trainer_class.replace("Matryoshka", "Matroyshka"),
+                  trainer_class.replace("Matroyshka", "Matryoshka")]
+    key = next((c for c in candidates if c in TRAINER_LOADERS), None)
+    if key is None:
         raise ValueError(
             f"Unknown trainer_class {trainer_class!r}; known: {sorted(TRAINER_LOADERS)}"
         )
-    return TRAINER_LOADERS[trainer_class](
+    return TRAINER_LOADERS[key](
         repo_id=repo_id,
         filename=f"{location}/ae.pt",
         layer=None,
