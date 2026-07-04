@@ -59,6 +59,25 @@ for suite in "${SUITES[@]}"; do
 done
 
 echo ">>> ALL SUITES DONE — records under docs/run_records/absorption/*_${TS}/"
+
+# ---- auto-save results OFF the box, so a late return never loses anything (both optional) ----
+#   S3_DEST=s3://bucket/prefix   -> sync run records + processed results to S3
+#   GIT_PUSH=1                   -> commit + push the run record (needs GitHub creds on the box)
+if [[ -n "${S3_DEST:-}" ]]; then
+  echo ">>> auto-save: syncing to ${S3_DEST}"
+  aws s3 sync docs/run_records   "${S3_DEST%/}/run_records/" || echo "!! S3 sync (run_records) FAILED"
+  aws s3 sync results/processed  "${S3_DEST%/}/processed/"   || echo "!! S3 sync (processed) FAILED"
+fi
+if [[ "${GIT_PUSH:-0}" == "1" ]]; then
+  echo ">>> auto-save: commit + push run record"
+  git add docs/run_records/absorption 2>/dev/null || true
+  git commit -m "absorption run record ${TS}" && git push || echo "!! git push FAILED (GitHub creds not set up?)"
+fi
+
 if [[ "${AUTO_SHUTDOWN:-0}" == "1" ]]; then
-  echo ">>> AUTO_SHUTDOWN=1 → shutting down in 60s (Ctrl-C to cancel)…"; sleep 60; sudo shutdown -h now
+  echo ">>> AUTO_SHUTDOWN=1 → 'sudo shutdown -h now' in 60s (Ctrl-C to cancel)."
+  echo "    This STOPS or TERMINATES per the instance's shutdown-behavior chosen at launch."
+  echo "    Tip: launch with '--instance-initiated-shutdown-behavior stop' so results stay on disk"
+  echo "    (and/or set S3_DEST above) — then a late return can never lose data."
+  sleep 60; sudo shutdown -h now
 fi
