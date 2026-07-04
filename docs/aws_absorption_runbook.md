@@ -6,10 +6,81 @@ Pythia-160M is tiny and ungated → **~$2–4, ~1 hour**. This is the dress rehe
 run. The only real cost risk is a forgotten instance; the guardrails below make that near-impossible.
 
 > **Cloud-agnostic:** the code has no AWS-specific bits. Any CUDA box (RunPod/Lambda/Colab) works — jump
-> to **Step 3 (Setup)**. Pythia needs no GPU at all (a `c6i.2xlarge` CPU box is cheaper), but a GPU box
-> rehearses the exact Gemma path. Commands below use the AWS CLI; every step has a Console equivalent.
+> to **Step 3 (Setup)**. Pythia needs no GPU at all (a `c6i` CPU box is cheaper), but a GPU box rehearses
+> the exact Gemma path. Commands below use the AWS CLI; every step has a Console equivalent.
 
 ---
+
+# ⭐ Pythia now — CPU path (no GPU quota needed)
+
+**Use this to run Pythia today** without requesting a GPU quota. Pythia-160M is tiny and runs on CPU;
+a standard `c6i` instance uses the ordinary "Running On-Demand Standard instances" quota every account
+already has. Slower than GPU (it's an overnight run) but ~$5 and zero quota hassle. The GPU sections
+further down are the reference for the (later) Gemma run.
+
+### 1. Budget alarm — do **Step 0** below first (5 min).
+
+### 2. Launch a CPU box
+```bash
+# Ubuntu 22.04 AMI id for your region
+AMI=$(aws ssm get-parameter --region us-east-1 \
+  --name /aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id \
+  --query Parameter.Value --output text)
+
+aws ec2 run-instances --region us-east-1 \
+  --image-id "$AMI" --instance-type c6i.4xlarge \
+  --key-name YOUR_KEYPAIR --security-group-ids sg-XXXX \
+  --instance-initiated-shutdown-behavior terminate \
+  --block-device-mappings '[{"DeviceName":"/dev/sda1","Ebs":{"VolumeSize":40,"VolumeType":"gp3"}}]' \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=absorption-pythia-cpu}]' --count 1
+```
+- **`c6i.4xlarge`** = 16 vCPU, 32 GB, ~$0.68/hr on-demand → the run is ~$5. (Cheaper: `c6i.2xlarge` = 8
+  vCPU ~$0.34/hr but ~1.5× slower. If a brand-new account caps you at 5 vCPU, use `c6i.xlarge` (4 vCPU)
+  or request a small Standard-quota bump.)
+- **On-demand** (not spot) here: the run is long (~overnight), so predictable > cheap. (Spot works too —
+  the runner is resumable — but a mid-run interruption means you re-launch and resume.)
+- **`--instance-initiated-shutdown-behavior terminate`** → the driver's auto-shutdown *terminates* the box
+  (EBS released, zero lingering cost).
+
+### 3. Setup (on the box, ~5–10 min)
+```bash
+ssh -i YOUR_KEYPAIR.pem ubuntu@<IP>
+sudo shutdown -h +960 &   # dead-man's switch: auto-terminate in 16 h (> the ~10 h run) no matter what
+
+sudo apt-get update -y && sudo apt-get install -y git python3-venv python3-pip
+git clone https://github.com/meowmaryexe/SAEBench-Reliability.git && cd SAEBench-Reliability
+git checkout alor/ravel-abs-unlearning
+
+python3 -m venv ~/venv-060 && ~/venv-060/bin/pip -q install -U pip \
+  && ~/venv-060/bin/pip -q install "sae-bench" "transformers>=4.51,<5"
+python3 -m venv ~/venv-032 && ~/venv-032/bin/pip -q install -U pip \
+  && ~/venv-032/bin/pip -q install \
+     "sae-bench @ git+https://github.com/adamkarvonen/SAEBench.git@141aff72928f7588c1451bed47c401e1d565d471" \
+     "sae_lens==5.3.1" "transformers>=4.40,<5"
+```
+(No HF login — Pythia is ungated. Each venv keeps its own cache, so the two versions never contaminate.)
+
+### 4. Run (in tmux, `DEVICE=cpu`, auto-terminates on success)
+```bash
+tmux new -s abs
+VENV_032=~/venv-032/bin/python VENV_060=~/venv-060/bin/python \
+  DEVICE=cpu AUTO_SHUTDOWN=1 \
+  bash scripts/run_absorption_suite.sh 2>&1 | tee suite.log
+# detach with Ctrl-b d ; reattach later with: tmux attach -t abs
+```
+Runs all 42 SAEs × both versions (resumable), fetches published numbers, aggregates, writes the run
+record, and **terminates the box on completion**. Expect **~8–10 h wall, ~$5**.
+
+### 5–6. Records & teardown — identical to **Step 5** and **Step 6** below (commit
+`docs/run_records/absorption/`, then confirm the instance is `terminated`).
+
+> Prefer GPU (≈1.5 h instead of ~10 h)? You need the G/VT quota — see **Step 1** below — then follow the
+> GPU steps (`g5.xlarge`, `DEVICE=cuda`). You'll need a GPU for Gemma anyway, so requesting that quota now
+> is worthwhile even if you run Pythia on CPU today.
+
+---
+
+# GPU path (faster; required for Gemma) — reference
 
 ## Step 0 — one-time safety: budget alarm (5 min, do this first)
 Console: **Billing → Budgets → Create budget → Cost budget → $20/month → alert at 80% and 100% → your email.**
