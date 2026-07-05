@@ -159,3 +159,23 @@ def compare_absorption_to_published(agg, published):
     (source: the results repo adamkarvonen/sae_bench_results_0125). Returns {} if not provided.
     """
     return compare_by_arch_to_reference(agg, published, _ABS_SCORE_KEYS)
+
+
+# ---------------------------------------------------------------------------
+# Unlearning. One scalar `unlearning_score` per SAE (upstream already reduces the 16-config sweep); collate
+# per-SAE rows and summarize the headline score per architecture.
+# ---------------------------------------------------------------------------
+_UNLEARN_SCORE_KEYS = ["unlearning_score"]
+_UNLEARN_PER_SAE_KEYS = ("sae_name", "arch", "location", "status", "unlearning_score")
+
+
+def aggregate_unlearning(rows):
+    """Collate per-SAE unlearning rows (from unlearning.jsonl) into a processed result: the headline
+    `unlearning_score` mean/std per architecture. Non-ok rows are counted but excluded from summaries."""
+    return aggregate_by_arch(rows, _UNLEARN_SCORE_KEYS, _UNLEARN_PER_SAE_KEYS, excluded_label="n_failed")
+
+
+def compare_unlearning_to_published(agg, published):
+    """Per-architecture absolute deltas of `unlearning_score` vs published SAEBench values.
+    `published` maps arch -> {"unlearning_score": x}. Returns {} if not provided."""
+    return compare_by_arch_to_reference(agg, published, _UNLEARN_SCORE_KEYS)

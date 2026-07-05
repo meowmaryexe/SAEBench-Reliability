@@ -300,3 +300,89 @@ cos-gate + top-3 cap + proportion floor) and yields ~10× lower values (0.016). 
   finding: the 0.6.0 shipped constants do **not** reproduce the published fraction.
 Evidence + mechanism: `docs/findings/absorption_version_drift.md`; regression test:
 `tests/test_absorption_version_drift.py`.
+
+---
+
+# Pre-Registration — Unlearning (WMDP-bio) Reproduction
+
+**Project:** SAEBench reproducibility study (Karvonen et al., 2025, arXiv:2503.09532)
+**Component:** Unlearning (WMDP-bio) — a disentanglement metric measuring whether clamping SAE latents
+removes harmful (biology) knowledge while preserving general capability.
+**Owner:** Alor
+**Date written:** 2026-07-05
+**Status:** Locked before producing any Unlearning numbers (Principles I & III — pre-register the bar).
+
+Unlearning is on the project's **"reproduce only"** list: the authors already concede it is **degenerate
+on Gemma-2-2B** (near-zero, base-task-limited), so the finding is pre-conceded and you cannot meaningfully
+audit a metric the base model can't support. This section fixes what we compute, how, and what
+"reproduced" means.
+
+## 1. What Unlearning is (paper definition, Appendix D / Table 9)
+
+The eval clamps the top-N SAE latents (selected on a WMDP-bio forget set, excluding latents that fire on a
+retain set) to a negative multiplier, then measures multiple-choice accuracy on **WMDP-bio** (should drop)
+and on side-effect **MMLU** subsets (should stay high). It sweeps a 16-config grid
+(`retain_thresholds [0.001,0.01] × n_features [10,20] × multipliers [25,50,100,200]`) and reduces to a
+single headline **`unlearning_score = 1 − min(WMDP-bio accuracy)`** over the configs whose pooled
+side-effect MMLU stays **≥ 0.99**. **Gemma-only:** upstream hard-requires an instruct model; there is no
+Pythia unlearning (verified — the published `unlearning/` results exist only for `gemma-2-2b`).
+
+## 2. Implementation & exact configuration
+
+**Approach: wrap upstream.** Stage-1 faithful numbers come from running the authors' code
+(`sae_bench.evals.unlearning`) end-to-end, packaged in this repo's resumable `run_unlearning.py →
+aggregate_results.py --metric unlearning` flow (`src/saebench_audit/metrics/unlearning.py`), reusing the
+shared wrap-upstream scaffolding. Independent reimplementation is deferred.
+
+- **Eval model:** `gemma-2-2b-it` (instruct), layer 12. The released **base-model** SAEs are applied to the
+  instruct model exactly as the published eval does. Anchor width for the green milestone: 4k
+  (`adamkarvonen/…width-2pow12_date-0108`, whose naming matches the published results); then 65k headline + 16k.
+- **Shipped sweep (used verbatim):** the 16-config grid above; `random_seed=42` **is applied** upstream
+  (unlike absorption). `llm_batch_size`/`llm_dtype` affect only speed/memory (bfloat16, batch 4).
+- **Hardcoded score reduction (the audit knob).** The **0.99** side-effect-MMLU gate and the **min**-WMDP
+  selection are hardcoded in `main.py:72-96`, NOT config fields. Stage-1 uses these shipped values. They
+  are re-computable from the saved per-config `.pkl` sweep with **zero inference** via
+  `src/saebench_audit/metrics/unlearning_score.py` (`unlearning_score_from_sweep`, `mmlu_gate`/`reducer`
+  overridable) — the Stage-2 sensitivity check for the "best-of-16" optimistic selection the project plan
+  flags as the single biggest hidden choice.
+
+| Reduction knob | Shipped (used) | Audit toggle | Consumed at |
+|---|---|---|---|
+| side-effect MMLU gate | **0.99** | sweep (e.g. 0.95–1.0) | `main.py:93` |
+| WMDP reducer over admissible configs | **min** (best-of-16) | mean / median | `main.py:96` |
+| side-effect exclusion set | **{college_biology, wmdp-bio}** | — | `main.py:72` |
+
+**External requirements:** GPU; `google/gemma-2-2b-it` license (`huggingface-cli login`); the **gated
+`bio-forget-corpus.jsonl`** (Google-form request to `cais/wmdp-corpora`, placed at the CWD-relative
+`./sae_bench/evals/unlearning/data/`); a one-time ~20-min question-id generation. ~10 min/SAE. See
+`docs/aws_unlearning_runbook.md`.
+
+## 3. Validation reference
+
+Published per-SAE `unlearning_score` values live in `adamkarvonen/sae_bench_results_0125` under the
+`unlearning/` prefix (only `gemma-2-2b`, widths 4k/16k/65k, 42 SAEs/width). Fetched drop-in via
+`fetch_published_unlearning.py` → `published_ref.json`. (16k/65k results use `date-0108` naming while the
+registry SAE-weight repos are `canrager/…date-0107`; pass `--results_prefix` for those widths.)
+
+## 4. Pre-registered tolerances ("reproduced" means…)
+
+Unlearning has **no known sae-bench version drift** (the eval module is logically identical across 0.3.2 /
+0.6.0), so a single current-version run is the reproduction. But the scores are **near-zero/degenerate** on
+Gemma-2-2B, so absolute bands and rankings must be read with that caveat.
+
+| Quantity | Tolerance for "reproduced" | Rationale |
+|---|---|---|
+| `unlearning_score` (per SAE) | \|mine − published\| ≤ **0.05** | absolute band; scores are small and near-zero |
+| **Architecture ranking** | Spearman **ρ ≥ 0.9** vs published ordering | secondary — near-zero scores make the ranking noise-sensitive; report ρ but do not over-claim |
+
+## 5. Commitments (anti-confirmation-bias)
+
+- Report the near-zero/degenerate nature of the metric on Gemma-2-2B plainly; this is a **pre-conceded**
+  property of the base model, not a finding against the SAEs.
+- Use the shipped **best-of-16 min-WMDP** selection + **0.99** gate for reproduction. The optimistic-
+  selection concern is a **Stage-2 audit** question (mean/median recompute from the `.pkl` sweep), not a
+  reproduction change.
+- Keep the per-config `.pkl` artifacts (`clean_up_artifacts=False`) so the audit recompute needs no inference.
+- All code, configs, per-SAE raw JSON, and these tolerances are released.
+
+*Locked 2026-07-05. Any later change to §1–§4 must be recorded as a dated amendment.*

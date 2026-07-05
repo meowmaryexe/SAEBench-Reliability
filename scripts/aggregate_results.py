@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from saebench_audit.io import read_jsonl, write_json, _maybe_json
 from saebench_audit.statistics import (
     aggregate_core, compare_to_bundle, aggregate_absorption, compare_absorption_to_published,
+    aggregate_unlearning, compare_unlearning_to_published,
 )
 
 
@@ -46,15 +47,41 @@ def _aggregate_absorption(workdir, out_path):
         print(f"[agg]   {arch:>12}: fraction={fr_s}  full={fu_s}")
 
 
+def _aggregate_unlearning(workdir, out_path):
+    meta = _maybe_json(os.path.join(workdir, "run_meta.json")) or {}
+    rows = read_jsonl(os.path.join(workdir, "unlearning.jsonl"))
+    agg = aggregate_unlearning(rows)
+    published = _maybe_json(os.path.join(workdir, "published_ref.json"))  # optional results-repo values
+    out = {
+        "metric": "unlearning",
+        "sae_repo": meta.get("sae_repo"),
+        "model_name": meta.get("model_name"),
+        "config": meta.get("config"),
+        "result": agg,
+        "comparison_to_published": compare_unlearning_to_published(agg, published),
+        "published_ref": published,
+    }
+    write_json(out_path, out)
+    print(f"[agg] {out_path}")
+    print(f"[agg] unlearning: {agg['n_ok']}/{agg['n_saes']} ok ({agg['n_failed']} failed)")
+    for arch, s in agg["by_arch"].items():
+        u = s["unlearning_score"]
+        u_s = f"{u['mean']:.4f}±{u['std']:.4f} (n={u['n']})" if u else "n/a"
+        print(f"[agg]   {arch:>18}: unlearning_score={u_s}")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--metric", choices=["core", "absorption"], default="core")
+    ap.add_argument("--metric", choices=["core", "absorption", "unlearning"], default="core")
     ap.add_argument("--workdir", required=True, help="raw checkpoint dir + run_meta.json")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
     if args.metric == "absorption":
         _aggregate_absorption(args.workdir, args.out)
+        return
+    if args.metric == "unlearning":
+        _aggregate_unlearning(args.workdir, args.out)
         return
 
     rows = read_jsonl(os.path.join(args.workdir, "raw.jsonl"))

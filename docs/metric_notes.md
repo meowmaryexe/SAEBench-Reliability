@@ -163,6 +163,36 @@ does report Pythia-160M absorption). **Configs:** `configs/reproduce/absorption.
 
 ---
 
+## Unlearning (WMDP-bio) 🚧 (reproduce-only) — owner: Alor
+
+**Definition.** Clamp the top-N SAE latents (selected on a WMDP-bio forget set, excluding latents that fire
+on a retain set) to a negative multiplier, then measure MCQ accuracy on **WMDP-bio** (should drop) vs
+side-effect **MMLU** subsets (should hold). Sweeps a 16-config grid; headline
+**`unlearning_score = 1 − min(WMDP-bio acc)`** over configs with pooled side-effect MMLU ≥ 0.99
+(paper Appendix D / Table 9).
+
+**Implementation — wrap upstream.** `src/saebench_audit/metrics/unlearning.py` thinly wraps
+`sae_bench.evals.unlearning` and runs through the resumable `run_unlearning.py → aggregate_results.py
+--metric unlearning` flow, reusing the shared scaffolding (`saebench_audit.{provenance,suites,runner,
+run_record}`). The hardcoded score reduction (0.99 gate + min-selection, `main.py:72-96`) is re-implemented
+compute-free in `metrics/unlearning_score.py` for the Stage-2 audit (recompute from the saved `.pkl` sweep
+with `mmlu_gate`/`reducer` overridable) — the "best-of-16" optimistic-selection knob the project plan flags.
+
+**Gemma-only, no Pythia (verified).** Upstream hard-requires an instruct model (`gemma-2-2b-it`, layer 12);
+published `unlearning/` results exist only for `gemma-2-2b` (widths 4k/16k/65k, **42 SAEs/width** — 16k
+additionally ships checkpoint SAEs, excluded by the `checkpoints` filter). No CPU path. Green milestone =
+Gemma 4k; then 65k headline + 16k. Pre-conceded **degenerate (near-zero)** on Gemma-2-2B — reproduce-only,
+low audit yield.
+
+**External requirements.** GPU + `google/gemma-2-2b-it` license + the gated `bio-forget-corpus.jsonl`
+(Google form; placed at `./sae_bench/evals/unlearning/data/`) + a one-time ~20-min question-id generation;
+~10 min/SAE. No known sae-bench version drift (single current-version run reproduces published).
+**Configs:** `configs/reproduce/unlearning.yaml`, `configs/gpu/unlearning_gpu.yaml`. **Pre-reg:**
+`docs/preregistration.md` (Unlearning). **Runbook:** `docs/aws_unlearning_runbook.md`. **Tests:**
+`tests/test_unlearning_units.py` (9), `tests/test_unlearning_score_oracle.py` (6).
+
+---
+
 ## SCR · TPP · Sparse Probing 🚧 (owner: Mary)
 
 ### Current Status

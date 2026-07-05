@@ -1,0 +1,40 @@
+# Unlearning — GPU/cloud reproduction config (Gemma-only; no Pythia path).
+# Consumed by: scripts/run_unlearning_suite.sh (which calls scripts/run_unlearning.py --suite <name>).
+# Wraps upstream sae_bench.evals.unlearning on a GPU (see docs/aws_unlearning_runbook.md).
+metric: unlearning
+owner: alor
+
+# Single version — unlearning has NO known sae-bench version drift (the eval module is logically identical
+# across 0.3.2/0.6.0; only the run_eval `artifacts_path` kwarg + sae_cfg serialization differ). One current
+# run reproduces published, unlike absorption's two-version fraction story.
+versions:
+  v0.6.0: {venv_env: VENV}       # current sae-bench (transformers<5) — GPU-capable
+
+runtime:
+  device: cuda                   # GPU required (no CPU path — Gemma-2-2b-it forward passes)
+  llm_dtype: bfloat16
+  llm_batch_size: 4              # gemma-2-2b-it default; MCQ batch uses 2x (no metric effect)
+
+# Suites (registry.yaml keys). Start with 4k (cheapest; SAE repo matches published-results naming);
+# add 16k/65k when ready. 16k/65k published results use date-0108 naming vs canrager date-0107 SAE weights
+# → fetch_published_unlearning.py needs --results_prefix for those widths.
+suites_now:
+  - gemma-2-2b-it_4k             # ~10 min/SAE
+suites_later:
+  - gemma-2-2b-it_16k
+  - gemma-2-2b-it_65k            # headline width
+
+# Shipped score reduction (faithful; the audit toggles these on the saved .pkl sweep via
+# src/saebench_audit/metrics/unlearning_score.py — no re-inference).
+score_reduction_shipped:
+  mmlu_side_effect_gate: 0.99
+  reducer: min                   # best-of-16 min-WMDP (structurally optimistic; disclosed)
+
+reference:
+  results_repo: adamkarvonen/sae_bench_results_0125   # published; fetched via fetch_published_unlearning.py
+  drift_band_abs: 0.05
+  ranking_spearman_min: 0.9      # caveat: near-zero/degenerate scores on Gemma-2-2B → ranking noise-sensitive
+
+# Prereqs: huggingface-cli login + Gemma-it license; gated bio-forget-corpus.jsonl placed at
+# ./sae_bench/evals/unlearning/data/ (launch from repo root); ~20-min one-time question-id generation.
+# Cost: ~42 SAEs x ~10 min ≈ 7 GPU-h/width (~$7-14 spot). Guardrails in the runbook + driver (auto-shutdown).
