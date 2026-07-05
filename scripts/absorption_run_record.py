@@ -1,8 +1,8 @@
 """
-Consolidate one absorption suite run (both sae-bench versions) into a durable, auditable **run record**:
-`run_record.json` (machine) + `run_record.md` (human). Bundles provenance (versions, git SHA, host, GPU,
-timestamps from each run's run_meta.json), the per-architecture results for each version, the published
-reference, and the report text — so a run is fully reproducible/attributable after the box is gone.
+Thin absorption adapter over saebench_audit.run_record.write_run_record: consolidate one absorption suite
+run (both sae-bench versions) into a durable `run_record.{json,md}` for recordkeeping. All the generic
+assembly (provenance, per-arch table, published-ref, embedded report, partial-run guard) lives in the
+shared module; this file only supplies the absorption score columns + version labels.
 
   python scripts/absorption_run_record.py --suite pythia-160m_4k --record_dir <dir> \
     --v032_workdir results/raw/absorption/pythia-160m_4k_v0.3.2 \
@@ -11,25 +11,16 @@ reference, and the report text — so a run is fully reproducible/attributable a
     --v060_processed results/processed/absorption/pythia-160m_4k_v0.6.0.json \
     --report <record_dir>/report.txt
 
-Called by scripts/run_absorption_suite.sh; pure stdlib.
+Called by scripts/run_absorption_suite.sh.
 """
 import argparse
-import datetime
-import json
 import os
+import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+from saebench_audit.run_record import write_run_record
 
-def _load(path):
-    return json.load(open(path)) if path and os.path.exists(path) else None
-
-
-def _by_arch(processed):
-    out = {}
-    for arch, s in (processed or {}).get("result", {}).get("by_arch", {}).items():
-        fr, fu = s.get("mean_absorption_fraction_score"), s.get("mean_full_absorption_score")
-        out[arch] = {"fraction": fr["mean"] if fr else None, "full": fu["mean"] if fu else None,
-                     "n": (fr or fu or {}).get("n")}
-    return out
+SCORE_KEYS = [("mean_absorption_fraction_score", "frac"), ("mean_full_absorption_score", "full")]
 
 
 def main():
@@ -43,71 +34,16 @@ def main():
     ap.add_argument("--report", help="path to the captured report text")
     args = ap.parse_args()
 
-    meta032 = _load(os.path.join(args.v032_workdir, "run_meta.json")) or {}
-    meta060 = _load(os.path.join(args.v060_workdir, "run_meta.json")) or {}
-    proc032, proc060 = _load(args.v032_processed), _load(args.v060_processed)
-    published = _load(os.path.join(args.v032_workdir, "published_ref.json")) or {}
     report_txt = open(args.report).read() if args.report and os.path.exists(args.report) else None
-
-    record = {
-        "suite": args.suite,
-        "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "runs": {
-            "v0.3.2": {"provenance": meta032.get("provenance"), "sae_bench_version": meta032.get("sae_bench_version"),
-                       "config": meta032.get("config"), "n_saes": meta032.get("n_saes"),
-                       "result": (proc032 or {}).get("result", {}).get("by_arch"),
-                       "n_ok": (proc032 or {}).get("result", {}).get("n_ok")},
-            "v0.6.0": {"provenance": meta060.get("provenance"), "sae_bench_version": meta060.get("sae_bench_version"),
-                       "config": meta060.get("config"), "n_saes": meta060.get("n_saes"),
-                       "result": (proc060 or {}).get("result", {}).get("by_arch"),
-                       "n_ok": (proc060 or {}).get("result", {}).get("n_ok")},
-        },
-        "published_ref": {a: {"fraction": v.get("mean_absorption_fraction_score"),
-                              "full": v.get("mean_full_absorption_score"), "n_trainers": v.get("n_trainers")}
-                          for a, v in published.items()},
-        "report_text": report_txt,
-        "artifacts": {"v032_workdir": args.v032_workdir, "v060_workdir": args.v060_workdir,
-                      "v032_processed": args.v032_processed, "v060_processed": args.v060_processed},
-    }
-    os.makedirs(args.record_dir, exist_ok=True)
-    json.dump(record, open(os.path.join(args.record_dir, "run_record.json"), "w"), indent=2)
-
-    # ---- human-readable markdown ----
-    a032, a060 = _by_arch(proc032), _by_arch(proc060)
-    n032 = (proc032 or {}).get("result", {}).get("n_ok", 0)
-    n060 = (proc060 or {}).get("result", {}).get("n_ok", 0)
-    L = []
-    L.append(f"# Absorption run record — {args.suite}")
-    L.append(f"\n_generated {record['generated_utc']}_\n")
-    for tag, meta, n in [("v0.3.2 (published-match)", meta032, n032), ("v0.6.0 (current)", meta060, n060)]:
-        p = meta.get("provenance") or {}
-        pk = p.get("packages") or {}
-        L.append(f"## {tag} — {n}/{meta.get('n_saes','?')} SAEs ok")
-        L.append(f"- sae-bench `{pk.get('sae-bench')}` · sae_lens `{pk.get('sae_lens')}` · "
-                 f"transformer_lens `{pk.get('transformer_lens')}` · transformers `{pk.get('transformers')}` · "
-                 f"torch `{pk.get('torch')}`")
-        L.append(f"- host `{p.get('hostname')}` · device `{p.get('device')}` · gpu `{p.get('gpu')}` · "
-                 f"git `{(p.get('git_sha') or '')[:10]}`{'(dirty)' if p.get('git_dirty') else ''} · "
-                 f"finished `{p.get('timestamp_utc')}`\n")
-    L.append("## Per-architecture (fraction | full)")
-    L.append(f"\n| arch | published frac | 0.3.2 | 0.6.0 | published full | 0.3.2 | 0.6.0 |")
-    L.append("|---|---|---|---|---|---|---|")
-    for arch in sorted(set(a032) | set(a060) | set(published)):
-        pf = published.get(arch, {}).get("mean_absorption_fraction_score")
-        pu = published.get(arch, {}).get("mean_full_absorption_score")
-        def _f(x): return f"{x:.4f}" if isinstance(x, (int, float)) else "—"
-        L.append(f"| {arch} | {_f(pf)} | {_f(a032.get(arch,{}).get('fraction'))} | "
-                 f"{_f(a060.get(arch,{}).get('fraction'))} | {_f(pu)} | "
-                 f"{_f(a032.get(arch,{}).get('full'))} | {_f(a060.get(arch,{}).get('full'))} |")
-    if n032 < 42 or n060 < 42:
-        L.append(f"\n⚠ **Partial run** (0.3.2 n_ok={n032}, 0.6.0 n_ok={n060}; full suite = 42). Per-arch "
-                 f"deltas vs the published 6-trainer means are not meaningful until all trainers per arch run.")
-    if report_txt:
-        L.append("\n## Report\n```\n" + report_txt.rstrip() + "\n```")
-    open(os.path.join(args.record_dir, "run_record.md"), "w").write("\n".join(L) + "\n")
-
-    print(f"[record] {os.path.join(args.record_dir, 'run_record.json')}")
-    print(f"[record] {os.path.join(args.record_dir, 'run_record.md')}")
+    json_path, md_path = write_run_record(
+        args.record_dir, metric="absorption", suite=args.suite,
+        version_workdirs={"v0.3.2": args.v032_workdir, "v0.6.0": args.v060_workdir},
+        version_processed={"v0.3.2": args.v032_processed, "v0.6.0": args.v060_processed},
+        version_labels={"v0.3.2": "v0.3.2 (published-match)", "v0.6.0": "v0.6.0 (current)"},
+        published_path=os.path.join(args.v032_workdir, "published_ref.json"),
+        score_keys=SCORE_KEYS, report_text=report_txt, full_suite_n=42)
+    print(f"[record] {json_path}")
+    print(f"[record] {md_path}")
 
 
 if __name__ == "__main__":

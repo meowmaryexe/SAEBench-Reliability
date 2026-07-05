@@ -32,6 +32,11 @@ from __future__ import annotations
 import os
 from dataclasses import asdict, dataclass
 
+# Generic scaffolding lives in shared modules now; re-exported here so `absorp.<name>` keeps resolving
+# for existing importers (tests + scripts) and so this stays the single import surface for the metric.
+from ..provenance import build_upstream_config, ensure_torch_load_shim, environment_provenance, installed_version
+from ..suites import load_released_sae, sae_result_path
+
 # Shipped upstream thresholds (feature_absorption.py:34-44). Stage-1 uses these verbatim.
 SHIPPED_ABSORPTION_FRACTION_COS = 0.1
 SHIPPED_FULL_ABSORPTION_COS = 0.025
@@ -100,8 +105,6 @@ def build_eval_config(cfg: AbsorptionConfig):
     `eval_k_sparse_probe_batch_size`, so passing them would raise. This lets one runner work under both
     0.3.2 and 0.6.0.
     """
-    import dataclasses
-
     from sae_bench.evals.absorption.eval_config import AbsorptionEvalConfig
 
     wanted = {
@@ -118,79 +121,13 @@ def build_eval_config(cfg: AbsorptionConfig):
         "k_sparse_probe_num_epochs": cfg.k_sparse_probe_num_epochs,
         "eval_k_sparse_probe_batch_size": cfg.eval_k_sparse_probe_batch_size,
     }
-    available = {f.name for f in dataclasses.fields(AbsorptionEvalConfig)}
-    eval_cfg = AbsorptionEvalConfig(**{k: v for k, v in wanted.items() if k in available})
-    eval_cfg.llm_batch_size = cfg.llm_batch_size
-    eval_cfg.llm_dtype = cfg.llm_dtype
-    return eval_cfg
-
-
-_TORCH_LOAD_PATCHED = False
-
-
-def ensure_torch_load_shim() -> None:
-    """Force `torch.load(weights_only=False)` (trusted local files). sae-bench 0.3.2 pickles a
-    LinearProbe and reloads it via torch.load; torch >=2.6 defaults weights_only=True and refuses.
-    Harmless on 0.6.0. Applied lazily so this module still imports without torch (plain-python tests)."""
-    global _TORCH_LOAD_PATCHED
-    if _TORCH_LOAD_PATCHED:
-        return
-    import torch
-
-    _orig = torch.load
-
-    def _patched(*a, **k):
-        k.setdefault("weights_only", False)
-        return _orig(*a, **k)
-
-    torch.load = _patched
-    _TORCH_LOAD_PATCHED = True
+    return build_upstream_config(AbsorptionEvalConfig, wanted,
+                                 {"llm_batch_size": cfg.llm_batch_size, "llm_dtype": cfg.llm_dtype})
 
 
 def installed_sae_bench_version() -> str:
     """The installed sae-bench version string (recorded in run_meta so runs are attributable)."""
-    import importlib.metadata as md
-
-    try:
-        return md.version("sae-bench")
-    except Exception:
-        return "unknown"
-
-
-def environment_provenance(device: str = "") -> dict:
-    """Best-effort environment/provenance for recordkeeping: package versions, python, host, GPU, git.
-    Everything is wrapped so a missing tool (e.g. no nvidia-smi / not a git checkout) never fails a run."""
-    import datetime
-    import importlib.metadata as md
-    import platform
-    import socket
-    import subprocess
-    import sys
-
-    def _v(pkg):
-        try:
-            return md.version(pkg)
-        except Exception:
-            return None
-
-    def _cmd(args):
-        try:
-            return subprocess.check_output(args, text=True, stderr=subprocess.DEVNULL).strip()
-        except Exception:
-            return None
-
-    return {
-        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "python": sys.version.split()[0],
-        "platform": platform.platform(),
-        "hostname": socket.gethostname(),
-        "device": device,
-        "packages": {p: _v(p) for p in
-                     ["sae-bench", "sae_lens", "transformer_lens", "transformers", "torch", "numpy"]},
-        "git_sha": _cmd(["git", "rev-parse", "HEAD"]),
-        "git_dirty": bool(_cmd(["git", "status", "--porcelain"])),
-        "gpu": _cmd(["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader"]),
-    }
+    return installed_version("sae-bench")
 
 
 def apply_threshold_overrides(cfg: AbsorptionConfig) -> bool:
@@ -213,72 +150,6 @@ def _flatten_output(out: dict) -> dict:
     flat = {k: mean.get(k) for k in ABSORPTION_MEAN_KEYS}
     flat["eval_result_details"] = out.get("eval_result_details", [])
     return flat
-
-
-def load_released_sae(
-    repo_id: str,
-    location: str,
-    model_name: str = "pythia-160m-deduped",
-    device: str = "cpu",
-    dtype: str = "float32",
-    download_location: str = "downloaded_saes",
-):
-    """Load a released dictionary_learning SAE into a sae_lens-compatible object for `run_eval`.
-
-    `location` is the in-repo folder holding `ae.pt` + `config.json`
-    (e.g. "Standard_.../resid_post_layer_8/trainer_0"). Reads the config to pick the right
-    upstream trainer loader (TRAINER_LOADERS), which downloads + formats the weights (HF-cached).
-    """
-    import json
-
-    from huggingface_hub import hf_hub_download
-
-    from sae_bench.custom_saes.run_all_evals_dictionary_learning_saes import TRAINER_LOADERS
-    from sae_bench.sae_bench_utils import general_utils
-
-    location = location.rstrip("/")
-    cfg_path = hf_hub_download(
-        repo_id=repo_id,
-        filename=f"{location}/config.json",
-        force_download=False,
-        local_dir=download_location,
-    )
-    with open(cfg_path) as f:
-        config = json.load(f)
-    trainer_class = config["trainer"]["trainer_class"]
-    # Tolerate the sae-bench 0.3.2 loader typo ('Matroyshka' vs 'Matryoshka') and minor renames:
-    # pick the loader whose key matches the reported name or a Matryoshka<->Matroyshka respelling.
-    candidates = [trainer_class,
-                  trainer_class.replace("Matryoshka", "Matroyshka"),
-                  trainer_class.replace("Matroyshka", "Matryoshka")]
-    key = next((c for c in candidates if c in TRAINER_LOADERS), None)
-    if key is None:
-        raise ValueError(
-            f"Unknown trainer_class {trainer_class!r}; known: {sorted(TRAINER_LOADERS)}"
-        )
-    if key != trainer_class:
-        # 0.3.2's Matryoshka loader *also* asserts the (typo'd) trainer_class name internally after
-        # building the SAE, raising otherwise. The SAE weights are identical; only this metadata string
-        # differs. Patch the cached config in place so the loader accepts it — verified the loader re-reads
-        # this cached file (force_download=False) without clobbering the edit.
-        config["trainer"]["trainer_class"] = key
-        with open(cfg_path, "w") as f:
-            json.dump(config, f)
-    return TRAINER_LOADERS[key](
-        repo_id=repo_id,
-        filename=f"{location}/ae.pt",
-        layer=None,
-        model_name=model_name,
-        device=device,
-        dtype=general_utils.str_to_dtype(dtype),
-    )
-
-
-def sae_result_path(workdir: str, sae_name: str) -> str:
-    """Path where upstream writes this SAE's result JSON (used for resume/skip)."""
-    from sae_bench.sae_bench_utils import general_utils
-
-    return general_utils.get_results_filepath(workdir, sae_name, "custom_sae")
 
 
 def run_absorption(

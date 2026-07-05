@@ -14,6 +14,11 @@ Pure stdlib (no scipy) so it runs anywhere.
 """
 import argparse
 import json
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+from saebench_audit.statistics import spearman
 
 
 def _by_arch(processed_path):
@@ -31,35 +36,6 @@ def _pub_by_arch(published_path):
     p = json.load(open(published_path))
     return {a: (v.get("mean_absorption_fraction_score"), v.get("mean_full_absorption_score"))
             for a, v in p.items()}
-
-
-def _ranks(values):
-    """Average-tie ranks for a list of numbers."""
-    order = sorted(range(len(values)), key=lambda i: values[i])
-    ranks = [0.0] * len(values)
-    i = 0
-    while i < len(order):
-        j = i
-        while j + 1 < len(order) and values[order[j + 1]] == values[order[i]]:
-            j += 1
-        avg = (i + j) / 2.0 + 1.0
-        for k in range(i, j + 1):
-            ranks[order[k]] = avg
-        i = j + 1
-    return ranks
-
-
-def _spearman(a, b):
-    """Spearman rho between two equal-length numeric lists (Pearson on ranks)."""
-    if len(a) < 2:
-        return float("nan")
-    ra, rb = _ranks(a), _ranks(b)
-    n = len(a)
-    ma, mb = sum(ra) / n, sum(rb) / n
-    cov = sum((ra[i] - ma) * (rb[i] - mb) for i in range(n))
-    va = sum((x - ma) ** 2 for x in ra) ** 0.5
-    vb = sum((x - mb) ** 2 for x in rb) ** 0.5
-    return cov / (va * vb) if va and vb else float("nan")
 
 
 def _aligned(d_pub, d_a, d_b, idx):
@@ -96,8 +72,8 @@ def main():
         for arch, pv, av, bv in zip(archs, p, a, b):
             print(f"{arch:>18} {pv:>10.4f} {av:>10.4f} {av-pv:>+8.4f} {bv:>10.4f} {bv-pv:>+8.4f}")
         if len(archs) >= 2:
-            print(f"  Spearman ρ  published↔0.3.2={_spearman(p, a):+.3f}  "
-                  f"published↔0.6.0={_spearman(p, b):+.3f}  0.3.2↔0.6.0={_spearman(a, b):+.3f}")
+            print(f"  Spearman ρ  published↔0.3.2={spearman(p, a):+.3f}  "
+                  f"published↔0.6.0={spearman(p, b):+.3f}  0.3.2↔0.6.0={spearman(a, b):+.3f}")
 
     # Verdicts on the fraction (the version-sensitive score)
     archs, p, a, b = _aligned(pub, v032, v060, 0)
@@ -106,8 +82,8 @@ def main():
         print(f"\n[verdict] fraction: 0.3.2 max |Δ vs published| = {max_d032:.4f} "
               f"({'within' if max_d032 <= args.drift_band else 'OUTSIDE'} drift band {args.drift_band}) "
               f"→ {'reproduces' if max_d032 <= args.drift_band else 'does NOT reproduce'} published")
-        rho = _spearman(p, a)
-        rho_b = _spearman(p, b)
+        rho = spearman(p, a)
+        rho_b = spearman(p, b)
         print(f"[verdict] ranking survives redefinition? published↔0.3.2 ρ={rho:+.3f}, "
               f"published↔0.6.0 ρ={rho_b:+.3f} "
               f"→ {'ranking holds' if rho_b >= 0.9 else 'ranking may shift under 0.6.0'}")

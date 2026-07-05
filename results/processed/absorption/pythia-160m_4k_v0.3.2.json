@@ -1,0 +1,1040 @@
+{
+  "metric": "absorption",
+  "sae_repo": "adamkarvonen/saebench_pythia-160m-deduped_width-2pow12_date-0108",
+  "model_name": "pythia-160m-deduped",
+  "config": {
+    "model_name": "pythia-160m-deduped",
+    "llm_dtype": "float32",
+    "llm_batch_size": 32,
+    "device": "cpu",
+    "random_seed": 42,
+    "f1_jump_threshold": 0.03,
+    "max_k_value": 10,
+    "prompt_template": "{word} has the first letter:",
+    "prompt_token_pos": -6,
+    "min_GT_probe_f1": 0.6,
+    "min_feats_for_eval": 20,
+    "k_sparse_probe_l1_decay": 0.01,
+    "k_sparse_probe_batch_size": 4096,
+    "k_sparse_probe_num_epochs": 50,
+    "eval_k_sparse_probe_batch_size": 24,
+    "absorption_fraction_probe_cos_sim_threshold": 0.1,
+    "full_absorption_probe_cos_sim_threshold": 0.025,
+    "probe_projection_proportion_threshold": 0.4,
+    "absorption_fraction_max_absorbing_latents": 3
+  },
+  "result": {
+    "n_saes": 42,
+    "n_ok": 42,
+    "n_insufficient_features": 0,
+    "by_arch": {
+      "batchtopk": {
+        "mean_absorption_fraction_score": {
+          "mean": 0.28514696305268467,
+          "std": 0.25527980057517746,
+          "n": 6,
+          "values": [
+            0.21413891983822475,
+            0.13067408938400527,
+            0.1188982163852529,
+            0.17450478457516203,
+            0.2805343297805399,
+            0.7921314383529233
+          ]
+        },
+        "mean_full_absorption_score": {
+          "mean": 0.05828321021161293,
+          "std": 0.05069438644242034,
+          "n": 6,
+          "values": [
+            0.15477539535552506,
+            0.07330347039581721,
+            0.04069988296116072,
+            0.026447155992083235,
+            0.03283900096642099,
+            0.021634355598670333
+          ]
+        }
+      },
+      "gatedsae": {
+        "mean_absorption_fraction_score": {
+          "mean": 0.1946559205357684,
+          "std": 0.03668026320051768,
+          "n": 6,
+          "values": [
+            0.2588690013181337,
+            0.16625640231948335,
+            0.16256281569860104,
+            0.18174002328333716,
+            0.18254600237536067,
+            0.21596127821969463
+          ]
+        },
+        "mean_full_absorption_score": {
+          "mean": 0.055704056492443386,
+          "std": 0.050843939424977905,
+          "n": 6,
+          "values": [
+            0.011003349977946433,
+            0.016117551291708773,
+            0.023588321506037922,
+            0.05152863262555016,
+            0.09316935076657412,
+            0.13881713278684288
+          ]
+        }
+      },
+      "jumprelu": {
+        "mean_absorption_fraction_score": {
+          "mean": 0.22805241169761933,
+          "std": 0.20687781617632311,
+          "n": 6,
+          "values": [
+            0.13247106130945785,
+            0.11346313141943504,
+            0.1182762496498965,
+            0.11619505867900067,
+            0.25168465708380655,
+            0.6362243120441194
+          ]
+        },
+        "mean_full_absorption_score": {
+          "mean": 0.04306413027902158,
+          "std": 0.03649543125448504,
+          "n": 6,
+          "values": [
+            0.10493320768055994,
+            0.06487935923786245,
+            0.0434366843906531,
+            0.015657559257676142,
+            0.014671977816088231,
+            0.014805993291289605
+          ]
+        }
+      },
+      "matryoshkabatchtopk": {
+        "mean_absorption_fraction_score": {
+          "mean": 0.2977569245716684,
+          "std": 0.27659615330283943,
+          "n": 6,
+          "values": [
+            0.17894297380198024,
+            0.14920969358469205,
+            0.12849173264029362,
+            0.20575486398726214,
+            0.2709482894047536,
+            0.8531939940110287
+          ]
+        },
+        "mean_full_absorption_score": {
+          "mean": 0.056144648775701626,
+          "std": 0.043263003164082686,
+          "n": 6,
+          "values": [
+            0.12743738245092262,
+            0.0886379979838753,
+            0.04913489910159288,
+            0.029532198223690912,
+            0.020313952955254937,
+            0.021811461938873133
+          ]
+        }
+      },
+      "panneal": {
+        "mean_absorption_fraction_score": {
+          "mean": 0.11725716140753521,
+          "std": 0.02234781222863866,
+          "n": 6,
+          "values": [
+            0.15690990790718926,
+            0.1109621391941498,
+            0.09248765366745385,
+            0.10169117449336615,
+            0.11916762246483488,
+            0.12232447071821723
+          ]
+        },
+        "mean_full_absorption_score": {
+          "mean": 0.03133145397900411,
+          "std": 0.024966012105167436,
+          "n": 6,
+          "values": [
+            0.010021481217367154,
+            0.010356422871251861,
+            0.01232214786363604,
+            0.033864839855889554,
+            0.05270419884545635,
+            0.0687196332204237
+          ]
+        }
+      },
+      "standard": {
+        "mean_absorption_fraction_score": {
+          "mean": 0.16939909275042328,
+          "std": 0.013574007214844731,
+          "n": 6,
+          "values": [
+            0.16090288357722096,
+            0.19597006837381684,
+            0.17050424719029328,
+            0.16513996149344964,
+            0.1644276230444422,
+            0.15944977282331668
+          ]
+        },
+        "mean_full_absorption_score": {
+          "mean": 0.031194693352961544,
+          "std": 0.021310526158478966,
+          "n": 6,
+          "values": [
+            0.008547405534642137,
+            0.015150173624675854,
+            0.017661315410065468,
+            0.03293103347378896,
+            0.051987295172329424,
+            0.06089093690226744
+          ]
+        }
+      },
+      "topk": {
+        "mean_absorption_fraction_score": {
+          "mean": 0.2653592403379592,
+          "std": 0.25234166415073955,
+          "n": 6,
+          "values": [
+            0.19559000515379252,
+            0.1094278155489273,
+            0.09826023364389788,
+            0.16972527453355593,
+            0.251847922876138,
+            0.7673041902714437
+          ]
+        },
+        "mean_full_absorption_score": {
+          "mean": 0.06115483597752997,
+          "std": 0.05485856457410021,
+          "n": 6,
+          "values": [
+            0.16867261254631508,
+            0.06760028144543848,
+            0.043320783378489346,
+            0.03290454862610771,
+            0.030806425837731348,
+            0.023624364031097887
+          ]
+        }
+      }
+    },
+    "per_sae": [
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0",
+        "arch": "batchtopk",
+        "location": "BatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.21413891983822475,
+        "mean_full_absorption_score": 0.15477539535552506,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.12512400089989867,
+        "std_dev_full_absorption_score": 0.08612771687941942,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1",
+        "arch": "batchtopk",
+        "location": "BatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_1",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.13067408938400527,
+        "mean_full_absorption_score": 0.07330347039581721,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.09594955004067494,
+        "std_dev_full_absorption_score": 0.056849877490161,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2",
+        "arch": "batchtopk",
+        "location": "BatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_2",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.1188982163852529,
+        "mean_full_absorption_score": 0.04069988296116072,
+        "mean_num_split_features": 1.1153846153846154,
+        "std_dev_absorption_fraction_score": 0.1196506751226845,
+        "std_dev_full_absorption_score": 0.03823308565875332,
+        "std_dev_num_split_features": 0.3258125936084211
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3",
+        "arch": "batchtopk",
+        "location": "BatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_3",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.17450478457516203,
+        "mean_full_absorption_score": 0.026447155992083235,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.22461979700159665,
+        "std_dev_full_absorption_score": 0.02771653617130141,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4",
+        "arch": "batchtopk",
+        "location": "BatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_4",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.2805343297805399,
+        "mean_full_absorption_score": 0.03283900096642099,
+        "mean_num_split_features": 1.1153846153846154,
+        "std_dev_absorption_fraction_score": 0.27347608958910774,
+        "std_dev_full_absorption_score": 0.06360238889360495,
+        "std_dev_num_split_features": 0.5883484054145521
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5",
+        "arch": "batchtopk",
+        "location": "BatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_5",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.7921314383529233,
+        "mean_full_absorption_score": 0.021634355598670333,
+        "mean_num_split_features": 1.1923076923076923,
+        "std_dev_absorption_fraction_score": 0.17523284200123568,
+        "std_dev_full_absorption_score": 0.029767487395283104,
+        "std_dev_num_split_features": 0.4914656259988704
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0",
+        "arch": "gatedsae",
+        "location": "GatedSAE_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.2588690013181337,
+        "mean_full_absorption_score": 0.011003349977946433,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.23665483848102362,
+        "std_dev_full_absorption_score": 0.016431102462450223,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1",
+        "arch": "gatedsae",
+        "location": "GatedSAE_pythia-160m-deduped__0108/resid_post_layer_8/trainer_1",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.16625640231948335,
+        "mean_full_absorption_score": 0.016117551291708773,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.09393556492045829,
+        "std_dev_full_absorption_score": 0.018614044672749717,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2",
+        "arch": "gatedsae",
+        "location": "GatedSAE_pythia-160m-deduped__0108/resid_post_layer_8/trainer_2",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.16256281569860104,
+        "mean_full_absorption_score": 0.023588321506037922,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.14128537244731512,
+        "std_dev_full_absorption_score": 0.027830249193875486,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3",
+        "arch": "gatedsae",
+        "location": "GatedSAE_pythia-160m-deduped__0108/resid_post_layer_8/trainer_3",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.18174002328333716,
+        "mean_full_absorption_score": 0.05152863262555016,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.14018819039596386,
+        "std_dev_full_absorption_score": 0.04043686536506969,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4",
+        "arch": "gatedsae",
+        "location": "GatedSAE_pythia-160m-deduped__0108/resid_post_layer_8/trainer_4",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.18254600237536067,
+        "mean_full_absorption_score": 0.09316935076657412,
+        "mean_num_split_features": 1.1153846153846154,
+        "std_dev_absorption_fraction_score": 0.12909452620906472,
+        "std_dev_full_absorption_score": 0.06167993907630795,
+        "std_dev_num_split_features": 0.5883484054145521
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5",
+        "arch": "gatedsae",
+        "location": "GatedSAE_pythia-160m-deduped__0108/resid_post_layer_8/trainer_5",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.21596127821969463,
+        "mean_full_absorption_score": 0.13881713278684288,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.10060402848657146,
+        "std_dev_full_absorption_score": 0.07438419587646056,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0",
+        "arch": "jumprelu",
+        "location": "JumpRelu_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.13247106130945785,
+        "mean_full_absorption_score": 0.10493320768055994,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.1014547380494234,
+        "std_dev_full_absorption_score": 0.07244761539997903,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1",
+        "arch": "jumprelu",
+        "location": "JumpRelu_pythia-160m-deduped__0108/resid_post_layer_8/trainer_1",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.11346313141943504,
+        "mean_full_absorption_score": 0.06487935923786245,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.08252687345939017,
+        "std_dev_full_absorption_score": 0.05127860187489076,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2",
+        "arch": "jumprelu",
+        "location": "JumpRelu_pythia-160m-deduped__0108/resid_post_layer_8/trainer_2",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.1182762496498965,
+        "mean_full_absorption_score": 0.0434366843906531,
+        "mean_num_split_features": 1.1923076923076923,
+        "std_dev_absorption_fraction_score": 0.10219267156497958,
+        "std_dev_full_absorption_score": 0.0432248530104786,
+        "std_dev_num_split_features": 0.4914656259988704
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3",
+        "arch": "jumprelu",
+        "location": "JumpRelu_pythia-160m-deduped__0108/resid_post_layer_8/trainer_3",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.11619505867900067,
+        "mean_full_absorption_score": 0.015657559257676142,
+        "mean_num_split_features": 1.0769230769230769,
+        "std_dev_absorption_fraction_score": 0.1306570312704767,
+        "std_dev_full_absorption_score": 0.0208657310954603,
+        "std_dev_num_split_features": 0.271746488194703
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4",
+        "arch": "jumprelu",
+        "location": "JumpRelu_pythia-160m-deduped__0108/resid_post_layer_8/trainer_4",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.25168465708380655,
+        "mean_full_absorption_score": 0.014671977816088231,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.2795342812700118,
+        "std_dev_full_absorption_score": 0.024921402308149466,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5",
+        "arch": "jumprelu",
+        "location": "JumpRelu_pythia-160m-deduped__0108/resid_post_layer_8/trainer_5",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.6362243120441194,
+        "mean_full_absorption_score": 0.014805993291289605,
+        "mean_num_split_features": 1.3461538461538463,
+        "std_dev_absorption_fraction_score": 0.288511185249945,
+        "std_dev_full_absorption_score": 0.03731810713966499,
+        "std_dev_num_split_features": 0.5615911461059686
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.17894297380198024,
+        "mean_full_absorption_score": 0.12743738245092262,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.13795465468297083,
+        "std_dev_full_absorption_score": 0.10746041229443136,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_1",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.14920969358469205,
+        "mean_full_absorption_score": 0.0886379979838753,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.12502474869024882,
+        "std_dev_full_absorption_score": 0.09179953472573532,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_2",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.12849173264029362,
+        "mean_full_absorption_score": 0.04913489910159288,
+        "mean_num_split_features": 1.2307692307692308,
+        "std_dev_absorption_fraction_score": 0.1364610566040481,
+        "std_dev_full_absorption_score": 0.08025550365220288,
+        "std_dev_num_split_features": 0.4296689244236597
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_3",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.20575486398726214,
+        "mean_full_absorption_score": 0.029532198223690912,
+        "mean_num_split_features": 1.1153846153846154,
+        "std_dev_absorption_fraction_score": 0.21351078887049346,
+        "std_dev_full_absorption_score": 0.04356843316113465,
+        "std_dev_num_split_features": 0.3258125936084211
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_4",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.2709482894047536,
+        "mean_full_absorption_score": 0.020313952955254937,
+        "mean_num_split_features": 1.1538461538461537,
+        "std_dev_absorption_fraction_score": 0.2754282544540256,
+        "std_dev_full_absorption_score": 0.029712893728404813,
+        "std_dev_num_split_features": 0.36794648440311994
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_5",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.8531939940110287,
+        "mean_full_absorption_score": 0.021811461938873133,
+        "mean_num_split_features": 1.2307692307692308,
+        "std_dev_absorption_fraction_score": 0.12893358814097927,
+        "std_dev_full_absorption_score": 0.03302927490147552,
+        "std_dev_num_split_features": 0.5144077999169381
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0",
+        "arch": "panneal",
+        "location": "PAnneal_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.15690990790718926,
+        "mean_full_absorption_score": 0.010021481217367154,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.08424838943776039,
+        "std_dev_full_absorption_score": 0.013106080649681192,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1",
+        "arch": "panneal",
+        "location": "PAnneal_pythia-160m-deduped__0108/resid_post_layer_8/trainer_1",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.1109621391941498,
+        "mean_full_absorption_score": 0.010356422871251861,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.07833802699317513,
+        "std_dev_full_absorption_score": 0.013514675575566931,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2",
+        "arch": "panneal",
+        "location": "PAnneal_pythia-160m-deduped__0108/resid_post_layer_8/trainer_2",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.09248765366745385,
+        "mean_full_absorption_score": 0.01232214786363604,
+        "mean_num_split_features": 1.0769230769230769,
+        "std_dev_absorption_fraction_score": 0.06836874526561315,
+        "std_dev_full_absorption_score": 0.012921101729311784,
+        "std_dev_num_split_features": 0.271746488194703
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3",
+        "arch": "panneal",
+        "location": "PAnneal_pythia-160m-deduped__0108/resid_post_layer_8/trainer_3",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.10169117449336615,
+        "mean_full_absorption_score": 0.033864839855889554,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.08403437803555108,
+        "std_dev_full_absorption_score": 0.03239872657912758,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4",
+        "arch": "panneal",
+        "location": "PAnneal_pythia-160m-deduped__0108/resid_post_layer_8/trainer_4",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.11916762246483488,
+        "mean_full_absorption_score": 0.05270419884545635,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.09766502014978776,
+        "std_dev_full_absorption_score": 0.04270045691199621,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5",
+        "arch": "panneal",
+        "location": "PAnneal_pythia-160m-deduped__0108/resid_post_layer_8/trainer_5",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.12232447071821723,
+        "mean_full_absorption_score": 0.0687196332204237,
+        "mean_num_split_features": 1.0769230769230769,
+        "std_dev_absorption_fraction_score": 0.08595783728217767,
+        "std_dev_full_absorption_score": 0.04867134668719842,
+        "std_dev_num_split_features": 0.271746488194703
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0",
+        "arch": "standard",
+        "location": "Standard_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.16090288357722096,
+        "mean_full_absorption_score": 0.008547405534642137,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.11874220398437714,
+        "std_dev_full_absorption_score": 0.013695872455814277,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1",
+        "arch": "standard",
+        "location": "Standard_pythia-160m-deduped__0108/resid_post_layer_8/trainer_1",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.19597006837381684,
+        "mean_full_absorption_score": 0.015150173624675854,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.15587674544585883,
+        "std_dev_full_absorption_score": 0.02281015980654357,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2",
+        "arch": "standard",
+        "location": "Standard_pythia-160m-deduped__0108/resid_post_layer_8/trainer_2",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.17050424719029328,
+        "mean_full_absorption_score": 0.017661315410065468,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.09712823765674396,
+        "std_dev_full_absorption_score": 0.01630717780038336,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3",
+        "arch": "standard",
+        "location": "Standard_pythia-160m-deduped__0108/resid_post_layer_8/trainer_3",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.16513996149344964,
+        "mean_full_absorption_score": 0.03293103347378896,
+        "mean_num_split_features": 1.0769230769230769,
+        "std_dev_absorption_fraction_score": 0.09090039007237709,
+        "std_dev_full_absorption_score": 0.03257643935157079,
+        "std_dev_num_split_features": 0.271746488194703
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4",
+        "arch": "standard",
+        "location": "Standard_pythia-160m-deduped__0108/resid_post_layer_8/trainer_4",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.1644276230444422,
+        "mean_full_absorption_score": 0.051987295172329424,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.07270999665331124,
+        "std_dev_full_absorption_score": 0.04428585055242917,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5",
+        "arch": "standard",
+        "location": "Standard_pythia-160m-deduped__0108/resid_post_layer_8/trainer_5",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.15944977282331668,
+        "mean_full_absorption_score": 0.06089093690226744,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.07440281957114502,
+        "std_dev_full_absorption_score": 0.04149233490899992,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0",
+        "arch": "topk",
+        "location": "TopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_0",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.19559000515379252,
+        "mean_full_absorption_score": 0.16867261254631508,
+        "mean_num_split_features": 1.1153846153846154,
+        "std_dev_absorption_fraction_score": 0.10855646263807106,
+        "std_dev_full_absorption_score": 0.09175508548162427,
+        "std_dev_num_split_features": 0.3258125936084211
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1",
+        "arch": "topk",
+        "location": "TopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_1",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.1094278155489273,
+        "mean_full_absorption_score": 0.06760028144543848,
+        "mean_num_split_features": 1.0,
+        "std_dev_absorption_fraction_score": 0.08537894389850671,
+        "std_dev_full_absorption_score": 0.04995254232998989,
+        "std_dev_num_split_features": 0.0
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2",
+        "arch": "topk",
+        "location": "TopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_2",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.09826023364389788,
+        "mean_full_absorption_score": 0.043320783378489346,
+        "mean_num_split_features": 1.1153846153846154,
+        "std_dev_absorption_fraction_score": 0.0751602194665526,
+        "std_dev_full_absorption_score": 0.04218339658650124,
+        "std_dev_num_split_features": 0.43145549730400484
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3",
+        "arch": "topk",
+        "location": "TopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_3",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.16972527453355593,
+        "mean_full_absorption_score": 0.03290454862610771,
+        "mean_num_split_features": 1.0769230769230769,
+        "std_dev_absorption_fraction_score": 0.20752061458613902,
+        "std_dev_full_absorption_score": 0.03546936500821394,
+        "std_dev_num_split_features": 0.271746488194703
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4",
+        "arch": "topk",
+        "location": "TopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_4",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.251847922876138,
+        "mean_full_absorption_score": 0.030806425837731348,
+        "mean_num_split_features": 1.0384615384615385,
+        "std_dev_absorption_fraction_score": 0.23676806466459477,
+        "std_dev_full_absorption_score": 0.03952621282031787,
+        "std_dev_num_split_features": 0.19611613513818404
+      },
+      {
+        "sae_name": "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5",
+        "arch": "topk",
+        "location": "TopK_pythia-160m-deduped__0108/resid_post_layer_8/trainer_5",
+        "status": "ok",
+        "mean_absorption_fraction_score": 0.7673041902714437,
+        "mean_full_absorption_score": 0.023624364031097887,
+        "mean_num_split_features": 1.1153846153846154,
+        "std_dev_absorption_fraction_score": 0.1680625383332944,
+        "std_dev_full_absorption_score": 0.04994442398824662,
+        "std_dev_num_split_features": 0.3258125936084211
+      }
+    ]
+  },
+  "comparison_to_published": {
+    "batchtopk": {
+      "mean_absorption_fraction_score": {
+        "mine": 0.28514696305268467,
+        "published": 0.2838594466916354,
+        "abs_delta": 0.0012875163610492901
+      },
+      "mean_full_absorption_score": {
+        "mine": 0.05828321021161293,
+        "published": 0.054274753127313086,
+        "abs_delta": 0.004008457084299845
+      }
+    },
+    "gatedsae": {
+      "mean_absorption_fraction_score": {
+        "mine": 0.1946559205357684,
+        "published": 0.1898075332247771,
+        "abs_delta": 0.004848387310991326
+      },
+      "mean_full_absorption_score": {
+        "mine": 0.055704056492443386,
+        "published": 0.054233249035167165,
+        "abs_delta": 0.0014708074572762214
+      }
+    },
+    "jumprelu": {
+      "mean_absorption_fraction_score": {
+        "mine": 0.22805241169761933,
+        "published": 0.22244795704761464,
+        "abs_delta": 0.005604454650004698
+      },
+      "mean_full_absorption_score": {
+        "mine": 0.04306413027902158,
+        "published": 0.042839967628148186,
+        "abs_delta": 0.00022416265087339682
+      }
+    },
+    "matryoshkabatchtopk": {
+      "mean_absorption_fraction_score": {
+        "mine": 0.2977569245716684,
+        "published": 0.2903955328599233,
+        "abs_delta": 0.007361391711745102
+      },
+      "mean_full_absorption_score": {
+        "mine": 0.056144648775701626,
+        "published": 0.05590082636405929,
+        "abs_delta": 0.00024382241164233598
+      }
+    },
+    "panneal": {
+      "mean_absorption_fraction_score": {
+        "mine": 0.11725716140753521,
+        "published": 0.11213017695600234,
+        "abs_delta": 0.005126984451532868
+      },
+      "mean_full_absorption_score": {
+        "mine": 0.03133145397900411,
+        "published": 0.029044419956595468,
+        "abs_delta": 0.002287034022408641
+      }
+    },
+    "standard": {
+      "mean_absorption_fraction_score": {
+        "mine": 0.16939909275042328,
+        "published": 0.16701055798809714,
+        "abs_delta": 0.0023885347623261444
+      },
+      "mean_full_absorption_score": {
+        "mine": 0.031194693352961544,
+        "published": 0.028120997729475048,
+        "abs_delta": 0.0030736956234864964
+      }
+    },
+    "topk": {
+      "mean_absorption_fraction_score": {
+        "mine": 0.2653592403379592,
+        "published": 0.2613787619914623,
+        "abs_delta": 0.003980478346496896
+      },
+      "mean_full_absorption_score": {
+        "mine": 0.06115483597752997,
+        "published": 0.055570100855590075,
+        "abs_delta": 0.005584735121939896
+      }
+    }
+  },
+  "published_ref": {
+    "batchtopk": {
+      "mean_absorption_fraction_score": 0.2838594466916354,
+      "mean_full_absorption_score": 0.054274753127313086,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0": {
+          "mean_absorption_fraction_score": 0.21486402592810286,
+          "mean_full_absorption_score": 0.1497331868790707
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1": {
+          "mean_absorption_fraction_score": 0.1254730438435823,
+          "mean_full_absorption_score": 0.06852430326250754
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2": {
+          "mean_absorption_fraction_score": 0.11698583949771309,
+          "mean_full_absorption_score": 0.03703069174696435
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3": {
+          "mean_absorption_fraction_score": 0.16379409255072583,
+          "mean_full_absorption_score": 0.02026618452907567
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4": {
+          "mean_absorption_fraction_score": 0.26542960570574264,
+          "mean_full_absorption_score": 0.018454838927326793
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_BatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5": {
+          "mean_absorption_fraction_score": 0.8166100726239457,
+          "mean_full_absorption_score": 0.03163931341893344
+        }
+      }
+    },
+    "gatedsae": {
+      "mean_absorption_fraction_score": 0.1898075332247771,
+      "mean_full_absorption_score": 0.054233249035167165,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0": {
+          "mean_absorption_fraction_score": 0.25838687773276275,
+          "mean_full_absorption_score": 0.007900103445046307
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1": {
+          "mean_absorption_fraction_score": 0.15734355538796804,
+          "mean_full_absorption_score": 0.012665735322532116
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2": {
+          "mean_absorption_fraction_score": 0.15974009673408626,
+          "mean_full_absorption_score": 0.022935077800990005
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3": {
+          "mean_absorption_fraction_score": 0.15560772425410507,
+          "mean_full_absorption_score": 0.04936205809089961
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4": {
+          "mean_absorption_fraction_score": 0.19467430368006378,
+          "mean_full_absorption_score": 0.09171618121949623
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_GatedSAE_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5": {
+          "mean_absorption_fraction_score": 0.21309264155967675,
+          "mean_full_absorption_score": 0.1408203383320387
+        }
+      }
+    },
+    "jumprelu": {
+      "mean_absorption_fraction_score": 0.22244795704761464,
+      "mean_full_absorption_score": 0.042839967628148186,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0": {
+          "mean_absorption_fraction_score": 0.11679403763304559,
+          "mean_full_absorption_score": 0.08754334155400242
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1": {
+          "mean_absorption_fraction_score": 0.10906545694243416,
+          "mean_full_absorption_score": 0.060731373014275315
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2": {
+          "mean_absorption_fraction_score": 0.11450279428462988,
+          "mean_full_absorption_score": 0.038682931694037664
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3": {
+          "mean_absorption_fraction_score": 0.11537982087104995,
+          "mean_full_absorption_score": 0.015473798729670894
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4": {
+          "mean_absorption_fraction_score": 0.25889211380459054,
+          "mean_full_absorption_score": 0.03350505479059451
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_JumpRelu_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5": {
+          "mean_absorption_fraction_score": 0.6200535187499377,
+          "mean_full_absorption_score": 0.021103305986308316
+        }
+      }
+    },
+    "matryoshkabatchtopk": {
+      "mean_absorption_fraction_score": 0.2903955328599233,
+      "mean_full_absorption_score": 0.05590082636405929,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0": {
+          "mean_absorption_fraction_score": 0.1741666513457285,
+          "mean_full_absorption_score": 0.13881746968019631
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1": {
+          "mean_absorption_fraction_score": 0.134111136801441,
+          "mean_full_absorption_score": 0.0835379472330447
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2": {
+          "mean_absorption_fraction_score": 0.12976577496582178,
+          "mean_full_absorption_score": 0.05350078735502613
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3": {
+          "mean_absorption_fraction_score": 0.18723001566432082,
+          "mean_full_absorption_score": 0.02565801440705882
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4": {
+          "mean_absorption_fraction_score": 0.25344663990804805,
+          "mean_full_absorption_score": 0.013905218259762089
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_MatryoshkaBatchTopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5": {
+          "mean_absorption_fraction_score": 0.8636529784741798,
+          "mean_full_absorption_score": 0.019985521249267675
+        }
+      }
+    },
+    "panneal": {
+      "mean_absorption_fraction_score": 0.11213017695600234,
+      "mean_full_absorption_score": 0.029044419956595468,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0": {
+          "mean_absorption_fraction_score": 0.15644923620826007,
+          "mean_full_absorption_score": 0.007373772485213795
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1": {
+          "mean_absorption_fraction_score": 0.10675635008431683,
+          "mean_full_absorption_score": 0.009037184413080311
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2": {
+          "mean_absorption_fraction_score": 0.08638370900569407,
+          "mean_full_absorption_score": 0.011626928563610103
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3": {
+          "mean_absorption_fraction_score": 0.09676596565845329,
+          "mean_full_absorption_score": 0.031890533909132754
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4": {
+          "mean_absorption_fraction_score": 0.11436667095140096,
+          "mean_full_absorption_score": 0.05329657504445042
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_PAnneal_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5": {
+          "mean_absorption_fraction_score": 0.11205912982788875,
+          "mean_full_absorption_score": 0.061041525324085424
+        }
+      }
+    },
+    "standard": {
+      "mean_absorption_fraction_score": 0.16701055798809714,
+      "mean_full_absorption_score": 0.028120997729475048,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0": {
+          "mean_absorption_fraction_score": 0.1552816668771573,
+          "mean_full_absorption_score": 0.007546497836253233
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1": {
+          "mean_absorption_fraction_score": 0.19002543845138004,
+          "mean_full_absorption_score": 0.01270830128358751
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2": {
+          "mean_absorption_fraction_score": 0.1581263129997663,
+          "mean_full_absorption_score": 0.014673833502690303
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3": {
+          "mean_absorption_fraction_score": 0.16733776914189233,
+          "mean_full_absorption_score": 0.03131549098869405
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4": {
+          "mean_absorption_fraction_score": 0.16467596806983403,
+          "mean_full_absorption_score": 0.04263713142446606
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_Standard_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5": {
+          "mean_absorption_fraction_score": 0.16661619238855277,
+          "mean_full_absorption_score": 0.05984473134115914
+        }
+      }
+    },
+    "topk": {
+      "mean_absorption_fraction_score": 0.2613787619914623,
+      "mean_full_absorption_score": 0.055570100855590075,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_0": {
+          "mean_absorption_fraction_score": 0.18982280506498517,
+          "mean_full_absorption_score": 0.15455677287012543
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_1": {
+          "mean_absorption_fraction_score": 0.1016976446763676,
+          "mean_full_absorption_score": 0.062217591605988824
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_2": {
+          "mean_absorption_fraction_score": 0.10603998849668785,
+          "mean_full_absorption_score": 0.03816620703233167
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_3": {
+          "mean_absorption_fraction_score": 0.16242342651598163,
+          "mean_full_absorption_score": 0.02774525571069843
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_4": {
+          "mean_absorption_fraction_score": 0.25955868423922346,
+          "mean_full_absorption_score": 0.026738289896134283
+        },
+        "saebench_pythia-160m-deduped_width-2pow12_date-0108_TopK_pythia-160m-deduped__0108_resid_post_layer_8_trainer_5": {
+          "mean_absorption_fraction_score": 0.7487300229555284,
+          "mean_full_absorption_score": 0.023996488018261757
+        }
+      }
+    }
+  }
+}

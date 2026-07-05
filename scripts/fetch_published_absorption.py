@@ -16,13 +16,7 @@ import sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, os.path.join(ROOT, "src"))
-
-
-def _resolve_repo(suite: str) -> str:
-    import yaml
-
-    reg = yaml.safe_load(open(os.path.join(ROOT, "configs", "registry.yaml")))
-    return reg["sae_suites"][suite]["hf_repo"]
+from saebench_audit.suites import resolve_suite
 
 
 def _arch_from_stem(stem: str, repo_base: str) -> str:
@@ -42,7 +36,7 @@ def main():
 
     from huggingface_hub import hf_hub_download, list_repo_files
 
-    sae_repo = args.sae_repo or _resolve_repo(args.suite)
+    sae_repo = args.sae_repo or resolve_suite(args.suite)["sae_repo"]
     repo_base = sae_repo.split("/")[-1]
     prefix = f"absorption/{repo_base}/"
 

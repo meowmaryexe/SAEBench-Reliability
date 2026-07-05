@@ -27,21 +27,8 @@ import json
 import os
 import sys
 
-# sae-bench 0.3.2 predates torch 2.6's weights_only=True default; it pickles a LinearProbe and reloads it
-# via torch.load. Force weights_only=False (trusted local files) so the older code runs under torch >=2.6.
-import torch
-
-_orig_load = torch.load
-
-
-def _patched_load(*a, **k):
-    k.setdefault("weights_only", False)
-    return _orig_load(*a, **k)
-
-
-torch.load = _patched_load
-
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+from saebench_audit import suites
 from saebench_audit.metrics import absorption as absorp
 
 DEFAULT_REPO = "adamkarvonen/saebench_pythia-160m-deduped_width-2pow12_date-0108"
@@ -63,6 +50,8 @@ def main():
     print(f"[env] sae_bench={md.version('sae-bench')}  sae_lens={md.version('sae_lens')}  "
           f"transformers={md.version('transformers')}", flush=True)
 
+    # sae-bench 0.3.2 predates torch 2.6's weights_only=True default; force weights_only=False so it loads.
+    absorp.ensure_torch_load_shim()
     os.makedirs(args.workdir, exist_ok=True)
     sae = absorp.load_released_sae(args.sae_repo, args.sae_location, model_name=args.model_name,
                                    device=args.device, dtype=args.llm_dtype)
@@ -73,7 +62,7 @@ def main():
     # Only the fields common to both 0.3.2 and 0.6.0 configs (we run each version's native defaults).
     cfg = AbsorptionEvalConfig(model_name=args.model_name, random_seed=42,
                                llm_batch_size=args.llm_batch_size, llm_dtype=args.llm_dtype)
-    name = f"{args.sae_repo.split('/')[-1]}_{args.sae_location.strip('/').replace('/', '_')}"
+    name = suites.sae_name(args.sae_repo, args.sae_location)
     res = run_eval(cfg, [(name, sae)], args.device, args.workdir, force_rerun=True)
 
     out = res.get(f"{name}_custom_sae")

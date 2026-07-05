@@ -120,7 +120,10 @@ latent carries the concept. Two headline scores reported: `mean_absorption_fract
 **Implementation — wrap upstream.** `src/saebench_audit/metrics/absorption.py` is a thin wrapper around
 `sae_bench.evals.absorption` (sae-bench 0.6.0): we run the authors' code end-to-end inside this repo's
 resumable per-SAE `run_absorption.py → aggregate_results.py --metric absorption` flow, exposing the four
-hardcoded thresholds as config for the Stage-2 audit toggle. (Matches the Probe-Rig "wrap, don't
+hardcoded thresholds as config for the Stage-2 audit toggle. The generic pieces (provenance, version-safe
+config building, the resumable runner, aggregation, run records) now live in shared modules
+`saebench_audit.{provenance,suites,runner,run_record}` + `statistics`; absorption is the thin adapter over
+them, and the reuse guide for Unlearning/RAVEL is [docs/reusable_scaffolding.md](reusable_scaffolding.md). (Matches the Probe-Rig "wrap, don't
 reimplement" spec; independent reimplementation deferred.) **Runs under a dedicated pinned venv**
 (`/Users/alor/saebench-absorption-env/.venv`): `sae_bench` + `sae_lens` + `transformer_lens 2.16.1`
 with **`transformers` pinned `<5`** — transformers 5 removed `GPTNeoXConfig.rotary_pct`, which

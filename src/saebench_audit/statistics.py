@@ -42,11 +42,10 @@ def compare_to_bundle(agg, bundled):
 
 
 # ---------------------------------------------------------------------------
-# Absorption. Each SAE is its own data point (upstream already aggregates over the 26 letters),
-# so we collate per-SAE rows and summarize the two headline scores per architecture.
+# Generic helpers shared by the per-SAE / by-architecture metrics (Absorption now, Unlearning/RAVEL next).
 # ---------------------------------------------------------------------------
-def _summary(values):
-    """mean / sample-std / n for a list of floats (std uses n-1; 0.0 when n<2)."""
+def summary(values):
+    """mean / sample-std / n for a list of floats (std uses n-1; 0.0 when n<2). None -> None."""
     vals = [v for v in values if v is not None]
     if not vals:
         return None
@@ -55,44 +54,102 @@ def _summary(values):
     return {"mean": m, "std": sd, "n": len(vals), "values": vals}
 
 
+_summary = summary  # backward-compat alias (internal callers)
+
+
+def ranks(values):
+    """Average-tie ranks for a list of numbers (1-based)."""
+    order = sorted(range(len(values)), key=lambda i: values[i])
+    out = [0.0] * len(values)
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and values[order[j + 1]] == values[order[i]]:
+            j += 1
+        avg = (i + j) / 2.0 + 1.0
+        for k in range(i, j + 1):
+            out[order[k]] = avg
+        i = j + 1
+    return out
+
+
+def spearman(a, b):
+    """Spearman rho between two equal-length numeric lists (Pearson on ranks). No scipy dependency."""
+    if len(a) < 2:
+        return float("nan")
+    ra, rb = ranks(a), ranks(b)
+    n = len(a)
+    ma, mb = sum(ra) / n, sum(rb) / n
+    cov = sum((ra[i] - ma) * (rb[i] - mb) for i in range(n))
+    va = sum((x - ma) ** 2 for x in ra) ** 0.5
+    vb = sum((x - mb) ** 2 for x in rb) ** 0.5
+    return cov / (va * vb) if va and vb else float("nan")
+
+
+def aggregate_by_arch(rows, score_keys, per_sae_keys, ok_status="ok", excluded_label="n_excluded"):
+    """Collate per-SAE rows into a by-architecture result: mean/std/n of each score column per arch,
+    plus a full per-SAE table. Rows with status != ok_status are counted (under `excluded_label`) but
+    excluded from the score summaries. This is the shared shape behind the wrap-upstream aggregations.
+    """
+    if not rows:
+        raise ValueError("no rows to aggregate")
+    ok = [r for r in rows if r.get("status") == ok_status]
+    excluded = [r for r in rows if r.get("status") != ok_status]
+    by = {}
+    for r in ok:
+        by.setdefault(r.get("arch", "?"), []).append(r)
+    return {
+        "n_saes": len(rows),
+        "n_ok": len(ok),
+        excluded_label: len(excluded),
+        "by_arch": {arch: {k: summary([r.get(k) for r in rs]) for k in score_keys}
+                    for arch, rs in sorted(by.items())},
+        "per_sae": sorted([{k: r.get(k) for k in per_sae_keys} for r in rows],
+                          key=lambda r: (r.get("arch") or "", r.get("sae_name") or "")),
+    }
+
+
+def compare_by_arch_to_reference(agg, reference, score_keys, ref_label="published"):
+    """Per-architecture absolute deltas of each score column vs a reference {arch: {score_key: value}}.
+    Returns {} if no reference. Exact matching is not expected for unseeded upstreams (see preregistration).
+    """
+    if not reference:
+        return {}
+    out = {}
+    for arch, ref in reference.items():
+        mine = agg.get("by_arch", {}).get(arch)
+        if not mine:
+            continue
+        row = {}
+        for k in score_keys:
+            if mine.get(k) and k in ref:
+                m, r = mine[k]["mean"], ref[k]
+                row[k] = {"mine": m, ref_label: r, "abs_delta": abs(m - r)}
+        out[arch] = row
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Absorption. Each SAE is its own data point (upstream already aggregates over the 26 letters),
+# so we collate per-SAE rows and summarize the two headline scores per architecture.
+# ---------------------------------------------------------------------------
+_ABS_SCORE_KEYS = ["mean_absorption_fraction_score", "mean_full_absorption_score"]
+_ABS_PER_SAE_KEYS = (
+    "sae_name", "arch", "location", "status",
+    "mean_absorption_fraction_score", "mean_full_absorption_score",
+    "mean_num_split_features", "std_dev_absorption_fraction_score",
+    "std_dev_full_absorption_score", "std_dev_num_split_features",
+)
+
+
 def aggregate_absorption(rows):
     """Collate per-SAE absorption rows (from absorption.jsonl) into a processed result.
 
     Reports both headline scores per SAE and their mean/std per architecture. Rows that tripped the
     min-features guard (status != "ok") are counted but excluded from the score summaries.
     """
-    if not rows:
-        raise ValueError("no absorption rows to aggregate")
-    ok = [r for r in rows if r.get("status") == "ok"]
-    insufficient = [r for r in rows if r.get("status") != "ok"]
-
-    by_arch = {}
-    for r in ok:
-        by_arch.setdefault(r.get("arch", "?"), []).append(r)
-
-    return {
-        "n_saes": len(rows),
-        "n_ok": len(ok),
-        "n_insufficient_features": len(insufficient),
-        "by_arch": {
-            arch: {
-                "mean_absorption_fraction_score": _summary(
-                    [r.get("mean_absorption_fraction_score") for r in rs]),
-                "mean_full_absorption_score": _summary(
-                    [r.get("mean_full_absorption_score") for r in rs]),
-            }
-            for arch, rs in sorted(by_arch.items())
-        },
-        "per_sae": sorted(
-            [{k: r.get(k) for k in (
-                "sae_name", "arch", "location", "status",
-                "mean_absorption_fraction_score", "mean_full_absorption_score",
-                "mean_num_split_features", "std_dev_absorption_fraction_score",
-                "std_dev_full_absorption_score", "std_dev_num_split_features")}
-             for r in rows],
-            key=lambda r: (r.get("arch") or "", r.get("sae_name") or ""),
-        ),
-    }
+    return aggregate_by_arch(rows, _ABS_SCORE_KEYS, _ABS_PER_SAE_KEYS,
+                             excluded_label="n_insufficient_features")
 
 
 def compare_absorption_to_published(agg, published):
@@ -100,19 +157,5 @@ def compare_absorption_to_published(agg, published):
 
     `published` maps arch -> {"mean_absorption_fraction_score": x, "mean_full_absorption_score": y}
     (source: the results repo adamkarvonen/sae_bench_results_0125). Returns {} if not provided.
-    Note: upstream applies no seed, so exact matching is not expected — see docs/preregistration.md.
     """
-    if not published:
-        return {}
-    out = {}
-    for arch, ref in published.items():
-        mine = agg.get("by_arch", {}).get(arch)
-        if not mine:
-            continue
-        row = {}
-        for k in ("mean_absorption_fraction_score", "mean_full_absorption_score"):
-            if mine.get(k) and k in ref:
-                m, r = mine[k]["mean"], ref[k]
-                row[k] = {"mine": m, "published": r, "abs_delta": abs(m - r)}
-        out[arch] = row
-    return out
+    return compare_by_arch_to_reference(agg, published, _ABS_SCORE_KEYS)
