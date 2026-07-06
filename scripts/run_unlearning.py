@@ -42,7 +42,10 @@ def main():
     ap = argparse.ArgumentParser(description="Unlearning (SAEBench) — resumable per-SAE runner")
     ap.add_argument("--suite", default=None,
                     help="registry suite name (e.g. gemma-2-2b-it_4k); sets model/layer/repo")
-    ap.add_argument("--model_name", default="gemma-2-2b-it", help="transformer_lens model (must be instruct 'it')")
+    ap.add_argument("--model_name", default="gemma-2-2b-it", help="transformer_lens EVAL model (must be instruct 'it')")
+    ap.add_argument("--sae_model_name", default=None,
+                    help="model the SAE was TRAINED on (default: eval model minus '-it'). SAEs are base-model "
+                         "trained; the loader asserts this name is a substring of the SAE config's lm_name.")
     ap.add_argument("--sae_repo", default=DEFAULT_REPO, help="HuggingFace dictionary_learning SAE repo")
     ap.add_argument("--sae_location", action="append", default=None,
                     help="in-repo SAE folder (repeatable). Omit to enumerate the whole repo.")
@@ -73,6 +76,12 @@ def main():
         model_name=args.model_name, llm_dtype=args.llm_dtype, llm_batch_size=args.llm_batch_size,
         device=args.device)
 
+    # The released SAEs are trained on the BASE model (gemma-2-2b); the eval runs on the instruct model
+    # (gemma-2-2b-it). The SAE loader asserts its model_name is a substring of the SAE config's lm_name, so
+    # it must get the base name, while cfg.model_name (the eval LLM) stays the instruct model.
+    sae_model = args.sae_model_name or (
+        args.model_name[:-3] if args.model_name.endswith("-it") else args.model_name)
+
     def _row_extra(location, name):
         return {"arch": args.arch or _arch_from_location(location), "location": location}
 
@@ -84,7 +93,7 @@ def main():
         return None
 
     def _process_one(location, name):
-        sae = unl.load_released_sae(args.sae_repo, location, model_name=args.model_name,
+        sae = unl.load_released_sae(args.sae_repo, location, model_name=sae_model,
                                     device=args.device, dtype=args.llm_dtype)
         try:
             return unl.run_unlearning(cfg, sae, name, args.workdir, force_rerun=args.force_rerun)
