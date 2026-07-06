@@ -21,3 +21,13 @@ results/processed/*
 # upstream sae_bench caches / downloaded weights (generated, large)
 artifacts/
 downloaded_saes/
+
+# GATED HAZARDOUS DATA — never commit. The WMDP bio-forget-corpus is dual-use/restricted
+# (CAIS gated download); the unlearning eval reads it from ./sae_bench/evals/unlearning/data/.
+# Ignore the whole vendored sae_bench data dir we create under the repo root, plus the file by name
+# anywhere, so an auto-save (GIT_PUSH) can never sweep it in.
+sae_bench/
+bio-forget-corpus.jsonl
+*bio-forget*
+*forget-corpus*
+*wmdp*corpus*
