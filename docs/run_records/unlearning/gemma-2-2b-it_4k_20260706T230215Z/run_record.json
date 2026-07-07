@@ -1,0 +1,206 @@
+{
+  "metric": "unlearning",
+  "suite": "gemma-2-2b-it_4k",
+  "generated_utc": "2026-07-07T01:40:02+00:00",
+  "runs": {
+    "v0.6.0": {
+      "provenance": {
+        "timestamp_utc": "2026-07-07T01:39:50+00:00",
+        "python": "3.10.12",
+        "platform": "Linux-6.8.0-1060-aws-x86_64-with-glibc2.35",
+        "hostname": "ip-172-31-20-225",
+        "device": "cuda",
+        "packages": {
+          "sae-bench": "0.6.0",
+          "sae_lens": "6.45.3",
+          "transformer_lens": "2.17.0",
+          "transformers": "4.57.6",
+          "torch": "2.12.1",
+          "numpy": "1.26.4"
+        },
+        "git_sha": "00587e4565fc8dd19c6742a3ee830393e6b0c916",
+        "git_dirty": false,
+        "gpu": "NVIDIA A10G, 23028 MiB"
+      },
+      "sae_bench_version": "0.6.0",
+      "config": {
+        "model_name": "gemma-2-2b-it",
+        "llm_dtype": "bfloat16",
+        "llm_batch_size": 4,
+        "device": "cuda",
+        "random_seed": 42,
+        "dataset_names": [
+          "wmdp-bio",
+          "high_school_us_history",
+          "college_computer_science",
+          "high_school_geography",
+          "human_aging"
+        ],
+        "intervention_method": "clamp_feature_activation",
+        "retain_thresholds": [
+          0.001,
+          0.01
+        ],
+        "n_features_list": [
+          10,
+          20
+        ],
+        "multipliers": [
+          25,
+          50,
+          100,
+          200
+        ],
+        "dataset_size": 1024,
+        "seq_len": 1024,
+        "n_batch_loss_added": 50,
+        "target_metric": "correct",
+        "save_metrics": true
+      },
+      "n_saes": 42,
+      "result": {
+        "batchtopk": {
+          "unlearning_score": {
+            "mean": 0.041744510332743325,
+            "std": 0.03733953630197563,
+            "n": 6,
+            "values": [
+              0.11028033494949341,
+              0.057943880558013916,
+              0.02616816759109497,
+              0.02803736925125122,
+              0.018691539764404297,
+              0.009345769882202148
+            ]
+          }
+        },
+        "gatedsae": {
+          "unlearning_score": {
+            "mean": 0.028037359317143757,
+            "std": 0.030324178202849734,
+            "n": 6,
+            "values": [
+              0.0018691420555114746,
+              0.018691539764404297,
+              0.007476627826690674,
+              0.007476627826690674,
+              0.06168222427368164,
+              0.07102799415588379
+            ]
+          }
+        },
+        "jumprelu": {
+          "unlearning_score": {
+            "mean": 0.07383174697558086,
+            "std": 0.03673740999741513,
+            "n": 6,
+            "values": [
+              0.10841119289398193,
+              0.08224296569824219,
+              0.11214947700500488,
+              0.08037382364273071,
+              0.02242988348007202,
+              0.03738313913345337
+            ]
+          }
+        },
+        "matryoshkabatchtopk": {
+          "unlearning_score": {
+            "mean": 0.025856663783391316,
+            "std": 0.020387255166075986,
+            "n": 6,
+            "values": [
+              0.06542050838470459,
+              0.02803736925125122,
+              0.011214911937713623,
+              0.02242988348007202,
+              0.013084053993225098,
+              0.014953255653381348
+            ]
+          }
+        },
+        "panneal": {
+          "unlearning_score": {
+            "mean": 0.03894078731536865,
+            "std": 0.035354612586516516,
+            "n": 6,
+            "values": [
+              0.011214911937713623,
+              0.014953255653381348,
+              0.007476627826690674,
+              0.06168222427368164,
+              0.041121482849121094,
+              0.09719622135162354
+            ]
+          }
+        },
+        "standard": {
+          "unlearning_score": {
+            "mean": 0.04797505338986715,
+            "std": 0.06074815164146767,
+            "n": 6,
+            "values": [
+              0.011214911937713623,
+              0.005607426166534424,
+              0.014953255653381348,
+              0.007476627826690674,
+              0.10280370712280273,
+              0.14579439163208008
+            ]
+          }
+        },
+        "topk": {
+          "unlearning_score": {
+            "mean": 0.07507784167925517,
+            "std": 0.0385140478988788,
+            "n": 6,
+            "values": [
+              0.11775696277618408,
+              0.11588782072067261,
+              0.07663547992706299,
+              0.07102799415588379,
+              0.05233639478683472,
+              0.016822397708892822
+            ]
+          }
+        }
+      },
+      "n_ok": 42
+    }
+  },
+  "published_ref": {
+    "batchtopk": {
+      "unlearning_score": 0.04127578934033712,
+      "n_trainers": 6
+    },
+    "gatedsae": {
+      "unlearning_score": 0.02595372001330058,
+      "n_trainers": 6
+    },
+    "jumprelu": {
+      "unlearning_score": 0.06973107655843098,
+      "n_trainers": 6
+    },
+    "matryoshkabatchtopk": {
+      "unlearning_score": 0.02595372994740804,
+      "n_trainers": 6
+    },
+    "panneal": {
+      "unlearning_score": 0.037836154301961265,
+      "n_trainers": 6
+    },
+    "standard": {
+      "unlearning_score": 0.04752971728642782,
+      "n_trainers": 6
+    },
+    "topk": {
+      "unlearning_score": 0.050656676292419434,
+      "n_trainers": 6
+    }
+  },
+  "report_text": "\n=== unlearning_score ===\n              arch  published       ours        \u0394\n         batchtopk     0.0413     0.0417  +0.0005\n          gatedsae     0.0260     0.0280  +0.0021\n          jumprelu     0.0697     0.0738  +0.0041\nmatryoshkabatchtopk     0.0260     0.0259  -0.0001\n           panneal     0.0378     0.0389  +0.0011\n          standard     0.0475     0.0480  +0.0004\n              topk     0.0507     0.0751  +0.0244\n  Spearman \u03c1  published\u2194ours = +0.929\n\n[verdict] unlearning: max |\u0394 vs published| = 0.0244 (within drift band 0.05) \u2192 reproduces published\n[verdict] architecture ranking: published\u2194ours \u03c1=+0.929 \u2192 ranking holds (caveat: scores are near-zero/degenerate on Gemma-2-2B, so ranking is noise-sensitive)\n",
+  "artifacts": {
+    "v0.6.0_workdir": "results/raw/unlearning/gemma-2-2b-it_4k",
+    "v0.6.0_processed": "results/processed/unlearning/gemma-2-2b-it_4k.json"
+  }
+}

@@ -187,6 +187,14 @@ low audit yield.
 **External requirements.** GPU + `google/gemma-2-2b-it` license + the gated `bio-forget-corpus.jsonl`
 (Google form; placed at `./sae_bench/evals/unlearning/data/`) + a one-time ~20-min question-id generation;
 ~10 min/SAE. No known sae-bench version drift (single current-version run reproduces published).
+
+**✅ Reproduced (4k, 2026-07-07).** Full 42-SAE suite on AWS A10G reproduces published SAEBench: all 7 archs
+within the ±0.05 band, **Spearman ρ = +0.929**, 42/42 ok. Scores near-zero (0.026–0.075) = the paper's
+"degenerate on Gemma-2-2B"; ReLU/standard mid-pack = "ReLU ties on unlearning". The one large Δ (topk,
++0.024) is intrinsic per-trainer noise (published topk spans 0.0075–0.1126), not a discrepancy — verified
+by re-fetching the published values bit-for-bit from HF. Finding:
+[docs/findings/unlearning_reproduction.md](findings/unlearning_reproduction.md); run record
+`docs/run_records/unlearning/gemma-2-2b-it_4k_20260706T230215Z/`. 16k/65k widths still to run.
 **Configs:** `configs/reproduce/unlearning.yaml`, `configs/gpu/unlearning_gpu.yaml`. **Pre-reg:**
 `docs/preregistration.md` (Unlearning). **Runbook:** `docs/aws_unlearning_runbook.md`. **Tests:**
 `tests/test_unlearning_units.py` (9), `tests/test_unlearning_score_oracle.py` (6).

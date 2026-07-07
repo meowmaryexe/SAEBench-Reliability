@@ -1,0 +1,668 @@
+{
+  "metric": "unlearning",
+  "sae_repo": "adamkarvonen/saebench_gemma-2-2b_width-2pow12_date-0108",
+  "model_name": "gemma-2-2b-it",
+  "config": {
+    "model_name": "gemma-2-2b-it",
+    "llm_dtype": "bfloat16",
+    "llm_batch_size": 4,
+    "device": "cuda",
+    "random_seed": 42,
+    "dataset_names": [
+      "wmdp-bio",
+      "high_school_us_history",
+      "college_computer_science",
+      "high_school_geography",
+      "human_aging"
+    ],
+    "intervention_method": "clamp_feature_activation",
+    "retain_thresholds": [
+      0.001,
+      0.01
+    ],
+    "n_features_list": [
+      10,
+      20
+    ],
+    "multipliers": [
+      25,
+      50,
+      100,
+      200
+    ],
+    "dataset_size": 1024,
+    "seq_len": 1024,
+    "n_batch_loss_added": 50,
+    "target_metric": "correct",
+    "save_metrics": true
+  },
+  "result": {
+    "n_saes": 42,
+    "n_ok": 42,
+    "n_failed": 0,
+    "by_arch": {
+      "batchtopk": {
+        "unlearning_score": {
+          "mean": 0.041744510332743325,
+          "std": 0.03733953630197563,
+          "n": 6,
+          "values": [
+            0.11028033494949341,
+            0.057943880558013916,
+            0.02616816759109497,
+            0.02803736925125122,
+            0.018691539764404297,
+            0.009345769882202148
+          ]
+        }
+      },
+      "gatedsae": {
+        "unlearning_score": {
+          "mean": 0.028037359317143757,
+          "std": 0.030324178202849734,
+          "n": 6,
+          "values": [
+            0.0018691420555114746,
+            0.018691539764404297,
+            0.007476627826690674,
+            0.007476627826690674,
+            0.06168222427368164,
+            0.07102799415588379
+          ]
+        }
+      },
+      "jumprelu": {
+        "unlearning_score": {
+          "mean": 0.07383174697558086,
+          "std": 0.03673740999741513,
+          "n": 6,
+          "values": [
+            0.10841119289398193,
+            0.08224296569824219,
+            0.11214947700500488,
+            0.08037382364273071,
+            0.02242988348007202,
+            0.03738313913345337
+          ]
+        }
+      },
+      "matryoshkabatchtopk": {
+        "unlearning_score": {
+          "mean": 0.025856663783391316,
+          "std": 0.020387255166075986,
+          "n": 6,
+          "values": [
+            0.06542050838470459,
+            0.02803736925125122,
+            0.011214911937713623,
+            0.02242988348007202,
+            0.013084053993225098,
+            0.014953255653381348
+          ]
+        }
+      },
+      "panneal": {
+        "unlearning_score": {
+          "mean": 0.03894078731536865,
+          "std": 0.035354612586516516,
+          "n": 6,
+          "values": [
+            0.011214911937713623,
+            0.014953255653381348,
+            0.007476627826690674,
+            0.06168222427368164,
+            0.041121482849121094,
+            0.09719622135162354
+          ]
+        }
+      },
+      "standard": {
+        "unlearning_score": {
+          "mean": 0.04797505338986715,
+          "std": 0.06074815164146767,
+          "n": 6,
+          "values": [
+            0.011214911937713623,
+            0.005607426166534424,
+            0.014953255653381348,
+            0.007476627826690674,
+            0.10280370712280273,
+            0.14579439163208008
+          ]
+        }
+      },
+      "topk": {
+        "unlearning_score": {
+          "mean": 0.07507784167925517,
+          "std": 0.038514047898878793,
+          "n": 6,
+          "values": [
+            0.11775696277618408,
+            0.11588782072067261,
+            0.07663547992706299,
+            0.07102799415588379,
+            0.05233639478683472,
+            0.016822397708892822
+          ]
+        }
+      }
+    },
+    "per_sae": [
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_0",
+        "arch": "batchtopk",
+        "location": "BatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_0",
+        "status": "ok",
+        "unlearning_score": 0.11028033494949341
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_1",
+        "arch": "batchtopk",
+        "location": "BatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_1",
+        "status": "ok",
+        "unlearning_score": 0.057943880558013916
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_2",
+        "arch": "batchtopk",
+        "location": "BatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_2",
+        "status": "ok",
+        "unlearning_score": 0.02616816759109497
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_3",
+        "arch": "batchtopk",
+        "location": "BatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_3",
+        "status": "ok",
+        "unlearning_score": 0.02803736925125122
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_4",
+        "arch": "batchtopk",
+        "location": "BatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_4",
+        "status": "ok",
+        "unlearning_score": 0.018691539764404297
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_5",
+        "arch": "batchtopk",
+        "location": "BatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_5",
+        "status": "ok",
+        "unlearning_score": 0.009345769882202148
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_0",
+        "arch": "gatedsae",
+        "location": "GatedSAE_gemma-2-2b__0108/resid_post_layer_12/trainer_0",
+        "status": "ok",
+        "unlearning_score": 0.0018691420555114746
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_1",
+        "arch": "gatedsae",
+        "location": "GatedSAE_gemma-2-2b__0108/resid_post_layer_12/trainer_1",
+        "status": "ok",
+        "unlearning_score": 0.018691539764404297
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_2",
+        "arch": "gatedsae",
+        "location": "GatedSAE_gemma-2-2b__0108/resid_post_layer_12/trainer_2",
+        "status": "ok",
+        "unlearning_score": 0.007476627826690674
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_3",
+        "arch": "gatedsae",
+        "location": "GatedSAE_gemma-2-2b__0108/resid_post_layer_12/trainer_3",
+        "status": "ok",
+        "unlearning_score": 0.007476627826690674
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_4",
+        "arch": "gatedsae",
+        "location": "GatedSAE_gemma-2-2b__0108/resid_post_layer_12/trainer_4",
+        "status": "ok",
+        "unlearning_score": 0.06168222427368164
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_5",
+        "arch": "gatedsae",
+        "location": "GatedSAE_gemma-2-2b__0108/resid_post_layer_12/trainer_5",
+        "status": "ok",
+        "unlearning_score": 0.07102799415588379
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_0",
+        "arch": "jumprelu",
+        "location": "JumpRelu_gemma-2-2b__0108/resid_post_layer_12/trainer_0",
+        "status": "ok",
+        "unlearning_score": 0.10841119289398193
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_1",
+        "arch": "jumprelu",
+        "location": "JumpRelu_gemma-2-2b__0108/resid_post_layer_12/trainer_1",
+        "status": "ok",
+        "unlearning_score": 0.08224296569824219
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_2",
+        "arch": "jumprelu",
+        "location": "JumpRelu_gemma-2-2b__0108/resid_post_layer_12/trainer_2",
+        "status": "ok",
+        "unlearning_score": 0.11214947700500488
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_3",
+        "arch": "jumprelu",
+        "location": "JumpRelu_gemma-2-2b__0108/resid_post_layer_12/trainer_3",
+        "status": "ok",
+        "unlearning_score": 0.08037382364273071
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_4",
+        "arch": "jumprelu",
+        "location": "JumpRelu_gemma-2-2b__0108/resid_post_layer_12/trainer_4",
+        "status": "ok",
+        "unlearning_score": 0.02242988348007202
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_5",
+        "arch": "jumprelu",
+        "location": "JumpRelu_gemma-2-2b__0108/resid_post_layer_12/trainer_5",
+        "status": "ok",
+        "unlearning_score": 0.03738313913345337
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_0",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_0",
+        "status": "ok",
+        "unlearning_score": 0.06542050838470459
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_1",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_1",
+        "status": "ok",
+        "unlearning_score": 0.02803736925125122
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_2",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_2",
+        "status": "ok",
+        "unlearning_score": 0.011214911937713623
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_3",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_3",
+        "status": "ok",
+        "unlearning_score": 0.02242988348007202
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_4",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_4",
+        "status": "ok",
+        "unlearning_score": 0.013084053993225098
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_5",
+        "arch": "matryoshkabatchtopk",
+        "location": "MatryoshkaBatchTopK_gemma-2-2b__0108/resid_post_layer_12/trainer_5",
+        "status": "ok",
+        "unlearning_score": 0.014953255653381348
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_0",
+        "arch": "panneal",
+        "location": "PAnneal_gemma-2-2b__0108/resid_post_layer_12/trainer_0",
+        "status": "ok",
+        "unlearning_score": 0.011214911937713623
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_1",
+        "arch": "panneal",
+        "location": "PAnneal_gemma-2-2b__0108/resid_post_layer_12/trainer_1",
+        "status": "ok",
+        "unlearning_score": 0.014953255653381348
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_2",
+        "arch": "panneal",
+        "location": "PAnneal_gemma-2-2b__0108/resid_post_layer_12/trainer_2",
+        "status": "ok",
+        "unlearning_score": 0.007476627826690674
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_3",
+        "arch": "panneal",
+        "location": "PAnneal_gemma-2-2b__0108/resid_post_layer_12/trainer_3",
+        "status": "ok",
+        "unlearning_score": 0.06168222427368164
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_4",
+        "arch": "panneal",
+        "location": "PAnneal_gemma-2-2b__0108/resid_post_layer_12/trainer_4",
+        "status": "ok",
+        "unlearning_score": 0.041121482849121094
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_5",
+        "arch": "panneal",
+        "location": "PAnneal_gemma-2-2b__0108/resid_post_layer_12/trainer_5",
+        "status": "ok",
+        "unlearning_score": 0.09719622135162354
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_0",
+        "arch": "standard",
+        "location": "Standard_gemma-2-2b__0108/resid_post_layer_12/trainer_0",
+        "status": "ok",
+        "unlearning_score": 0.011214911937713623
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_1",
+        "arch": "standard",
+        "location": "Standard_gemma-2-2b__0108/resid_post_layer_12/trainer_1",
+        "status": "ok",
+        "unlearning_score": 0.005607426166534424
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_2",
+        "arch": "standard",
+        "location": "Standard_gemma-2-2b__0108/resid_post_layer_12/trainer_2",
+        "status": "ok",
+        "unlearning_score": 0.014953255653381348
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_3",
+        "arch": "standard",
+        "location": "Standard_gemma-2-2b__0108/resid_post_layer_12/trainer_3",
+        "status": "ok",
+        "unlearning_score": 0.007476627826690674
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_4",
+        "arch": "standard",
+        "location": "Standard_gemma-2-2b__0108/resid_post_layer_12/trainer_4",
+        "status": "ok",
+        "unlearning_score": 0.10280370712280273
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_5",
+        "arch": "standard",
+        "location": "Standard_gemma-2-2b__0108/resid_post_layer_12/trainer_5",
+        "status": "ok",
+        "unlearning_score": 0.14579439163208008
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_0",
+        "arch": "topk",
+        "location": "TopK_gemma-2-2b__0108/resid_post_layer_12/trainer_0",
+        "status": "ok",
+        "unlearning_score": 0.11775696277618408
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_1",
+        "arch": "topk",
+        "location": "TopK_gemma-2-2b__0108/resid_post_layer_12/trainer_1",
+        "status": "ok",
+        "unlearning_score": 0.11588782072067261
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_2",
+        "arch": "topk",
+        "location": "TopK_gemma-2-2b__0108/resid_post_layer_12/trainer_2",
+        "status": "ok",
+        "unlearning_score": 0.07663547992706299
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_3",
+        "arch": "topk",
+        "location": "TopK_gemma-2-2b__0108/resid_post_layer_12/trainer_3",
+        "status": "ok",
+        "unlearning_score": 0.07102799415588379
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_4",
+        "arch": "topk",
+        "location": "TopK_gemma-2-2b__0108/resid_post_layer_12/trainer_4",
+        "status": "ok",
+        "unlearning_score": 0.05233639478683472
+      },
+      {
+        "sae_name": "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_5",
+        "arch": "topk",
+        "location": "TopK_gemma-2-2b__0108/resid_post_layer_12/trainer_5",
+        "status": "ok",
+        "unlearning_score": 0.016822397708892822
+      }
+    ]
+  },
+  "comparison_to_published": {
+    "batchtopk": {
+      "unlearning_score": {
+        "mine": 0.041744510332743325,
+        "published": 0.04127578934033712,
+        "abs_delta": 0.0004687209924062047
+      }
+    },
+    "gatedsae": {
+      "unlearning_score": {
+        "mine": 0.028037359317143757,
+        "published": 0.02595372001330058,
+        "abs_delta": 0.002083639303843178
+      }
+    },
+    "jumprelu": {
+      "unlearning_score": {
+        "mine": 0.07383174697558086,
+        "published": 0.06973107655843098,
+        "abs_delta": 0.004100670417149871
+      }
+    },
+    "matryoshkabatchtopk": {
+      "unlearning_score": {
+        "mine": 0.025856663783391316,
+        "published": 0.02595372994740804,
+        "abs_delta": 9.706616401672363e-05
+      }
+    },
+    "panneal": {
+      "unlearning_score": {
+        "mine": 0.03894078731536865,
+        "published": 0.037836154301961265,
+        "abs_delta": 0.001104633013407387
+      }
+    },
+    "standard": {
+      "unlearning_score": {
+        "mine": 0.04797505338986715,
+        "published": 0.04752971728642782,
+        "abs_delta": 0.00044533610343933105
+      }
+    },
+    "topk": {
+      "unlearning_score": {
+        "mine": 0.07507784167925517,
+        "published": 0.050656676292419434,
+        "abs_delta": 0.02442116538683574
+      }
+    }
+  },
+  "published_ref": {
+    "batchtopk": {
+      "unlearning_score": 0.04127578934033712,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_0": {
+          "unlearning_score": 0.11257034540176392
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_1": {
+          "unlearning_score": 0.050656676292419434
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_2": {
+          "unlearning_score": 0.024390220642089844
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_3": {
+          "unlearning_score": 0.028142571449279785
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_4": {
+          "unlearning_score": 0.020637869834899902
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_BatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_5": {
+          "unlearning_score": 0.011257052421569824
+        }
+      }
+    },
+    "gatedsae": {
+      "unlearning_score": 0.02595372001330058,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_0": {
+          "unlearning_score": 0.0018761754035949707
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_1": {
+          "unlearning_score": 0.015009403228759766
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_2": {
+          "unlearning_score": 0.009380877017974854
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_3": {
+          "unlearning_score": 0.0037523508071899414
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_4": {
+          "unlearning_score": 0.06003749370574951
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_GatedSAE_gemma-2-2b__0108_resid_post_layer_12_trainer_5": {
+          "unlearning_score": 0.06566601991653442
+        }
+      }
+    },
+    "jumprelu": {
+      "unlearning_score": 0.06973107655843098,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_0": {
+          "unlearning_score": 0.10881799459457397
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_1": {
+          "unlearning_score": 0.08067542314529419
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_2": {
+          "unlearning_score": 0.11257034540176392
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_3": {
+          "unlearning_score": 0.054409027099609375
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_4": {
+          "unlearning_score": 0.026266396045684814
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_JumpRelu_gemma-2-2b__0108_resid_post_layer_12_trainer_5": {
+          "unlearning_score": 0.03564727306365967
+        }
+      }
+    },
+    "matryoshkabatchtopk": {
+      "unlearning_score": 0.02595372994740804,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_0": {
+          "unlearning_score": 0.06566601991653442
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_1": {
+          "unlearning_score": 0.028142571449279785
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_2": {
+          "unlearning_score": 0.013133227825164795
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_3": {
+          "unlearning_score": 0.018761754035949707
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_4": {
+          "unlearning_score": 0.013133227825164795
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_MatryoshkaBatchTopK_gemma-2-2b__0108_resid_post_layer_12_trainer_5": {
+          "unlearning_score": 0.016885578632354736
+        }
+      }
+    },
+    "panneal": {
+      "unlearning_score": 0.037836154301961265,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_0": {
+          "unlearning_score": 0.007504701614379883
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_1": {
+          "unlearning_score": 0.015009403228759766
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_2": {
+          "unlearning_score": 0.007504701614379883
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_3": {
+          "unlearning_score": 0.058161377906799316
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_4": {
+          "unlearning_score": 0.03939962387084961
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_PAnneal_gemma-2-2b__0108_resid_post_layer_12_trainer_5": {
+          "unlearning_score": 0.09943711757659912
+        }
+      }
+    },
+    "standard": {
+      "unlearning_score": 0.04752971728642782,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_0": {
+          "unlearning_score": 0.013133227825164795
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_1": {
+          "unlearning_score": 0.005628526210784912
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_2": {
+          "unlearning_score": 0.015009403228759766
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_3": {
+          "unlearning_score": 0.009380877017974854
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_4": {
+          "unlearning_score": 0.10318946838378906
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_Standard_gemma-2-2b__0108_resid_post_layer_12_trainer_5": {
+          "unlearning_score": 0.1388368010520935
+        }
+      }
+    },
+    "topk": {
+      "unlearning_score": 0.050656676292419434,
+      "n_trainers": 6,
+      "per_sae": {
+        "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_0": {
+          "unlearning_score": 0.09568482637405396
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_1": {
+          "unlearning_score": 0.054409027099609375
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_2": {
+          "unlearning_score": 0.11257034540176392
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_3": {
+          "unlearning_score": 0.018761754035949707
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_4": {
+          "unlearning_score": 0.015009403228759766
+        },
+        "saebench_gemma-2-2b_width-2pow12_date-0108_TopK_gemma-2-2b__0108_resid_post_layer_12_trainer_5": {
+          "unlearning_score": 0.007504701614379883
+        }
+      }
+    }
+  }
+}
