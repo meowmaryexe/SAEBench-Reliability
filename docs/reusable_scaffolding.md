@@ -7,11 +7,13 @@ attributable. That shape now lives in shared modules under `src/saebench_audit/`
 adapter, not a copy of the whole pipeline. (Ari's Core/AutoInterp predate this and keep their own runners;
 they can adopt the shared base later.)
 
-**Two adapters exist today** and are the worked examples to copy: **Absorption**
-(`metrics/absorption.py` + `scripts/*absorption*`, two-version drift story) and **Unlearning**
+**Three adapters exist today** and are the worked examples to copy: **Absorption**
+(`metrics/absorption.py` + `scripts/*absorption*`, two-version drift story), **Unlearning**
 (`metrics/unlearning.py` + `scripts/*unlearning*`, single scalar score, single-version, GPU/Gemma-only with
-a gated corpus + a pure-python score-reduction oracle in `metrics/unlearning_score.py`). Between them they
-show the single-score, multi-score, single-version, and multi-version shapes.
+a gated corpus + a pure-python score-reduction oracle in `metrics/unlearning_score.py`), and **RAVEL**
+(`metrics/ravel.py` + `scripts/*ravel*`, three scores per SAE, single-version, GPU, base `gemma-2-2b`, no
+gated data — code done, GPU run deferred). Between them they show the single-score, multi-score,
+single-version, and multi-version shapes, plus the base-model vs instruct-model split.
 
 ## What's shared (reuse verbatim)
 

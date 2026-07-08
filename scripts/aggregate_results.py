@@ -19,6 +19,7 @@ from saebench_audit.io import read_jsonl, write_json, _maybe_json
 from saebench_audit.statistics import (
     aggregate_core, compare_to_bundle, aggregate_absorption, compare_absorption_to_published,
     aggregate_unlearning, compare_unlearning_to_published,
+    aggregate_ravel, compare_ravel_to_published,
 )
 
 
@@ -70,9 +71,34 @@ def _aggregate_unlearning(workdir, out_path):
         print(f"[agg]   {arch:>18}: unlearning_score={u_s}")
 
 
+def _aggregate_ravel(workdir, out_path):
+    meta = _maybe_json(os.path.join(workdir, "run_meta.json")) or {}
+    rows = read_jsonl(os.path.join(workdir, "ravel.jsonl"))
+    agg = aggregate_ravel(rows)
+    published = _maybe_json(os.path.join(workdir, "published_ref.json"))  # optional results-repo values
+    out = {
+        "metric": "ravel",
+        "sae_repo": meta.get("sae_repo"),
+        "model_name": meta.get("model_name"),
+        "config": meta.get("config"),
+        "result": agg,
+        "comparison_to_published": compare_ravel_to_published(agg, published),
+        "published_ref": published,
+    }
+    write_json(out_path, out)
+    print(f"[agg] {out_path}")
+    print(f"[agg] ravel: {agg['n_ok']}/{agg['n_saes']} ok ({agg['n_failed']} failed)")
+    for arch, s in agg["by_arch"].items():
+        d, c, i = s["disentanglement_score"], s["cause_score"], s["isolation_score"]
+        d_s = f"{d['mean']:.4f}±{d['std']:.4f} (n={d['n']})" if d else "n/a"
+        c_s = f"{c['mean']:.4f}" if c else "n/a"
+        i_s = f"{i['mean']:.4f}" if i else "n/a"
+        print(f"[agg]   {arch:>18}: disentangle={d_s}  cause={c_s}  iso={i_s}")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--metric", choices=["core", "absorption", "unlearning"], default="core")
+    ap.add_argument("--metric", choices=["core", "absorption", "unlearning", "ravel"], default="core")
     ap.add_argument("--workdir", required=True, help="raw checkpoint dir + run_meta.json")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
@@ -82,6 +108,9 @@ def main():
         return
     if args.metric == "unlearning":
         _aggregate_unlearning(args.workdir, args.out)
+        return
+    if args.metric == "ravel":
+        _aggregate_ravel(args.workdir, args.out)
         return
 
     rows = read_jsonl(os.path.join(args.workdir, "raw.jsonl"))

@@ -179,3 +179,27 @@ def compare_unlearning_to_published(agg, published):
     """Per-architecture absolute deltas of `unlearning_score` vs published SAEBench values.
     `published` maps arch -> {"unlearning_score": x}. Returns {} if not provided."""
     return compare_by_arch_to_reference(agg, published, _UNLEARN_SCORE_KEYS)
+
+
+# ---------------------------------------------------------------------------
+# RAVEL. Upstream already reduces to per-SAE scores (disentanglement = mean of cause + isolation, averaged
+# over attributes/entity types); collate per-SAE rows and summarize the three scores per architecture.
+# disentanglement_score is the primary ranking column.
+# ---------------------------------------------------------------------------
+_RAVEL_SCORE_KEYS = ["disentanglement_score", "cause_score", "isolation_score"]
+_RAVEL_PER_SAE_KEYS = (
+    "sae_name", "arch", "location", "status",
+    "disentanglement_score", "cause_score", "isolation_score",
+)
+
+
+def aggregate_ravel(rows):
+    """Collate per-SAE RAVEL rows (from ravel.jsonl) into a processed result: mean/std per architecture of
+    the disentanglement/cause/isolation scores. Non-ok rows are counted but excluded from the summaries."""
+    return aggregate_by_arch(rows, _RAVEL_SCORE_KEYS, _RAVEL_PER_SAE_KEYS, excluded_label="n_failed")
+
+
+def compare_ravel_to_published(agg, published):
+    """Per-architecture absolute deltas of the RAVEL scores vs published SAEBench values.
+    `published` maps arch -> {"disentanglement_score": x, ...}. Returns {} if not provided."""
+    return compare_by_arch_to_reference(agg, published, _RAVEL_SCORE_KEYS)

@@ -386,3 +386,94 @@ Gemma-2-2B, so absolute bands and rankings must be read with that caveat.
 - All code, configs, per-SAE raw JSON, and these tolerances are released.
 
 *Locked 2026-07-05. Any later change to §1–§4 must be recorded as a dated amendment.*
+
+---
+
+# Pre-Registration — RAVEL (disentanglement) Reproduction
+
+**Project:** SAEBench reproducibility study (Karvonen et al., 2025, arXiv:2503.09532)
+**Component:** RAVEL — a disentanglement metric measuring whether an SAE can isolate one entity attribute
+(the "cause") while leaving the others (the "iso") intact, via a trained mask over SAE latents.
+**Owner:** Alor
+**Date written:** 2026-07-07
+**Status:** Locked before producing any RAVEL numbers (Principles I & III — pre-register the bar).
+
+RAVEL is on the project's **"reproduce only — subset"** list: it is the single most expensive metric
+(~45 min/SAE, ~41% of the per-SAE all-8 cost), so it is run once for the headline reproduction and excluded
+from audit reruns (Compute-risk guardrail). This section fixes what we compute, how, and what "reproduced"
+means.
+
+## 1. What RAVEL is (paper definition, Appendix D / Table 7)
+
+For each entity type (`city`, `nobel_prize_winner`) and each of its attributes-as-cause, a **Multi-task
+Distributed Binary Mask (MDBM)** — a per-latent binary mask, SGD-trained via Adam, explicitly **not** the
+linear probe of the original Huang method — is trained to make an intervention that swaps the SAE latents
+change the *cause* attribute of a generated completion while preserving the *iso* attributes. The per-cause
+score is **disentanglement = mean(cause_score, isolation_score)**; the headline
+**`disentanglement_score`** is that averaged over attributes and entity types (`cause_score`,
+`isolation_score` reported alongside). Layer 12, base `gemma-2-2b`, greedy 6-token generation.
+
+## 2. Implementation & exact configuration
+
+**Approach: wrap upstream.** Stage-1 faithful numbers come from running the authors' code
+(`sae_bench.evals.ravel`, sae-bench 0.6.0) end-to-end, packaged in this repo's resumable
+`run_ravel.py → aggregate_results.py --metric ravel` flow (`src/saebench_audit/metrics/ravel.py`). This
+matches the "wrap, don't reimplement" spec; independent reimplementation is deferred to Stage 2.
+
+**Model = base `gemma-2-2b`** (NOT the instruct model — RAVEL is a base-LM completion task, unlike
+unlearning). The intervention layer is read from each SAE's own `cfg.hook_layer`. RAVEL's prompt data
+(`adamkarvonen/ravel_prompts`) is **public** and auto-downloads (no gated corpus); only the model is gated.
+
+**Shipped defaults (used verbatim for Stage 1):** `top_n_entities=500`, `num_pairs_per_attribute=5000`,
+`train_test_split=0.7`, MDBM `learning_rate=1e-3`, `num_epochs=2`, temperature annealed 1.0→1e-4,
+`n_generated_tokens=6` (the paper text says 8; the code ships 6 — we use the shipped 6),
+`random_seed=42` (applied upstream, numpy/torch), `llm_batch_size=8` on a 24 GB card (speed/memory only,
+no metric effect; upstream's un-reduced 2048 default is not used).
+
+**Undocumented choices we adopt to match their numbers (each a Stage-2 audit item, not a reproduction
+knob — reverting any of them needs a source edit + rerun, so there is no compute-free recompute):**
+
+| Choice | Shipped behavior | Consumed at |
+|---|---|---|
+| Reconstruction error term | **dropped** (`add_error=False`, hardcoded, un-toggleable) | `mdbm.py:44,90-92` |
+| `top_n_templates=90` filter | **dead** — defined but never applied; only entities are filtered | `eval_config.py:25`; `instance.py:425-439` |
+| Entity ranking | by raw **correct count**, not accuracy rate | `instance.py:430-434` |
+| Generated tokens | **6** (paper says 8) | `eval_config.py:84-88` |
+| Completion matching | hardcoded special cases (UTC/coords/country aliases) | `validation.py:70-125` |
+| MDAS skyline (disentangle 0.87) | not jointly trained; **not reproducible** as written | `mdas.py`; `main.py:573-575` |
+
+## 3. Validation reference
+
+Published per-SAE RAVEL values are in `adamkarvonen/sae_bench_results_0125` under the `ravel/` prefix
+(**confirmed 2026-07-07**: base `gemma-2-2b`, widths 4k/16k/65k, 42 files each; scores at
+`eval_result_metrics.ravel.{disentanglement,cause,isolation}_score` — e.g. BatchTopK 4k t0 disentanglement
+= 0.4795), fetched drop-in via `fetch_published_ravel.py` → `published_ref.json`. The **4k** results dir
+`ravel/saebench_gemma-2-2b_width-2pow12_date-0108/` matches the SAE-repo-derived prefix (no
+`--results_prefix` needed). **16k/65k** published results use `date-0108` naming while the registry SAE
+weights are `canrager/…date-0107`, so those widths need `--results_prefix ravel/saebench_gemma-2-2b_width-
+2pow{14,16}_date-0108` — exactly as for unlearning.
+
+## 4. Pre-registered tolerances ("reproduced" means…)
+
+RAVEL has **no known sae-bench version drift**, so a single current-version run is the reproduction. The
+MDBM masks are SGD-trained, so scores carry intrinsic run-to-run variance even with the seed applied.
+
+| Quantity | Tolerance for "reproduced" | Rationale |
+|---|---|---|
+| `disentanglement_score` (per SAE) | \|mine − published\| ≤ **0.05** | absolute band absorbing SGD-mask variance |
+| **Architecture ranking** (the real bar) | Spearman **ρ ≥ 0.9** vs published ordering, no inversion of a pair whose published gap > 0.05 | the load-bearing claim is a ranking (Matryoshka wins disentanglement) |
+
+Qualitative claims we pre-commit to testing: (i) MatryoshkaBatchTopK leads disentanglement in the L0 40–200
+range; (ii) plain ReLU/Standard is comparatively outperformed. If a value lands outside its band the first
+hypothesis is our own bug (Principle V).
+
+## 5. Commitments (anti-confirmation-bias)
+
+- Report `disentanglement_score` **and** its cause/isolation components with equal prominence.
+- Use the shipped defaults (dropped error term, dead template filter, 6 tokens) for reproduction; each is a
+  **Stage-2 audit** question (re-include the error term; enforce the 90-template filter; rank entities by
+  accuracy), **not** a reproduction change.
+- Do not tune the MDBM hyperparameters to force a number; the SGD-mask variance is characterized, not hidden.
+- All code, configs, per-SAE raw JSON, and these tolerances are released.
+
+*Locked 2026-07-07. Any later change to §1–§4 must be recorded as a dated amendment.*

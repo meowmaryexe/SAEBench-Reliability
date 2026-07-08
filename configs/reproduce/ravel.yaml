@@ -1,0 +1,51 @@
+# RAVEL (disentanglement) — reproduction config.
+# Consumed by: scripts/run_ravel.py  (which wraps upstream sae_bench.evals.ravel).
+# Stage-1 "reproduce only" (subset — RAVEL is the most expensive metric): we run the authors' code with the
+# SHIPPED settings and match numbers. Owner: Alor.
+metric: ravel
+owner: alor
+
+# RAVEL runs on the BASE gemma-2-2b (a base-LM completion task — NOT the instruct model, unlike unlearning).
+# The intervention layer is read from each SAE's own cfg.hook_layer (there is no layer field in the eval
+# config); `layer` here is only used to enumerate/filter the released SAEs.
+model_name: gemma-2-2b                           # base model (no "-it")
+layer: 12                                         # resid_post layer (SAE discovery filter)
+sae_repo: adamkarvonen/saebench_gemma-2-2b_width-2pow12_date-0108   # 4k width (2^12) — green milestone
+device: cuda                                      # GPU metric (no CPU path)
+llm_dtype: bfloat16
+llm_batch_size: 8                                 # 24 GB default; upstream default (2048) is NOT auto-reduced
+
+# Upstream RAVELEvalConfig defaults (eval_config.py). Stage-1 uses the SHIPPED settings.
+# random_seed IS applied upstream (numpy/torch).
+random_seed: 42
+entity_attribute_selection:
+  city: [Country, Continent, Language]
+  nobel_prize_winner: [Country of Birth, Field, Gender]
+top_n_entities: 500
+top_n_templates: 90                               # defined upstream but only entities are actually filtered
+num_pairs_per_attribute: 5000
+train_test_split: 0.7
+learning_rate: 0.001                              # MDBM Adam lr
+num_epochs: 2                                     # MDBM training epochs (full fwd+bwd through the LLM per step)
+n_generated_tokens: 6                             # paper used 8; code ships 6
+train_mdas: false                                 # false = mask the SAE (MDBM); true = the MDAS skyline
+artifact_dir: artifacts/ravel                     # filtered-dataset cache (reused across SAEs + widths)
+
+# RAVEL's prompt data (adamkarvonen/ravel_prompts) is PUBLIC and auto-downloads — no gated corpus (unlike
+# unlearning). Only the gemma-2-2b model is gated (accept its HF license + huggingface-cli login).
+# See docs/aws_ravel_runbook.md.
+
+# Headline reduction (faithful): disentanglement_score = mean(cause_score, isolation_score), averaged over
+# attributes and entity types (eval_output.py). Two undocumented upstream choices are Stage-2 AUDIT items,
+# NOT reproduction knobs (they need a source edit + rerun, so there is no compute-free recompute):
+audit_deferred:
+  - add_error dropped: the reconstruction-error term is hardcoded False in mdbm.py (un-toggleable)
+  - top_n_templates dead: the 90-template filter is defined but never applied (only entities are filtered)
+  - entity ranking: entities ranked by raw correct COUNT, not accuracy rate
+
+# Pre-registered, drift-aware bar (see docs/preregistration.md — RAVEL):
+tolerances:
+  # RAVEL's MDBM masks are SGD-trained, so scores carry intrinsic run-to-run variance even with the seed;
+  # bar is an absolute band on disentanglement + the architecture ranking.
+  mean_score_abs_drift_band: 0.05      # |mine - published| per arch (disentanglement_score)
+  ranking_spearman_min: 0.9            # architecture ordering vs published

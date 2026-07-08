@@ -201,6 +201,43 @@ by re-fetching the published values bit-for-bit from HF. Finding:
 
 ---
 
+## RAVEL (disentanglement) 🚧 (reproduce-only, subset) — owner: Alor
+
+**Definition (paper App. D / Table 7).** For each entity type (`city`, `nobel_prize_winner`) and each
+attribute-as-cause, train a **MDBM** (per-latent binary mask, SGD/Adam-trained — explicitly *not* the Huang
+linear probe) that makes a latent-swap intervention change the *cause* attribute of a generated completion
+while preserving the *iso* attributes. Headline **`disentanglement_score = mean(cause_score,
+isolation_score)`**, averaged over attributes/entity types (cause + isolation reported alongside).
+
+**Implementation — wrap upstream.** `src/saebench_audit/metrics/ravel.py` thinly wraps
+`sae_bench.evals.ravel` and runs through the resumable `run_ravel.py → aggregate_results.py --metric ravel`
+flow, reusing the shared scaffolding. **Base `gemma-2-2b`** (NOT instruct — RAVEL is a base-LM completion
+task); layer read from each SAE's `cfg.hook_layer`. Prompt data (`adamkarvonen/ravel_prompts`) is **public**
+and auto-downloads — **no gated corpus** (unlike unlearning); only the model is gated. A one-time per-model
+dataset gen/filter pass is cached under `artifact_dir` and reused across SAEs/widths.
+
+**Code-vs-paper faithfulness facts (we adopt the shipped code; each is a Stage-2 audit item, not a
+reproduction knob — reverting needs a source edit + rerun, so no compute-free recompute):** error term
+**dropped** (`add_error=False`, un-toggleable); `top_n_templates=90` filter is **dead** (only entities
+filtered); entities ranked by raw **count** not accuracy; **6** generated tokens (paper says 8); MDAS
+skyline (0.87) not jointly trained → not reproducible as written.
+
+**Cost — most expensive metric.** ~45 min/SAE (plan doc Appendix A; ~41% of the all-8 per-SAE cost) →
+~32 GPU-h/width ≈ **~$33–38 on-demand g5.xlarge** (A10G; ±50% band). Run once for the headline, exclude from
+audit reruns (Compute-risk guardrail). Use an **on-demand** box (long uninterrupted run); 65k is OOM-prone
+on 24 GB (`--llm_batch_size 4` or g5.2xlarge).
+
+**Status (2026-07-07): CODE DONE; run deferred to AWS GPU** (staged like unlearning). Adapter + scripts +
+configs + runbook + prereg + tests written; `tests/test_ravel_units.py` (8) green on the plain interpreter.
+Green milestone = `gemma-2-2b_4k` (registry suite already exists); 16k/65k are trivial `--suite` follow-ons.
+Published RAVEL results **confirmed** in `sae_bench_results_0125` (`ravel/…_width-2pow12_date-0108/`, 42
+files, scores at `eval_result_metrics.ravel.*`; 4k needs no `--results_prefix`, 16k/65k use `date-0108`
+naming vs canrager `date-0107` SAE weights → pass `--results_prefix`).
+**Configs:** `configs/reproduce/ravel.yaml`, `configs/gpu/ravel_gpu.yaml`. **Pre-reg:**
+`docs/preregistration.md` (RAVEL). **Runbook:** `docs/aws_ravel_runbook.md`.
+
+---
+
 ## SCR · TPP · Sparse Probing 🚧 (owner: Mary)
 
 ### Current Status

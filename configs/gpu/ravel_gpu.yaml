@@ -1,0 +1,38 @@
+# RAVEL — GPU/cloud reproduction config. Consumed by: scripts/run_ravel_suite.sh
+# (which calls scripts/run_ravel.py --suite <name>). Wraps upstream sae_bench.evals.ravel on a GPU.
+# See docs/aws_ravel_runbook.md. Plan for an ON-DEMAND box — RAVEL is the most expensive metric.
+metric: ravel
+owner: alor
+
+# Single version — RAVEL has no known sae-bench version drift. One current run reproduces published.
+versions:
+  v0.6.0: {venv_env: VENV}       # current sae-bench (the absorption venv) — GPU-capable
+
+runtime:
+  device: cuda                   # GPU required (no CPU path — gemma-2-2b MDBM fwd+bwd passes)
+  llm_dtype: bfloat16
+  llm_batch_size: 8              # 24 GB (A10G) default; drop to 4 if 65k OOMs (RAVEL README warns of frag)
+
+# Suites (registry.yaml keys). Start with 4k (green milestone). 16k/65k are trivial follow-ons — just move
+# them into suites_now (or the SUITES array in run_ravel_suite.sh); the code is identical.
+suites_now:
+  - gemma-2-2b_4k                # ~45 min/SAE → ~32 GPU-h/width
+suites_later:
+  - gemma-2-2b_16k
+  - gemma-2-2b_65k               # 65k is OOM-prone on 24 GB; consider g5.2xlarge or --llm_batch_size 4
+
+reference:
+  results_repo: adamkarvonen/sae_bench_results_0125   # fetched via fetch_published_ravel.py
+  drift_band_abs: 0.05           # disentanglement_score
+  ranking_spearman_min: 0.9
+  # Published RAVEL layout CONFIRMED (2026-07-07): ravel/saebench_gemma-2-2b_width-2pow12_date-0108/ (42
+  # files, key eval_result_metrics.ravel.*). 4k needs no --results_prefix; 16k/65k use date-0108 naming
+  # (SAE weights are canrager date-0107) → pass fetch --results_prefix for those widths.
+
+# Prereqs: huggingface-cli login + accept the google/gemma-2-2b (BASE) license. RAVEL prompt data is PUBLIC
+# (auto-downloads); NO gated corpus (unlike unlearning). Launch from repo root so artifacts/ravel persists.
+# Cost: ~42 SAEs x ~45 min ≈ 32 GPU-h/width (~$33-38 on-demand g5.xlarge @ ~$1/hr; ±50% band). RAVEL is the
+# suite's most expensive metric (~41% of all-8 per-SAE cost). Guardrails in the runbook + driver (auto-shutdown).
+#
+# Stage-2 audit knobs (deferred, need source edits + reruns, not compute-free recompute): re-include the
+# dropped error term (mdbm.py add_error), the dead top_n_templates filter, entity ranking by count vs accuracy.
