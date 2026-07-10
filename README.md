@@ -26,15 +26,16 @@ The project is being conducted as a reproducibility study targeting submission t
 - `scripts/` - Entry-point scripts (`run_metric.py`, `aggregate_results.py`, `make_figures.py`)
 - `src/` - Core source: the `saebench_audit` package (`io`, `schema`, `statistics`, `plotting`, `sae_models`, `metrics/`)
 
-## Status (2026-06-23)
+## Status (2026-07-10)
 
 | Metric (owner) | Status |
 |---|---|
 | **Core / Loss Recovered** (Ari) | ✅ **Full Core reproduced on 4k Pythia-160M**: all 42 SAEs, **every metric** (Loss Recovered, explained var, MSE, cosine, L0/L1, recon bias, density, max-cosine-sim) vs published Neuronpedia — 11/15 within <1%, weight metrics exact (Pearson ≈1.0). Methodology **proven identical to `core/main.py`** by an oracle on the real `transformer_lens` model (~1e-7) + 10 unit tests. PCA/residual baselines reproduce (LR 1.0, L0=768). 16k/65k + Gemma GPU-deferred (`configs/gpu/`). See `docs/metric_notes.md`, `tests/`, `figures/`. |
 | **AutoInterp** (Ari) | ✅ Reproduced on Pythia-160M 4k with the paper's **gpt-4o-mini** judge — faithful pipeline (8/8 unit tests, verbatim prompts). Score **converges to published** with token budget: 24k→0.710 (null floor 0.714), 96k→0.748, paper 2M→0.780. See `docs/metric_notes.md`, log #11, `figures/autointerp_convergence.svg`. |
 | **TPP / SCR / Sparse Probing** (Mary) | 🚧 Evaluation paths validated. Official SAEBench acceptance tests reproduced successfully on CUDA for TPP, SCR, and Sparse Probing. Smoke-test artifacts archived. Investigated the Pythia-160M loading-path issue, verified the dictionary-learning SAE loading path, enumerated all 42 released Pythia-160M SAEs, and completed the first successful Pythia-160M TPP benchmark run. Faithful reproduction runs and reliability audits are in progress. |
-| **RAVEL** (Alor / Mary) | Pending |
-| **Unlearning** (Alor / Mary) | Pending |
+| **Absorption** (Alor) | ✅ **Reproduced on Pythia-160M 4k** (42 SAEs, reproduce-only), wrapping upstream `sae_bench.evals.absorption`. Key finding — a **code-vs-published version drift**: `mean_full_absorption_score` reproduces under **both** sae-bench versions, but `mean_absorption_fraction_score` reproduces **only under 0.3.2** (0.164 vs published 0.155, within the drift-aware bar) and collapses ~10× under 0.6.0 (the fraction metric was redefined in PR #62) — not a harness bug. _Full code, findings & run record are on branch `alor/ravel-abs-unlearning` (not yet merged to main)._ |
+| **RAVEL** (Alor) | ✅ **Reproduced on Gemma-2-2b 4k** (42 SAEs, base model, reproduce-only): all 7 archs within the ±0.05 band, **Spearman ρ = +1.000** (perfect rank match), disentanglement max\|Δ\| = 0.0088 — the tightest of the three. Published re-fetched from HF **bit-for-bit** (independent). ReLU outperformed on RAVEL ✓; Matryoshka "best on RAVEL" **not** seen at 4k but *matches published* — a width-scaling claim to verify at 16k/65k. _Full code, findings & run record on branch `alor/ravel-abs-unlearning`._ |
+| **Unlearning** (Alor) | ✅ **Reproduced on Gemma-2-2b-it 4k** (42 SAEs, WMDP-bio, reproduce-only): all 7 archs within the ±0.05 band, **Spearman ρ = +0.929**, HF-verified bit-for-bit. Scores near-zero (0.026–0.075) = the paper's pre-conceded **"degenerate on Gemma-2-2B"**; ReLU ties mid-pack ✓. _Full code, findings & run record on branch `alor/ravel-abs-unlearning`._ |
 
 ### Run the Core metric (CPU; resumable — re-invoke until `ALL_BATCHES_DONE`)
 
