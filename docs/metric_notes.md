@@ -201,7 +201,7 @@ by re-fetching the published values bit-for-bit from HF. Finding:
 
 ---
 
-## RAVEL (disentanglement) 🚧 (reproduce-only, subset) — owner: Alor
+## RAVEL (disentanglement) ✅ (reproduce-only, subset) — owner: Alor
 
 **Definition (paper App. D / Table 7).** For each entity type (`city`, `nobel_prize_winner`) and each
 attribute-as-cause, train a **MDBM** (per-latent binary mask, SGD/Adam-trained — explicitly *not* the Huang
@@ -227,14 +227,21 @@ skyline (0.87) not jointly trained → not reproducible as written.
 audit reruns (Compute-risk guardrail). Use an **on-demand** box (long uninterrupted run); 65k is OOM-prone
 on 24 GB (`--llm_batch_size 4` or g5.2xlarge).
 
-**Status (2026-07-07): CODE DONE; run deferred to AWS GPU** (staged like unlearning). Adapter + scripts +
-configs + runbook + prereg + tests written; `tests/test_ravel_units.py` (8) green on the plain interpreter.
-Green milestone = `gemma-2-2b_4k` (registry suite already exists); 16k/65k are trivial `--suite` follow-ons.
-Published RAVEL results **confirmed** in `sae_bench_results_0125` (`ravel/…_width-2pow12_date-0108/`, 42
-files, scores at `eval_result_metrics.ravel.*`; 4k needs no `--results_prefix`, 16k/65k use `date-0108`
-naming vs canrager `date-0107` SAE weights → pass `--results_prefix`).
+**✅ Reproduced (4k, 2026-07-10).** Full 42-SAE suite on AWS A10G (base gemma-2-2b, sae-bench 0.6.0)
+reproduces published SAEBench: all 7 archs within the ±0.05 band, **Spearman ρ = +1.000** (perfect rank
+match), 42/42 ok — the tightest of the three owned metrics (large scores 0.57–0.68 + seeded MDBM = low
+noise). max|Δ disentanglement| = 0.0088; cause/isolation within ±0.022. Paper cross-check: **ReLU
+outperformed on RAVEL ✓** (standard is lowest, 0.571); **Matryoshka "best on RAVEL" NOT seen at 4k**
+(5th of 7) — but this *matches published* (ρ=1.0) and is consistent with the paper's "advantage grows with
+width," so it's a 16k/65k-width claim to verify later, not a discrepancy. isolation > cause across all archs
+(mask preserves better than it flips). Independent: published re-fetched from HF bit-for-bit; ours recomputed
+from the ledger. Finding: [docs/findings/ravel_reproduction.md](findings/ravel_reproduction.md); run record
+`docs/run_records/ravel/gemma-2-2b_4k_20260708T091349Z/`; processed
+`results/processed/ravel/gemma-2-2b_4k.json`. 16k/65k widths still to run (pass `--results_prefix` for the
+published fetch — `date-0108` naming vs canrager `date-0107` SAE weights).
 **Configs:** `configs/reproduce/ravel.yaml`, `configs/gpu/ravel_gpu.yaml`. **Pre-reg:**
-`docs/preregistration.md` (RAVEL). **Runbook:** `docs/aws_ravel_runbook.md`.
+`docs/preregistration.md` (RAVEL). **Runbook:** `docs/aws_ravel_runbook.md`. **Tests:**
+`tests/test_ravel_units.py` (8).
 
 ---
 

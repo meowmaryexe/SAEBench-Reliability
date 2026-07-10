@@ -477,3 +477,15 @@ hypothesis is our own bug (Principle V).
 - All code, configs, per-SAE raw JSON, and these tolerances are released.
 
 *Locked 2026-07-07. Any later change to §1–§4 must be recorded as a dated amendment.*
+
+### Amendment 2026-07-10 — 4k reproduced within the pre-registered bar
+
+The full 42-SAE `gemma-2-2b_4k` suite ran on GPU and **reproduces published SAEBench**: per-arch
+`disentanglement_score` within |Δ| ≤ **0.0088** (bar 0.05) and architecture ranking Spearman **ρ = +1.000**
+(bar ≥ 0.9), 42/42 ok. Both committed §4 checks pass. The published column was verified bit-for-bit against
+a fresh HuggingFace re-fetch (not self-referential). The pre-committed qualitative tests (§4): (i) ReLU/
+Standard is outperformed — **confirmed** (standard is the lowest arch); (ii) MatryoshkaBatchTopK leads —
+**not observed at 4k** (5th of 7), but this matches the published 4k numbers and is consistent with the
+paper's stated width-dependence ("advantage grows with dictionary width"), so it is deferred to the 16k/65k
+scaling widths rather than recorded as a failure. Evidence: `docs/findings/ravel_reproduction.md`; run
+record `docs/run_records/ravel/gemma-2-2b_4k_20260708T091349Z/`.
