@@ -22,7 +22,9 @@ FOLDER = {"Standard": ("Standard", "standard"), "TopK": ("TopK", "topk"),
           "BatchTopK": ("BatchTopK", "batchtopk"), "JumpRelu": ("JumpRelu", "jumprelu"),
           "GatedSAE": ("GatedSAE", "gated"), "Matryoshka": ("MatryoshkaBatchTopK", "matryoshka"),
           "PAnneal": ("PAnneal", "standard")}
-REF_DIR = "/sessions/zealous-gifted-volta/mnt/outputs/neuronpedia_core_ref"
+REF_DIR = os.environ.get("SAEBENCH_CORE_REF_DIR",
+                         os.path.join(ROOT, "sae_bench_results_0125", "core",
+                                      "saebench_pythia-160m-deduped_width-2pow12_date-0108"))
 
 
 def curl(url, dst, t=40):
@@ -166,7 +168,7 @@ def main():
     ap.add_argument("--n_sparsity", type=int, default=128)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--workdir", required=True)
-    ap.add_argument("--sae_tmp", default="/sessions/zealous-gifted-volta/mnt/outputs/_full_sae_tmp")
+    ap.add_argument("--sae_tmp", default=os.path.join(ROOT, "_cache", "full_sae_tmp"))
     ap.add_argument("--archs", nargs="*", default=list(FOLDER))
     ap.add_argument("--trainers", nargs="*", type=int, default=[0, 1, 2, 3, 4, 5])
     ap.add_argument("--max_seconds", type=float, default=30.0)

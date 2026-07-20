@@ -12,8 +12,12 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from saebench_audit.metrics import core_loss_recovered as core
 from saebench_audit.sae_models import load_sae
 
-SAE_DIR = "/sessions/zealous-gifted-volta/mnt/outputs/models/sae_standard_4k_t0"
-SUITE_INSPECT = "/sessions/zealous-gifted-volta/mnt/outputs/suite_inspect"
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _fixtures
+
+SAE_DIR = _fixtures.sae_dir() or os.path.join(_fixtures.FIXTURES, "sae_standard_4k_t0")
+# per-architecture SAEs (only present if you've fetched them); tests skip gracefully if absent
+SUITE_INSPECT = os.environ.get("SAEBENCH_ARCH_SAE_DIR", os.path.join(_fixtures.FIXTURES, "arch_saes"))
 
 
 def test_loss_recovered_formula():

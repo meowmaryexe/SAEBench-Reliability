@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.join(ROOT, "src")); sys.path.insert(0, os.path.dirnam
 from saebench_audit.sae_models import load_sae
 from saebench_audit.metrics import core_full
 import saebench_verbatim as v
+import _fixtures
 from test_core_oracle import SAEAdapter, build_batches
 
 import math
@@ -32,26 +33,31 @@ ABS_METRICS = {"frac_alive", "freq_over_1_percent", "freq_over_10_percent"}
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model_dir", default="/sessions/zealous-gifted-volta/mnt/outputs/models/pythia-160m-deduped")
-    ap.add_argument("--sae_dir", default="/sessions/zealous-gifted-volta/mnt/outputs/models/sae_standard_4k_t0")
+    ap.add_argument("--model_dir", default=None, help="HF id or local dir (default: fixtures)")
+    ap.add_argument("--sae_dir", default=None, help="local SAE dir (default: auto-fetched fixture)")
     ap.add_argument("--arch", default="standard")
     ap.add_argument("--layer", type=int, default=8)
     args = ap.parse_args()
     hook = f"blocks.{args.layer}.hook_resid_post"
 
+    model_ref = args.model_dir or _fixtures.model_ref()
+    sdir = args.sae_dir or _fixtures.sae_dir()
+    if sdir is None:
+        print("SKIP: reference SAE unavailable (no network?). Pass --sae_dir."); return
+
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from transformer_lens import HookedTransformer
-    hf = AutoModelForCausalLM.from_pretrained(args.model_dir, dtype=torch.float32).eval()
-    tok = AutoTokenizer.from_pretrained(args.model_dir)
+    hf = AutoModelForCausalLM.from_pretrained(model_ref, dtype=torch.float32).eval()
+    tok = AutoTokenizer.from_pretrained(model_ref)
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
     tl = HookedTransformer.from_pretrained_no_processing(
         "pythia-160m-deduped", hf_model=hf, tokenizer=tok, device="cpu", dtype="float32")
 
-    sae = load_sae(os.path.join(args.sae_dir, "ae.pt"), args.arch, device="cpu")
+    sae = load_sae(os.path.join(sdir, "ae.pt"), args.arch, device="cpu")
     adapter = SAEAdapter(sae, hook, args.layer)
     special = {tok.bos_token_id, tok.eos_token_id, tok.pad_token_id}
-    batches = build_batches(tok, cache="/sessions/zealous-gifted-volta/mnt/outputs/oracle_batches.pt")
+    batches = build_batches(tok, cache=_fixtures.cache_path("oracle_batches.pt"))
 
     # oracle (verbatim SAEBench on transformer_lens)
     per_batch = [v.get_recons_and_kl(adapter, tl, bt, hook, ignore_tokens=special) for bt in batches]

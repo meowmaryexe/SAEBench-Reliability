@@ -94,7 +94,7 @@ def main():
     ap.add_argument("--n_latents", type=int, default=40)
     ap.add_argument("--resid_dir", required=True, help="shared resid cache (SAE-independent)")
     ap.add_argument("--workdir", required=True, help="per-SAE workdir")
-    ap.add_argument("--keyfile", default="/sessions/zealous-gifted-volta/mnt/outputs/.openai_key")
+    ap.add_argument("--keyfile", default=os.path.join(ROOT, "openai_api_key.txt"))
     ap.add_argument("--max_seconds", type=float, default=33.0)
     args = ap.parse_args()
     os.makedirs(args.workdir, exist_ok=True)

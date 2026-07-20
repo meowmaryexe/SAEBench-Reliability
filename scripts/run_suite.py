@@ -16,7 +16,8 @@ Downloads each ae.pt on demand and deletes it after eval to bound disk use.
 import argparse, json, os, subprocess, sys, time
 import torch
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.insert(0, os.path.join(ROOT, "src"))
 from saebench_audit.schema import CoreConfig
 from saebench_audit.io import (prepare_pool, pad_batch, load_model_and_tokenizer, load_sae,
                                load_ckpt, append_ckpt, _maybe_json, get_decoder_layers)
@@ -107,7 +108,7 @@ def main():
     ap.add_argument("--n_docs", type=int, default=12)
     ap.add_argument("--batch", type=int, default=2)
     ap.add_argument("--workdir", required=True)
-    ap.add_argument("--sae_tmp", default="/sessions/zealous-gifted-volta/mnt/outputs/_suite_sae_tmp")
+    ap.add_argument("--sae_tmp", default=os.path.join(ROOT, "_cache", "suite_sae_tmp"))
     ap.add_argument("--max_seconds", type=float, default=30.0)
     args = ap.parse_args()
     os.makedirs(args.workdir, exist_ok=True)

@@ -4,7 +4,40 @@ Step-by-step instructions to run both reproduced metrics at **paper scale** on a
 models (**Pythia-160M** layer 8, **Gemma-2-2B** layer 12) across all three SAE widths (4k / 16k / 65k).
 
 Everything was developed and validated on CPU; this guide is for the full-size runs that need a GPU
-(an A100-class card is recommended; 24 GB works for Pythia and 4k/16k Gemma, 40 GB+ for 65k Gemma).
+(a 24 GB card — A10G/L4 — is enough for everything here; see §9b for instance choice).
+
+---
+
+## TL;DR — if you just want to run it
+
+On a GPU box (see §9b to stand one up on AWS), this is the whole thing:
+
+```bash
+git clone https://github.com/meowmaryexe/SAEBench-Reliability.git
+cd SAEBench-Reliability
+
+pip install torch --index-url https://download.pytorch.org/whl/cu121   # match your CUDA
+pip install -r requirements.txt
+
+huggingface-cli login                      # needed for Gemma (gated) — accept the license first
+echo "sk-...yourkey..." > openai_api_key.txt   # needed for AutoInterp (gitignored)
+
+bash scripts/smoke_test.sh    # ~3 min: checks GPU, HF auth, SAE download, OpenAI key, runs the tests
+bash scripts/run_all_gpu.sh   # the full sweep (both metrics, all 6 suites) -> results/ + figures/
+```
+
+**`run_all_gpu.sh` is safe to re-run** — every runner checkpoints per-SAE and per-latent, so if SSH
+drops, the box reboots, or a Spot instance is reclaimed, just run it again and it resumes. Run it under
+`tmux` so an SSH drop doesn't kill it.
+
+Useful variants:
+```bash
+METRICS=core bash scripts/run_all_gpu.sh                 # Core only (no OpenAI cost)
+SUITES="gemma-2-2b_65k" bash scripts/run_all_gpu.sh      # just the paper headline
+```
+
+If `smoke_test.sh` reports ❌ on anything, fix that first (§10 troubleshooting) — it's much cheaper than
+discovering it 40 minutes into a GPU run. The rest of this document is the detail behind those commands.
 
 ---
 
@@ -37,15 +70,14 @@ Repos/folder layouts live in `configs/registry.yaml` (already verified against H
 ## 2. Environment
 
 ```bash
-git clone <your remote>/SAEBench-Reliability.git
+git clone https://github.com/meowmaryexe/SAEBench-Reliability.git
 cd SAEBench-Reliability
 
 python -m venv .venv && source .venv/bin/activate
 
 # runtime deps for the RUNS (the runners use HuggingFace transformers, not transformer_lens)
 pip install "torch" --index-url https://download.pytorch.org/whl/cu121   # match your CUDA
-pip install "transformers>=4.44" datasets safetensors huggingface_hub \
-            pyyaml numpy einops zstandard tqdm openai
+pip install -r requirements.txt
 
 # (optional) to also run the methodology ORACLE tests on the GPU box, add:
 pip install --no-deps transformer_lens==2.15.4 jaxtyping fancy_einsum typeguard beartype rich better_abc sentencepiece
@@ -229,8 +261,67 @@ At current **A100-80GB ~$1.20–2.00/hr** (RunPod ~$1.19–1.39, Lambda ~$1.99) 
 
 ---
 
+## 9b. Standing up the GPU on AWS (with Activate credits)
+
+### Step 0 — credits
+[AWS Activate](https://aws.amazon.com/startups/credits/): **Founders tier = $1,000**, self-serve (no
+accelerator needed); Portfolio tier up to $100K via an accelerator/VC. Eligibility: pre-Series B, founded
+within 10 years, a working company website, AWS account on a paid support plan, new to Activate credits.
+Approval **7–10 business days**; credits expire **12–24 months** after activation. Apply with a Builder ID
+at the link above, then confirm the credits show under *Billing → Credits*.
+
+> If this is a purely academic project rather than a startup, Activate may not fit — look at **AWS Cloud
+> Credit for Research** or your university's AWS allocation instead.
+
+### Step 1 — request GPU quota FIRST (the actual blocker)
+New accounts default to **0 vCPUs** for GPU families, so a launch will fail with
+"instance limit exceeded" even with credits.
+*Console → Service Quotas → Amazon EC2 → **"Running On-Demand G and VT instances"*** → request **8–16
+vCPUs** (enough for one `g5.2xlarge`/`g6.2xlarge`). Do this in the region you'll actually use
+(`us-east-1` or `us-west-2` have the best G5/G6 availability). Approval ranges from minutes to a couple of
+days — start it before you need it. (Request the *G and VT* quota, not P — you don't need P instances.)
+
+### Step 2 — pick the instance (don't over-buy)
+| instance | GPU | ~$/hr | verdict |
+|---|---|---|---|
+| **g5.2xlarge** | A10G 24 GB, 8 vCPU | ~$1.21 | **recommended** — fits everything, cheap |
+| g6.2xlarge | L4 24 GB, 8 vCPU | ~$1.0–1.3 | newer, similar; fine |
+| g6e.xlarge | L40S 48 GB | ~$2 | faster if you want shorter wall-clock |
+| p4d / p5 | A100 / H100 | $32+ | **overkill** — you'd waste 7 of 8 GPUs, harder quota |
+
+Sizing: Gemma-2-2B bf16 ≈ 5 GB + 65k SAE ≈ 1 GB + ctx-128 activations → comfortably under 24 GB.
+The 8 vCPUs matter for tokenization / dataset streaming.
+
+### Step 3 — launch
+- **AMI:** *Deep Learning OSS Nvidia Driver AMI GPU PyTorch (Ubuntu 22.04)* — NVIDIA driver, CUDA and
+  PyTorch preinstalled (supports G5/G6). Saves an hour of driver pain.
+- **Storage:** **200 GB gp3** (HF model cache + SAE downloads + the 2M-token residual cache ≈ a few GB).
+- Key pair + security group allowing SSH from your IP.
+
+```bash
+ssh -i key.pem ubuntu@<public-ip>
+nvidia-smi                      # confirm the GPU is visible
+```
+
+### Step 4 — set up and run
+Follow sections 2–8 above (env, `huggingface-cli login` for Gemma, `openai_api_key.txt`, then the Core and
+AutoInterp loops).
+
+### Step 5 — cost control
+- **Timing on this hardware:** A10G/L4 is ~2–3× slower than the A100 baseline in §9, so budget
+  **~40–70 GPU-h → ~$50–85 on-demand** for the full 252-SAE sweep. Comfortably inside $1,000 of credits.
+- **Use Spot for ~70% off (~$15–25).** Safe here: every runner in this repo is **checkpoint-resumable**
+  (per-SAE and per-latent), so an interruption just means re-invoking the same command.
+- **`stop` the instance whenever you're not running** — GPU instances bill per second while *running*.
+  Stopped instances still bill for EBS (~$16/mo for 200 GB), so delete the volume when done.
+- Set an **AWS Budget alert** (e.g. $100) so a forgotten instance can't silently burn the credits.
+
+---
+
 ## 10. Troubleshooting
 
+- **"Instance limit exceeded" / "insufficient quota" on launch** → your G-family vCPU quota is 0. See §9b
+  Step 1 (Service Quotas → EC2 → *Running On-Demand G and VT instances*). Credits do **not** raise quotas.
 - **Gemma 401/403 on download** → accept the license + `huggingface-cli login`.
 - **OOM on 65k Gemma** → set `core_gpu.yaml runtime.dtype: bfloat16`, and/or lower `batch_size_prompts`.
 - **AutoInterp `openai_api_key.txt` not found** → create it at the repo root or pass `--keyfile`.

@@ -18,3 +18,11 @@ results/processed/*
 *.log
 .DS_Store
 .ipynb_checkpoints/
+
+# runner scratch / fetched fixtures & reference data
+_fixtures/
+_cache/
+_sae_tmp/
+_ai_sae_tmp/
+logs_run/
+sae_bench_results_0125/

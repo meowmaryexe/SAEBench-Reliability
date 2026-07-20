@@ -29,7 +29,16 @@ The project is being conducted as a reproducibility study targeting submission t
 ## Status (2026-06-22)
 
 **Running at paper scale on a GPU** (Core + AutoInterp, both anchor models × 4k/16k/65k): see the
-step-by-step runbook **[`docs/GPU_SETUP.md`](docs/GPU_SETUP.md)**.
+step-by-step runbook **[`docs/GPU_SETUP.md`](docs/GPU_SETUP.md)** (includes AWS setup with Activate credits).
+
+On a fresh GPU box the whole thing is four commands:
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cu121 && pip install -r requirements.txt
+huggingface-cli login && echo "sk-..." > openai_api_key.txt
+bash scripts/smoke_test.sh     # ~3 min — verifies GPU, HF/Gemma auth, SAE download, OpenAI key, tests
+bash scripts/run_all_gpu.sh    # full sweep, resumable (safe to re-run after any interruption)
+```
 
 | Metric (owner) | Status |
 |---|---|

@@ -16,6 +16,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, os.path.join(ROOT, "src")); sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from saebench_audit.metrics import autointerp as ai
 import saebench_autointerp_verbatim as vb
+import _fixtures
 
 
 def make_inputs(seed=0, N=40, L=128, n_lat=6, vocab=5000):
@@ -49,7 +50,7 @@ def examples_equal(a, b):
 
 def main():
     from transformers import AutoTokenizer
-    tok = AutoTokenizer.from_pretrained("/sessions/zealous-gifted-volta/mnt/outputs/models/pythia-160m-deduped")
+    tok = AutoTokenizer.from_pretrained(_fixtures.model_ref())
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
     cfg = ai.AutoInterpConfig()

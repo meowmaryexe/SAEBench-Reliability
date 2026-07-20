@@ -1,0 +1,20 @@
+# Runtime deps for the GPU runs (Core + AutoInterp).
+# Install torch FIRST matching your CUDA, e.g.:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# then:  pip install -r requirements.txt
+torch
+transformers>=4.44
+datasets
+safetensors
+huggingface_hub
+pyyaml
+numpy
+einops
+zstandard          # the Pile shards (monology/pile-uncopyrighted) are zstd-compressed
+tqdm
+openai             # AutoInterp judge (gpt-4o-mini)
+
+# ---- optional: only needed to run the methodology ORACLE tests ----
+# transformer_lens must be installed WITHOUT deps so it doesn't downgrade your torch:
+#   pip install --no-deps transformer_lens==2.15.4 jaxtyping fancy_einsum typeguard beartype rich better_abc sentencepiece
+# transformer_lens imports `wandb` at load (training only) — provide a stub module named wandb on PYTHONPATH.
