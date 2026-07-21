@@ -109,6 +109,64 @@ methodology (an LLM-judge metric is noisy by design — the paper itself flags t
 
 ---
 
-## SCR · TPP · Sparse Probing — scaffolded (owner: Ari / Mary)
+## SCR · TPP · Sparse Probing 🚧 (owner: Mary)
 
-Not yet implemented. Reproduce configs in `configs/reproduce/`, audit (seed/K sweeps) in `configs/audit/`.
+### Current Status
+
+The benchmark execution paths for all three audit-priority metrics have been validated.
+
+Completed:
+
+- Reproduced the official SAEBench CUDA acceptance tests for:
+  - TPP
+  - SCR
+  - Sparse Probing
+- Established a reproducible Google Colab CUDA workflow for benchmark execution.
+- Archived smoke-test artifacts under `results/raw/smoke_tests/`.
+- Investigated the Pythia-160M loading-path issue and identified the distinction between SAE Lens registry loading and the released dictionary-learning SAE repositories.
+- Enumerated all 42 released Pythia-160M SAEs from the benchmark repository.
+- Completed the first successful Pythia-160M TPP benchmark run using the released dictionary-learning SAE suite.
+- Documented execution paths, loading behavior, and benchmark outputs in the corresponding run logs.
+
+### Reliability Motivation
+
+These metrics are the primary targets of the reliability audit because they contain stochastic components that may introduce benchmark variance, including:
+
+- Probe training
+- Dataset sampling
+- Negative-class sampling
+- Feature-selection procedures
+- Random minibatch ordering
+
+Code inspection identified multiple sources of randomness within the released implementations, particularly in probe optimization and dataset construction.
+
+### Current Questions
+
+1. Which benchmark components are actually controlled by the published random-seed configuration?
+2. How sensitive are metric values to seed variation?
+3. Do architecture rankings remain stable across repeated runs?
+4. Is variance concentrated at particular sparsity levels?
+5. How strongly correlated are SCR and TPP across architectures and sparsities?
+
+### Next Steps
+
+#### Faithful Reproduction
+
+- Reproduce TPP on released Pythia-160M SAEs.
+- Reproduce SCR on released Pythia-160M SAEs.
+- Reproduce Sparse Probing on released Pythia-160M SAEs.
+- Extend reproduction to Gemma-2-2B benchmark suites.
+
+#### Reliability Audit
+
+- Single-SAE seed sweeps.
+- Multi-SAE seed sweeps.
+- Architecture-ranking stability analysis.
+- SCR/TPP correlation analysis.
+- Additional variance-source investigations as needed.
+
+### Documentation
+
+- `docs/scr_tpp_run_log.md`
+- `docs/sparse_probing_run_log.md`
+- `docs/pythia160m_loading_notes.md`
