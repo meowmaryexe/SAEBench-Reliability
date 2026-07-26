@@ -215,32 +215,92 @@ def saebench_recons_per_token(model, sae, layer, batch_tokens, special_ids,
 
 
 @torch.no_grad()
+def saebench_recons_sae_only(model, sae, layer, batch_tokens, special_ids,
+                             exclude_special_from_recon=False):
+    """The SAE-DEPENDENT third of saebench_recons_per_token: per-token CE with the SAE
+    reconstruction spliced in. Same hook, same ordering, same arithmetic as there."""
+    layer_module = get_decoder_layers(model)[layer]
+    rmask = (not_special_mask(batch_tokens, special_ids) if exclude_special_from_recon
+             else torch.ones_like(batch_tokens, dtype=torch.bool))
+
+    def recon_hook(m, i, o):
+        is_t = isinstance(o, tuple); x = o[0] if is_t else o
+        xhat = sae.decode(sae.encode(x.to(torch.float32))).to(x.dtype)
+        xhat = torch.where(rmask[..., None], xhat, x)
+        return (xhat,) + tuple(o[1:]) if is_t else xhat
+
+    h = layer_module.register_forward_hook(recon_hook)
+    ce_sae = per_token_ce(model(batch_tokens).logits, batch_tokens); h.remove()
+    return ce_sae
+
+
+@torch.no_grad()
+def saebench_core_baseline(model, layer, token_batches, special_ids):
+    """The SAE-INDEPENDENT half of saebench_core_eval, computed ONCE per token pool.
+
+    ce_orig (unmodified model) and ce_abl (zero-ablated resid_post) do not depend on which
+    SAE is being evaluated, so recomputing them for all 42 SAEs in a suite is pure waste.
+    Returns the same masked, concatenated tensors saebench_core_eval builds internally, in
+    the same batch order, so the resulting means are bitwise identical.
+    """
+    layer_module = get_decoder_layers(model)[layer]
+    co, ca = [], []
+    for batch_tokens in token_batches:
+        ce_orig = per_token_ce(model(batch_tokens).logits, batch_tokens)
+
+        def zero_hook(m, i, o):
+            is_t = isinstance(o, tuple); x = o[0] if is_t else o
+            z = torch.zeros_like(x)
+            return (z,) + tuple(o[1:]) if is_t else z
+
+        h = layer_module.register_forward_hook(zero_hook)
+        ce_abl = per_token_ce(model(batch_tokens).logits, batch_tokens); h.remove()
+        m = not_special_mask(batch_tokens, special_ids)[:, :-1]
+        co.append(ce_orig[m]); ca.append(ce_abl[m])
+    return {"ce_without_cat": torch.cat(co), "ce_abl_cat": torch.cat(ca)}
+
+
+@torch.no_grad()
 def saebench_core_eval(model, sae, layer, token_batches, special_ids,
-                       exclude_special_from_recon=False):
+                       exclude_special_from_recon=False, baseline=None, compute_l0=True):
     """Exact core/main.py reconstruction + sparsity metrics over a list of token batches.
 
     token_batches: list of LongTensor [B, S] (e.g. packed, BOS-prefixed contexts).
     special_ids:   iterable of {bos,eos,pad} token ids to exclude from CE mean and L0.
+    baseline:      optional saebench_core_baseline(...) output for these EXACT token_batches.
+                   When supplied, the two SAE-independent forward passes per batch are reused
+                   instead of recomputed. The returned numbers are unchanged.
+    compute_l0:    when False, skip the recon-pool L0. Callers that measure L0 on the separate
+                   (larger) sparsity pool discard this value anyway, so computing it costs a
+                   whole extra forward pass per batch for nothing.
     """
     layer_module = get_decoder_layers(model)[layer]
     co, cs, ca, l0s = [], [], [], []
     for batch_tokens in token_batches:
-        ceo, ces, cea = saebench_recons_per_token(
-            model, sae, layer, batch_tokens, special_ids, exclude_special_from_recon)
+        if baseline is None:
+            ceo, ces, cea = saebench_recons_per_token(
+                model, sae, layer, batch_tokens, special_ids, exclude_special_from_recon)
+        else:
+            ces = saebench_recons_sae_only(
+                model, sae, layer, batch_tokens, special_ids, exclude_special_from_recon)
         m = not_special_mask(batch_tokens, special_ids)[:, :-1]   # trim to per-token-loss length
-        co.append(ceo[m]); cs.append(ces[m]); ca.append(cea[m])
-        # L0 over non-special tokens
-        cap = {}
-        h = layer_module.register_forward_hook(
-            lambda mod, i, o: cap.__setitem__("x", (o[0] if isinstance(o, tuple) else o).detach()))
-        model(batch_tokens); h.remove()
-        feats = sae.encode(cap["x"].to(torch.float32)).reshape(-1, sae.dict_size)
-        fm = not_special_mask(batch_tokens, special_ids).reshape(-1)
-        l0s.append((feats[fm] != 0).sum(dim=-1).float())
-    ce_without = torch.cat(co).mean().item()
+        cs.append(ces[m])
+        if baseline is None:
+            co.append(ceo[m]); ca.append(cea[m])
+        if compute_l0:
+            # L0 over non-special tokens
+            cap = {}
+            h = layer_module.register_forward_hook(
+                lambda mod, i, o: cap.__setitem__("x", (o[0] if isinstance(o, tuple) else o).detach()))
+            model(batch_tokens); h.remove()
+            feats = sae.encode(cap["x"].to(torch.float32)).reshape(-1, sae.dict_size)
+            fm = not_special_mask(batch_tokens, special_ids).reshape(-1)
+            l0s.append((feats[fm] != 0).sum(dim=-1).float())
+    ce_without = (baseline["ce_without_cat"] if baseline is not None else torch.cat(co)).mean().item()
     ce_with = torch.cat(cs).mean().item()
-    ce_abl = torch.cat(ca).mean().item()
+    ce_abl = (baseline["ce_abl_cat"] if baseline is not None else torch.cat(ca)).mean().item()
     score = (ce_abl - ce_with) / (ce_abl - ce_without)
     return {"loss_recovered": score, "ce_loss_score": score,
             "ce_loss_without_sae": ce_without, "ce_loss_with_sae": ce_with,
-            "ce_loss_with_ablation": ce_abl, "l0": torch.cat(l0s).mean().item()}
+            "ce_loss_with_ablation": ce_abl,
+            "l0": torch.cat(l0s).mean().item() if compute_l0 else None}

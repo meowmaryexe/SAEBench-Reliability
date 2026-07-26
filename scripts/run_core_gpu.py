@@ -18,6 +18,7 @@ it HEADs every remaining SAE URL and aborts on a bad path.
 """
 import argparse, json, os, subprocess, sys, time, urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor
+import numpy as np
 import torch
 import yaml
 
@@ -190,6 +191,48 @@ def l0_over_batches(model, sae, layer, batches, special_ids):
     return torch.cat(l0s).mean().item()
 
 
+@torch.no_grad()
+def build_sparsity_cache(model, layer, batches, special_ids, path):
+    """Cache resid_post(layer) at non-special positions for the sparsity pool, ONCE per suite.
+
+    The model forward that produces these activations does not depend on the SAE, yet
+    l0_over_batches re-runs it for every SAE — 2000 of the ~2800 forward passes per SAE.
+    Stored float32, i.e. exactly the tensor `sae.encode(x.to(torch.float32))` consumed
+    before, and in the same position order, so L0 is unchanged.
+    """
+    layer_module = core.get_decoder_layers(model)[layer]
+    n = sum(int(core.not_special_mask(bt, special_ids).sum().item()) for bt in batches)
+    d = int(model.config.hidden_size)
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    mm = np.lib.format.open_memmap(path, mode="w+", dtype=np.float32, shape=(n, d))
+    off = 0
+    for bt in batches:
+        cap = {}
+        h = layer_module.register_forward_hook(
+            lambda m, i, o: cap.__setitem__("x", (o[0] if isinstance(o, tuple) else o).detach()))
+        model(bt); h.remove()
+        fm = core.not_special_mask(bt, special_ids).reshape(-1)
+        x = cap["x"].reshape(-1, d).to(torch.float32)[fm]
+        k = int(x.shape[0])
+        mm[off:off + k] = x.cpu().numpy()
+        off += k
+    mm.flush(); del mm
+    return n, d
+
+
+@torch.no_grad()
+def l0_from_cache(sae, path, device, chunk_rows=4096):
+    """L0 from the cached activations. torch.cat over the same positions in the same order
+    as l0_over_batches, so the mean is the same value."""
+    mm = np.load(path, mmap_mode="r")
+    l0s = []
+    for i in range(0, mm.shape[0], chunk_rows):
+        x = torch.from_numpy(np.ascontiguousarray(mm[i:i + chunk_rows])).to(device)
+        feats = sae.encode(x)
+        l0s.append((feats != 0).sum(-1).float().cpu())
+    return torch.cat(l0s).mean().item()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=os.path.join(ROOT, "configs/gpu/core_gpu.yaml"))
@@ -199,6 +242,9 @@ def main():
     ap.add_argument("--trainers", nargs="*", type=int, default=None,
                     help="override trainer indices for every arch; default = per-suite from the registry")
     ap.add_argument("--sae_tmp", default=os.path.join(ROOT, "_sae_tmp"))
+    ap.add_argument("--cache_dir", default=None,
+                    help="dir for the SAE-independent activation cache (use fast local NVMe). "
+                         "Omit to disable caching and use the original per-SAE path.")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
@@ -267,6 +313,22 @@ def main():
     sparsity_batches = build_packed_batches(tok, ev["dataset"], ev["n_sparsity_seqs"],
                                             ev["context_size"], ev["batch_size_prompts"], device)
 
+    # ---- SAE-independent work, computed once per suite instead of once per SAE ----
+    baseline, cache_path = None, None
+    if args.cache_dir:
+        t0 = time.time()
+        print("[cache] computing SAE-independent baseline CE (recon pool) ...", flush=True)
+        baseline = core.saebench_core_baseline(model, layer, recon_batches, special_ids)
+        cache_path = os.path.join(args.cache_dir, f"sparsity_{args.suite}_{ev['n_sparsity_seqs']}.npy")
+        if os.path.exists(cache_path):
+            print(f"[cache] reusing activation cache {cache_path}", flush=True)
+        else:
+            print("[cache] building sparsity-pool activation cache ...", flush=True)
+            n, d = build_sparsity_cache(model, layer, sparsity_batches, special_ids, cache_path)
+            print(f"[cache] wrote {n} x {d} float32 "
+                  f"({n * d * 4 / 1e9:.1f} GB) -> {cache_path}", flush=True)
+        print(f"[cache] ready in {time.time() - t0:.0f}s", flush=True)
+
     if header is None:
         append_ckpt_row(ckpt_path, {"_header": fp})
 
@@ -278,8 +340,10 @@ def main():
         sae = load_sae(ae, loader_arch, device=device, dtype=dtype)
         t0 = time.time()
         rec = core.saebench_core_eval(model, sae, layer, recon_batches, special_ids,
-                                      exclude_special_from_recon=ev["exclude_special_tokens_from_reconstruction"])
-        l0_full = l0_over_batches(model, sae, layer, sparsity_batches, special_ids)
+                                      exclude_special_from_recon=ev["exclude_special_tokens_from_reconstruction"],
+                                      baseline=baseline, compute_l0=(baseline is None))
+        l0_full = (l0_from_cache(sae, cache_path, device) if cache_path
+                   else l0_over_batches(model, sae, layer, sparsity_batches, special_ids))
         bundled = _maybe_json(os.path.join(dst, "eval_results.json")) or {}
         row = {"suite": args.suite, "arch": arch, "trainer": tr,
                "loss_recovered": rec["loss_recovered"], "l0": l0_full,
