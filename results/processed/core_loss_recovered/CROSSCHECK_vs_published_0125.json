@@ -1,0 +1,58 @@
+{
+  "reference": "adamkarvonen/sae_bench_results_0125 core/",
+  "pairing": "within (suite,arch), both sides sorted by L0 ascending \u2014 robust to the upstream trainer-index inconsistency",
+  "config_note": "published eval_config identical to configs/gpu/core_gpu.yaml",
+  "suites": {
+    "pythia-160m_4k": {
+      "n": 42,
+      "max_abs_dLR": 0.0015787678407155337,
+      "mean_abs_dLR": 0.0006432954161407476,
+      "pearson_LR": 0.999926864671554,
+      "max_L0_rel_err": 0.04974184827087446,
+      "within_0.01": 42
+    },
+    "pythia-160m_16k": {
+      "n": 42,
+      "max_abs_dLR": 0.001371823181987697,
+      "mean_abs_dLR": 0.0006458943093159129,
+      "pearson_LR": 0.9998616436890162,
+      "max_L0_rel_err": 0.024280179009920487,
+      "within_0.01": 42
+    },
+    "pythia-160m_65k": {
+      "n": 42,
+      "max_abs_dLR": 0.0010471951964875492,
+      "mean_abs_dLR": 0.0005811941229336783,
+      "pearson_LR": 0.9998285287852062,
+      "max_L0_rel_err": 0.01964579573145028,
+      "within_0.01": 42
+    },
+    "gemma-2-2b_4k": {
+      "n": 42,
+      "max_abs_dLR": 0.004538669888708102,
+      "mean_abs_dLR": 0.0012263796073685466,
+      "pearson_LR": 0.9989647074635098,
+      "max_L0_rel_err": 0.02487445412968983,
+      "within_0.01": 42
+    },
+    "gemma-2-2b_16k": {
+      "n": 42,
+      "max_abs_dLR": 0.004101647060581137,
+      "mean_abs_dLR": 0.0007954181109473335,
+      "pearson_LR": 0.9981299006979671,
+      "max_L0_rel_err": 0.06845272256196476,
+      "within_0.01": 42
+    },
+    "gemma-2-2b_65k": {
+      "n": 42,
+      "max_abs_dLR": 0.002527910292337232,
+      "mean_abs_dLR": 0.0006072379384722112,
+      "pearson_LR": 0.9972616227887999,
+      "max_L0_rel_err": 0.08827620030661483,
+      "within_0.01": 42
+    }
+  },
+  "total_compared": 252,
+  "total_within_0.01": 252,
+  "outliers": []
+}
