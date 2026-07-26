@@ -12,7 +12,8 @@ NOTE: intended for an A100-class GPU; not exercised on the CPU sandbox. The comp
 (saebench_core_eval, the SAE loaders) are covered by tests/ on CPU. Downloads each ae.pt on demand and
 deletes it after eval (config runtime.download_then_delete_ae).
 """
-import argparse, json, os, subprocess, sys, time
+import argparse, json, os, subprocess, sys, time, urllib.error, urllib.request
+from concurrent.futures import ThreadPoolExecutor
 import torch
 import yaml
 
@@ -81,6 +82,30 @@ def trainers_for(reg, suite_name, arch, cli_trainers):
     return list(ov.get(arch, reg.get("default_trainers", [0, 1, 2, 3, 4, 5])))
 
 
+def _head_status(url, timeout=30):
+    """True = present, False = definitively absent (HTTP 4xx), None = indeterminate."""
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=timeout) as r:
+            return 200 <= r.status < 300
+    except urllib.error.HTTPError as e:
+        return False if 400 <= e.code < 500 else None
+    except Exception:
+        return None
+
+
+def preflight(repo, work, workers=8):
+    """HEAD every SAE URL before any GPU work, so a bad path costs seconds not hours.
+
+    work: list of (arch, trainer, subpath). Returns (missing, indeterminate).
+    """
+    urls = [(a, t, f"https://huggingface.co/{repo}/resolve/main/{sp}/ae.pt") for a, t, sp in work]
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        st = list(ex.map(lambda u: _head_status(u[2]), urls))
+    missing = [u for u, s in zip(urls, st) if s is False]
+    unknown = [u for u, s in zip(urls, st) if s is None]
+    return missing, unknown
+
+
 def build_packed_batches(tok, dataset, n_seqs, ctx, batch_size, device):
     """transformer_lens ActivationsStore-style packed, BOS-prefixed contexts."""
     from datasets import load_dataset
@@ -144,6 +169,16 @@ def main():
         folder = resolve_folder(reg, suite, arch)
         for tr in trainers_for(reg, args.suite, arch, args.trainers):
             work.append((arch, tr, f"{folder}/resid_post_layer_{layer}/trainer_{tr}"))
+
+    miss, unknown = preflight(suite["hf_repo"], work)
+    if unknown:
+        print(f"[preflight] {len(unknown)} URL(s) indeterminate (network?) — continuing", flush=True)
+    if miss:
+        print(f"[preflight] FAIL — {len(miss)} SAE path(s) not found on HuggingFace:", flush=True)
+        for a, t, u in miss:
+            print(f"    {a} trainer_{t}  {u}", flush=True)
+        sys.exit(f"[preflight] aborting before any GPU work — fix trainer_overrides in {args.registry}")
+    print(f"[preflight] OK — all {len(work)} SAE paths present", flush=True)
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
     print(f"[gpu] loading {model_name} on {device} ({rt['dtype']}) ...", flush=True)
