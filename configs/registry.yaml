@@ -58,6 +58,17 @@ sae_suites:
   gemma-2-2b_16k:   {model: gemma-2-2b,          layer: 12, wpow: 14, width: 16384, convention: canrager,     date: "0107", hf_repo: canrager/saebench_gemma-2-2b_width-2pow14_date-0107}
   gemma-2-2b_65k:   {model: gemma-2-2b,          layer: 12, wpow: 16, width: 65536, convention: canrager,     date: "0107", hf_repo: canrager/saebench_gemma-2-2b_width-2pow16_date-0107}
 
+# Trainer (sparsity) indices per suite. The released suites are NOT uniform, so the runner reads
+# these instead of assuming 0-5. Verified by HTTP HEAD against HuggingFace 2026-07-25: all 252
+# subpaths resolve, and exactly one (suite, arch) pair deviates from the default.
+default_trainers: [0, 1, 2, 3, 4, 5]
+trainer_overrides:
+  gemma-2-2b_16k:
+    # canrager/saebench_gemma-2-2b_width-2pow14_date-0107 published batch_top_k as trainer_6..11;
+    # trainer_0..5 return 404 there. Arch-specific: top_k in the same repo uses 0..5, and
+    # batch_top_k in the 65k suite uses 0..5.
+    batchtopk: [6, 7, 8, 9, 10, 11]
+
 # Published reference values (the canonical Core numbers, for the cross-check):
 reference_results:
   hf_dataset: adamkarvonen/sae_bench_results_0125     # all SAEBench eval results + PCA/residual baselines

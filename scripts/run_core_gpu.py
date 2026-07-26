@@ -69,6 +69,18 @@ def fetch_sae(repo, subpath, dst):
     return ae
 
 
+def trainers_for(reg, suite_name, arch, cli_trainers):
+    """Trainer indices for one (suite, arch). CLI wins; else registry override; else 0-5.
+
+    The released suites are not uniform: gemma-2-2b_16k batch_top_k is published as
+    trainer_6..11 while every other (suite, arch) uses trainer_0..5.
+    """
+    if cli_trainers:
+        return list(cli_trainers)
+    ov = (reg.get("trainer_overrides") or {}).get(suite_name) or {}
+    return list(ov.get(arch, reg.get("default_trainers", [0, 1, 2, 3, 4, 5])))
+
+
 def build_packed_batches(tok, dataset, n_seqs, ctx, batch_size, device):
     """transformer_lens ActivationsStore-style packed, BOS-prefixed contexts."""
     from datasets import load_dataset
@@ -111,7 +123,8 @@ def main():
     ap.add_argument("--registry", default=os.path.join(ROOT, "configs/registry.yaml"))
     ap.add_argument("--suite", required=True)
     ap.add_argument("--archs", nargs="*", default=None)
-    ap.add_argument("--trainers", nargs="*", type=int, default=[0, 1, 2, 3, 4, 5])
+    ap.add_argument("--trainers", nargs="*", type=int, default=None,
+                    help="override trainer indices for every arch; default = per-suite from the registry")
     ap.add_argument("--sae_tmp", default=os.path.join(ROOT, "_sae_tmp"))
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
@@ -125,6 +138,12 @@ def main():
     ev, rt = cfg["eval"], cfg["runtime"]
     device = rt["device"]
     dtype = getattr(torch, rt["dtype"])
+
+    work = []                                   # (arch, trainer, subpath)
+    for arch in archs:
+        folder = resolve_folder(reg, suite, arch)
+        for tr in trainers_for(reg, args.suite, arch, args.trainers):
+            work.append((arch, tr, f"{folder}/resid_post_layer_{layer}/trainer_{tr}"))
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
     print(f"[gpu] loading {model_name} on {device} ({rt['dtype']}) ...", flush=True)
@@ -141,34 +160,31 @@ def main():
                                             ev["context_size"], ev["batch_size_prompts"], device)
 
     results = []
-    for arch in archs:
-        folder = resolve_folder(reg, suite, arch)
+    for arch, tr, subpath in work:
         loader_arch = reg["loader_arch"][arch]
-        for tr in args.trainers:
-            subpath = f"{folder}/resid_post_layer_{layer}/trainer_{tr}"
-            dst = os.path.join(args.sae_tmp, f"{args.suite}_{arch}_t{tr}")
-            ae = fetch_sae(suite["hf_repo"], subpath, dst)
-            sae = load_sae(ae, loader_arch, device=device, dtype=dtype)
-            t0 = time.time()
-            rec = core.saebench_core_eval(model, sae, layer, recon_batches, special_ids,
-                                          exclude_special_from_recon=ev["exclude_special_tokens_from_reconstruction"])
-            l0_full = l0_over_batches(model, sae, layer, sparsity_batches, special_ids)
-            bundled = _maybe_json(os.path.join(dst, "eval_results.json")) or {}
-            results.append({"suite": args.suite, "arch": arch, "trainer": tr,
-                            "loss_recovered": rec["loss_recovered"], "l0": l0_full,
-                            "ce_loss_without_sae": rec["ce_loss_without_sae"],
-                            "ce_loss_with_sae": rec["ce_loss_with_sae"],
-                            "ce_loss_with_ablation": rec["ce_loss_with_ablation"],
-                            "bundle_frac": bundled.get("frac_recovered"),
-                            "bundle_l0": bundled.get("l0"),
-                            "seconds": round(time.time() - t0, 1)})
-            print(f"  {arch} t{tr}: LR={rec['loss_recovered']:.4f} L0={l0_full:.1f} "
-                  f"({results[-1]['seconds']}s)", flush=True)
-            if rt.get("download_then_delete_ae"):
-                try:
-                    os.remove(ae)
-                except OSError:
-                    pass
+        dst = os.path.join(args.sae_tmp, f"{args.suite}_{arch}_t{tr}")
+        ae = fetch_sae(suite["hf_repo"], subpath, dst)
+        sae = load_sae(ae, loader_arch, device=device, dtype=dtype)
+        t0 = time.time()
+        rec = core.saebench_core_eval(model, sae, layer, recon_batches, special_ids,
+                                      exclude_special_from_recon=ev["exclude_special_tokens_from_reconstruction"])
+        l0_full = l0_over_batches(model, sae, layer, sparsity_batches, special_ids)
+        bundled = _maybe_json(os.path.join(dst, "eval_results.json")) or {}
+        results.append({"suite": args.suite, "arch": arch, "trainer": tr,
+                        "loss_recovered": rec["loss_recovered"], "l0": l0_full,
+                        "ce_loss_without_sae": rec["ce_loss_without_sae"],
+                        "ce_loss_with_sae": rec["ce_loss_with_sae"],
+                        "ce_loss_with_ablation": rec["ce_loss_with_ablation"],
+                        "bundle_frac": bundled.get("frac_recovered"),
+                        "bundle_l0": bundled.get("l0"),
+                        "seconds": round(time.time() - t0, 1)})
+        print(f"  {arch} t{tr}: LR={rec['loss_recovered']:.4f} L0={l0_full:.1f} "
+              f"({results[-1]['seconds']}s)", flush=True)
+        if rt.get("download_then_delete_ae"):
+            try:
+                os.remove(ae)
+            except OSError:
+                pass
 
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     json.dump({"methodology": "saebench_core", "suite": args.suite, "model": model_name,
