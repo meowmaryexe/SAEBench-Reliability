@@ -29,18 +29,44 @@ def resolve_folder(reg, suite_cfg, arch):
                        date=suite_cfg["date"], wpow=suite_cfg["wpow"])
 
 
+MIN_AE_BYTES = 1_000_000        # a released ae.pt is >= tens of MB; anything smaller is an error body
+
+
 def curl(url, dest, timeout=600):
-    subprocess.run(["curl", "-L", "-C", "-", "-s", "-o", dest, url], timeout=timeout)
+    """Download url -> dest. Returns True on success, False on any HTTP/transport error.
+
+    -f      : fail on HTTP >= 400 rather than writing the error page into dest (a 404 body
+              used to land in ae.pt and later die unpickling HTML).
+    no -C - : a partial or poisoned file must be re-fetched from scratch, never resumed.
+    """
+    r = subprocess.run(["curl", "-f", "-L", "-s", "-o", dest, url], timeout=timeout)
+    if r.returncode != 0:
+        if os.path.exists(dest):
+            os.remove(dest)         # never leave a partial/error body behind for the next run
+        return False
+    return True
 
 
 def fetch_sae(repo, subpath, dst):
     os.makedirs(dst, exist_ok=True)
     base = f"https://huggingface.co/{repo}/resolve/main/{subpath}"
-    for fn in ("config.json", "eval_results.json", "ae.pt"):
+    ae = os.path.join(dst, "ae.pt")
+    # An undersized ae.pt is a leftover error page / truncated download from an earlier run.
+    # The old `if not os.path.exists(p)` guard made such a file permanently sticky.
+    if os.path.exists(ae) and os.path.getsize(ae) < MIN_AE_BYTES:
+        os.remove(ae)
+    for fn in ("config.json", "ae.pt"):
         p = os.path.join(dst, fn)
-        if not os.path.exists(p):
-            curl(f"{base}/{fn}", p)
-    return os.path.join(dst, "ae.pt")
+        if not os.path.exists(p) and not curl(f"{base}/{fn}", p):
+            raise RuntimeError(f"download failed: {base}/{fn}")
+    # 42 of the 252 released SAEs ship no eval_results.json — best-effort only
+    # (the caller already treats a missing bundle as {}).
+    p = os.path.join(dst, "eval_results.json")
+    if not os.path.exists(p):
+        curl(f"{base}/eval_results.json", p)
+    if os.path.getsize(ae) < MIN_AE_BYTES:
+        raise RuntimeError(f"ae.pt is only {os.path.getsize(ae)} bytes: {base}/ae.pt")
+    return ae
 
 
 def build_packed_batches(tok, dataset, n_seqs, ctx, batch_size, device):
