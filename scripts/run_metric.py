@@ -49,11 +49,12 @@ def main():
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--workdir", required=True)
     ap.add_argument("--max_seconds", type=float, default=28.0)
+    ap.add_argument("--device", default="cpu", help="cpu|cuda — CoreConfig.device for run_core")
     args = ap.parse_args()
 
     cfg = CoreConfig(model_name=args.model, layer=args.layer,
                      batch_size_prompts=args.batch, n_reconstruction_seqs=args.n_seqs,
-                     **VARIANTS[args.variant])
+                     device=args.device, **VARIANTS[args.variant])
     done, ckpt, n_batches = core.run_core(
         cfg, local_model=args.local_model, local_sae_dir=args.local_sae_dir, arch=args.arch,
         workdir=args.workdir, max_seconds=args.max_seconds)
