@@ -11,6 +11,10 @@ x 6 sparsities) at paper scale, and writes per-SAE results compared to the bundl
 NOTE: intended for an A100-class GPU; not exercised on the CPU sandbox. The compute primitives it calls
 (saebench_core_eval, the SAE loaders) are covered by tests/ on CPU. Downloads each ae.pt on demand and
 deletes it after eval (config runtime.download_then_delete_ae).
+
+Checkpointed per SAE: each completed SAE is appended to <out>.progress.jsonl and --out is rewritten,
+so re-running the same command resumes instead of redoing the suite. Before any download or GPU work
+it HEADs every remaining SAE URL and aborts on a bad path.
 """
 import argparse, json, os, subprocess, sys, time, urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -106,6 +110,50 @@ def preflight(repo, work, workers=8):
     return missing, unknown
 
 
+def ckpt_fingerprint(suite_name, model_name, layer, ev, rt):
+    """Identifies the run config; resuming across a changed config would mix incomparable rows."""
+    return {"suite": suite_name, "model": model_name, "layer": layer,
+            "eval": ev, "dtype": rt["dtype"]}
+
+
+def load_ckpt_rows(path):
+    """(header, rows) from the JSONL sidecar. Tolerates a truncated trailing line."""
+    header, rows = None, []
+    if not os.path.exists(path):
+        return header, rows
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                print(f"[ckpt] ignoring truncated trailing line in {path}", flush=True)
+                continue
+            if "_header" in rec:
+                header = rec["_header"]
+            else:
+                rows.append(rec)
+    return header, rows
+
+
+def append_ckpt_row(path, rec):
+    with open(path, "a") as f:
+        f.write(json.dumps(rec) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+
+
+def write_out(path, payload):
+    """Atomic rewrite, so being killed mid-write cannot truncate the result file."""
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(payload, f, indent=2)
+    os.replace(tmp, path)
+
+
 def build_packed_batches(tok, dataset, n_seqs, ctx, batch_size, device):
     """transformer_lens ActivationsStore-style packed, BOS-prefixed contexts."""
     from datasets import load_dataset
@@ -164,13 +212,38 @@ def main():
     device = rt["device"]
     dtype = getattr(torch, rt["dtype"])
 
+    # ---- work list, resume, preflight: all before any download or GPU work ----
     work = []                                   # (arch, trainer, subpath)
     for arch in archs:
         folder = resolve_folder(reg, suite, arch)
         for tr in trainers_for(reg, args.suite, arch, args.trainers):
             work.append((arch, tr, f"{folder}/resid_post_layer_{layer}/trainer_{tr}"))
 
-    miss, unknown = preflight(suite["hf_repo"], work)
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
+    ckpt_path = os.path.splitext(args.out)[0] + ".progress.jsonl"
+    fp = ckpt_fingerprint(args.suite, model_name, layer, ev, rt)
+    header, done_rows = load_ckpt_rows(ckpt_path)
+    if header is not None and header != fp:
+        sys.exit(f"[ckpt] {ckpt_path} was written under a different config; resuming would mix "
+                 f"incomparable rows.\n       Delete it to start this suite over.")
+    done = {(r["arch"], r["trainer"]) for r in done_rows}
+    todo = [w for w in work if (w[0], w[1]) not in done]
+    print(f"[gpu] suite {args.suite}: {len(work)} SAEs total, {len(done)} already done, "
+          f"{len(todo)} to do", flush=True)
+
+    def finalize(rows):
+        order = {a: i for i, a in enumerate(archs)}
+        rows = sorted(rows, key=lambda r: (order.get(r["arch"], 99), r["trainer"]))
+        write_out(args.out, {"methodology": "saebench_core", "suite": args.suite,
+                             "model": model_name, "layer": layer, "eval": ev, "per_sae": rows})
+        return rows
+
+    if not todo:
+        rows = finalize(done_rows)
+        print(f"[gpu] wrote {args.out}  ({len(rows)} SAEs, all resumed from checkpoint)", flush=True)
+        return
+
+    miss, unknown = preflight(suite["hf_repo"], todo)
     if unknown:
         print(f"[preflight] {len(unknown)} URL(s) indeterminate (network?) — continuing", flush=True)
     if miss:
@@ -178,7 +251,7 @@ def main():
         for a, t, u in miss:
             print(f"    {a} trainer_{t}  {u}", flush=True)
         sys.exit(f"[preflight] aborting before any GPU work — fix trainer_overrides in {args.registry}")
-    print(f"[preflight] OK — all {len(work)} SAE paths present", flush=True)
+    print(f"[preflight] OK — all {len(todo)} remaining SAE paths present", flush=True)
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
     print(f"[gpu] loading {model_name} on {device} ({rt['dtype']}) ...", flush=True)
@@ -194,8 +267,11 @@ def main():
     sparsity_batches = build_packed_batches(tok, ev["dataset"], ev["n_sparsity_seqs"],
                                             ev["context_size"], ev["batch_size_prompts"], device)
 
-    results = []
-    for arch, tr, subpath in work:
+    if header is None:
+        append_ckpt_row(ckpt_path, {"_header": fp})
+
+    results = list(done_rows)
+    for arch, tr, subpath in todo:
         loader_arch = reg["loader_arch"][arch]
         dst = os.path.join(args.sae_tmp, f"{args.suite}_{arch}_t{tr}")
         ae = fetch_sae(suite["hf_repo"], subpath, dst)
@@ -205,26 +281,27 @@ def main():
                                       exclude_special_from_recon=ev["exclude_special_tokens_from_reconstruction"])
         l0_full = l0_over_batches(model, sae, layer, sparsity_batches, special_ids)
         bundled = _maybe_json(os.path.join(dst, "eval_results.json")) or {}
-        results.append({"suite": args.suite, "arch": arch, "trainer": tr,
-                        "loss_recovered": rec["loss_recovered"], "l0": l0_full,
-                        "ce_loss_without_sae": rec["ce_loss_without_sae"],
-                        "ce_loss_with_sae": rec["ce_loss_with_sae"],
-                        "ce_loss_with_ablation": rec["ce_loss_with_ablation"],
-                        "bundle_frac": bundled.get("frac_recovered"),
-                        "bundle_l0": bundled.get("l0"),
-                        "seconds": round(time.time() - t0, 1)})
+        row = {"suite": args.suite, "arch": arch, "trainer": tr,
+               "loss_recovered": rec["loss_recovered"], "l0": l0_full,
+               "ce_loss_without_sae": rec["ce_loss_without_sae"],
+               "ce_loss_with_sae": rec["ce_loss_with_sae"],
+               "ce_loss_with_ablation": rec["ce_loss_with_ablation"],
+               "bundle_frac": bundled.get("frac_recovered"),
+               "bundle_l0": bundled.get("l0"),
+               "seconds": round(time.time() - t0, 1)}
+        append_ckpt_row(ckpt_path, row)     # durable before anything downstream can fail
+        results.append(row)
+        finalize(results)                   # keep --out current after every SAE
         print(f"  {arch} t{tr}: LR={rec['loss_recovered']:.4f} L0={l0_full:.1f} "
-              f"({results[-1]['seconds']}s)", flush=True)
+              f"({row['seconds']}s)", flush=True)
         if rt.get("download_then_delete_ae"):
             try:
                 os.remove(ae)
             except OSError:
                 pass
 
-    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
-    json.dump({"methodology": "saebench_core", "suite": args.suite, "model": model_name,
-               "layer": layer, "eval": ev, "per_sae": results}, open(args.out, "w"), indent=2)
-    print(f"[gpu] wrote {args.out}  ({len(results)} SAEs)", flush=True)
+    rows = finalize(results)
+    print(f"[gpu] wrote {args.out}  ({len(rows)} SAEs)", flush=True)
 
 
 if __name__ == "__main__":
