@@ -14,6 +14,10 @@ results/raw/*
 results/processed/*
 !results/raw/.gitkeep
 !results/processed/.gitkeep
+# ...but DO version the finished Core sweep output: it is the paper's primary data,
+# ~220 KB of JSON, and reproducing it costs ~16 GPU-hours.
+!results/processed/core_loss_recovered/
+!results/processed/core_loss_recovered/**
 
 *.log
 .DS_Store
