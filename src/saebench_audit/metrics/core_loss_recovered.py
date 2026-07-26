@@ -71,6 +71,10 @@ def masked_ce(logits, input_ids, attn):
 def process_batch(model, sae, layer, id_lists, pad_id):
     """Run the 3 forward passes for one batch and return per-batch metrics (incl. L0)."""
     input_ids, attn = pad_batch(id_lists, pad_id)
+    # pad_batch builds on CPU; move to wherever the model lives. Without this the
+    # per-document path only ever ran on CPU (device-mismatch RuntimeError on CUDA).
+    dev = next(model.parameters()).device
+    input_ids, attn = input_ids.to(dev), attn.to(dev)
     layer_module = get_decoder_layers(model)[layer]
 
     cap = {}
