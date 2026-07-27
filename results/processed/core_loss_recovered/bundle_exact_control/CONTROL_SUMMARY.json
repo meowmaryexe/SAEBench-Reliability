@@ -1,0 +1,47 @@
+{
+  "purpose": "Does the gemma-2-2b_4k discrepancy vs the BUNDLED eval_results.json close when re-run under the config that produced those bundled refs (per-document, ctx1024, the Pile)?",
+  "config": "scripts/run_metric.py --variant bundle_exact, n_seqs=256, batch=2, device=cuda, gemma-2-2b layer 12",
+  "caveat": "bundled refs used n_inputs=1000; this control used 256 docs. The non-outlier negative control (standard) drifts 0.0018 -> 0.0052, indicating a ~0.005 sampling-noise floor at this sample size.",
+  "rows": [
+    {
+      "arch": "batchtopk",
+      "trainer": 0,
+      "was_outlier_vs_bundled": true,
+      "bundled_frac_recovered": 0.9603515625,
+      "ours_packed_ctx128_owt": 0.9476565662324193,
+      "control_perdoc_ctx1024_pile": 0.9541096528467983,
+      "abs_d_packed_vs_bundled": 0.012694996267580638,
+      "abs_d_control_vs_bundled": 0.006241909653201705
+    },
+    {
+      "arch": "matryoshka",
+      "trainer": 0,
+      "was_outlier_vs_bundled": true,
+      "bundled_frac_recovered": 0.9515625,
+      "ours_packed_ctx128_owt": 0.9406369648116905,
+      "control_perdoc_ctx1024_pile": 0.9559232270456309,
+      "abs_d_packed_vs_bundled": 0.01092553518830952,
+      "abs_d_control_vs_bundled": 0.004360727045630952
+    },
+    {
+      "arch": "standard",
+      "trainer": 0,
+      "was_outlier_vs_bundled": false,
+      "bundled_frac_recovered": 0.9917168674698795,
+      "ours_packed_ctx128_owt": 0.9899364747967465,
+      "control_perdoc_ctx1024_pile": 0.9969008249290651,
+      "abs_d_packed_vs_bundled": 0.0017803926731330133,
+      "abs_d_control_vs_bundled": 0.00518395745918554
+    },
+    {
+      "arch": "topk",
+      "trainer": 0,
+      "was_outlier_vs_bundled": true,
+      "bundled_frac_recovered": 0.9560546875,
+      "ours_packed_ctx128_owt": 0.9431194721069002,
+      "control_perdoc_ctx1024_pile": 0.9676179095195717,
+      "abs_d_packed_vs_bundled": 0.01293521539309983,
+      "abs_d_control_vs_bundled": 0.011563222019571717
+    }
+  ]
+}

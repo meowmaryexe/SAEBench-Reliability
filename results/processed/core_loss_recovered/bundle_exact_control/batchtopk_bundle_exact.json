@@ -1,0 +1,1236 @@
+{
+  "metric": "core_loss_recovered",
+  "variant": "bundle_exact",
+  "arch": "batchtopk",
+  "config": {
+    "model_name": "google/gemma-2-2b",
+    "layer": 12,
+    "dataset": "monology/pile-uncopyrighted",
+    "dataset_split": "train",
+    "text_field": "text",
+    "context_size": 1024,
+    "batch_size_prompts": 2,
+    "n_reconstruction_seqs": 256,
+    "n_sparsity_seqs": 32000,
+    "prepend_bos": false,
+    "tokenize_mode": "per_document",
+    "dtype": "float32",
+    "device": "cuda",
+    "seed": 0
+  },
+  "result": {
+    "loss_original": 4.0650870725512505,
+    "loss_reconstructed": 4.45095350407064,
+    "loss_zero": 12.452934205532074,
+    "frac_recovered": 0.9541096528467983,
+    "l0": 20.399983152747154,
+    "loss_recovered": 0.9541096528467983,
+    "frac_recovered_pooled": 0.9539969642505559,
+    "n_batches": 128,
+    "n_sequences": 256
+  },
+  "comparison_to_bundle": {
+    "loss_original": {
+      "mine": 4.0650870725512505,
+      "bundle": 2.152919921875,
+      "abs_delta": 1.9121671506762503,
+      "rel_delta_pct": 88.81738383520202
+    },
+    "loss_reconstructed": {
+      "mine": 4.45095350407064,
+      "bundle": 2.55654296875,
+      "abs_delta": 1.8944105353206395,
+      "rel_delta_pct": 74.10047702999866
+    },
+    "loss_zero": {
+      "mine": 12.452934205532074,
+      "bundle": 12.4375,
+      "abs_delta": 0.015434205532073975,
+      "rel_delta_pct": 0.12409411483074552
+    },
+    "frac_recovered": {
+      "mine": 0.9541096528467983,
+      "bundle": 0.9603515625,
+      "abs_delta": 0.006241909653201705,
+      "rel_delta_pct": 0.6499608994181967
+    },
+    "l0": {
+      "mine": 20.399983152747154,
+      "bundle": 19.922880859375,
+      "abs_delta": 0.4771022933721554,
+      "rel_delta_pct": 2.394745502619658
+    }
+  },
+  "bundled_eval_results": {
+    "l2_loss": 71.1775,
+    "l1_loss": 287.09,
+    "l0": 19.922880859375,
+    "frac_variance_explained": 0.74666015625,
+    "cossim": 0.865703125,
+    "l2_ratio": 0.8649609375,
+    "relative_reconstruction_bias": 1.0004296875,
+    "loss_original": 2.152919921875,
+    "loss_reconstructed": 2.55654296875,
+    "loss_zero": 12.4375,
+    "frac_recovered": 0.9603515625,
+    "frac_alive": 1.0,
+    "hyperparameters": {
+      "n_inputs": 200,
+      "context_length": 1024
+    }
+  },
+  "per_batch": [
+    {
+      "loss_original": 2.6149373054504395,
+      "loss_reconstructed": 2.998164653778076,
+      "loss_zero": 12.452940940856934,
+      "frac_recovered": 0.9610462282257733,
+      "l0": 18.919921875,
+      "n_seqs": 2,
+      "bi": 0
+    },
+    {
+      "loss_original": 5.555586814880371,
+      "loss_reconstructed": 5.810533046722412,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.9630370560666512,
+      "l0": 21.287982940673828,
+      "n_seqs": 2,
+      "bi": 1
+    },
+    {
+      "loss_original": 4.4683027267456055,
+      "loss_reconstructed": 5.192018508911133,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9093614377361303,
+      "l0": 19.072126388549805,
+      "n_seqs": 2,
+      "bi": 2
+    },
+    {
+      "loss_original": 3.6947247982025146,
+      "loss_reconstructed": 4.172339916229248,
+      "loss_zero": 12.452927589416504,
+      "frac_recovered": 0.9454665381228824,
+      "l0": 19.149351119995117,
+      "n_seqs": 2,
+      "bi": 3
+    },
+    {
+      "loss_original": 4.154801368713379,
+      "loss_reconstructed": 4.587349891662598,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9478740002555962,
+      "l0": 21.002260208129883,
+      "n_seqs": 2,
+      "bi": 4
+    },
+    {
+      "loss_original": 4.311068534851074,
+      "loss_reconstructed": 4.59774923324585,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9647893114561694,
+      "l0": 20.622447967529297,
+      "n_seqs": 2,
+      "bi": 5
+    },
+    {
+      "loss_original": 4.472247123718262,
+      "loss_reconstructed": 5.7919793128967285,
+      "loss_zero": 12.452926635742188,
+      "frac_recovered": 0.8346341076358073,
+      "l0": 22.268068313598633,
+      "n_seqs": 2,
+      "bi": 6
+    },
+    {
+      "loss_original": 4.437437534332275,
+      "loss_reconstructed": 4.719793796539307,
+      "loss_zero": 12.452926635742188,
+      "frac_recovered": 0.9647736702483489,
+      "l0": 19.475374221801758,
+      "n_seqs": 2,
+      "bi": 7
+    },
+    {
+      "loss_original": 4.656002044677734,
+      "loss_reconstructed": 4.924612998962402,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9655491316187832,
+      "l0": 21.725648880004883,
+      "n_seqs": 2,
+      "bi": 8
+    },
+    {
+      "loss_original": 4.7918195724487305,
+      "loss_reconstructed": 5.1417365074157715,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9543255902770257,
+      "l0": 22.255708694458008,
+      "n_seqs": 2,
+      "bi": 9
+    },
+    {
+      "loss_original": 3.777749538421631,
+      "loss_reconstructed": 3.9763805866241455,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9771035443102959,
+      "l0": 21.0390625,
+      "n_seqs": 2,
+      "bi": 10
+    },
+    {
+      "loss_original": 4.886683940887451,
+      "loss_reconstructed": 5.38605260848999,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.9340005010217377,
+      "l0": 21.198211669921875,
+      "n_seqs": 2,
+      "bi": 11
+    },
+    {
+      "loss_original": 4.152797222137451,
+      "loss_reconstructed": 4.607508182525635,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9452164703672244,
+      "l0": 20.464731216430664,
+      "n_seqs": 2,
+      "bi": 12
+    },
+    {
+      "loss_original": 2.2643654346466064,
+      "loss_reconstructed": 2.7882180213928223,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9485842622651752,
+      "l0": 20.69782066345215,
+      "n_seqs": 2,
+      "bi": 13
+    },
+    {
+      "loss_original": 6.202470302581787,
+      "loss_reconstructed": 6.363908290863037,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.974171835262143,
+      "l0": 21.205883026123047,
+      "n_seqs": 2,
+      "bi": 14
+    },
+    {
+      "loss_original": 4.333845615386963,
+      "loss_reconstructed": 4.740067958831787,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9499670023362358,
+      "l0": 20.538555145263672,
+      "n_seqs": 2,
+      "bi": 15
+    },
+    {
+      "loss_original": 3.598778486251831,
+      "loss_reconstructed": 4.071681022644043,
+      "loss_zero": 12.452940940856934,
+      "frac_recovered": 0.9465898057758978,
+      "l0": 19.7529296875,
+      "n_seqs": 2,
+      "bi": 16
+    },
+    {
+      "loss_original": 5.062928676605225,
+      "loss_reconstructed": 5.3158979415893555,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9657687359896946,
+      "l0": 19.01249885559082,
+      "n_seqs": 2,
+      "bi": 17
+    },
+    {
+      "loss_original": 3.532682418823242,
+      "loss_reconstructed": 3.733036518096924,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9775394122581322,
+      "l0": 20.253231048583984,
+      "n_seqs": 2,
+      "bi": 18
+    },
+    {
+      "loss_original": 3.4515185356140137,
+      "loss_reconstructed": 3.9426755905151367,
+      "loss_zero": 12.452939987182617,
+      "frac_recovered": 0.9454356117482385,
+      "l0": 20.727346420288086,
+      "n_seqs": 2,
+      "bi": 19
+    },
+    {
+      "loss_original": 2.8414969444274902,
+      "loss_reconstructed": 3.0551910400390625,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9777666868667876,
+      "l0": 21.193771362304688,
+      "n_seqs": 2,
+      "bi": 20
+    },
+    {
+      "loss_original": 2.5529000759124756,
+      "loss_reconstructed": 3.588350534439087,
+      "loss_zero": 12.45294189453125,
+      "frac_recovered": 0.8954094863943641,
+      "l0": 21.21448516845703,
+      "n_seqs": 2,
+      "bi": 21
+    },
+    {
+      "loss_original": 2.342150926589966,
+      "loss_reconstructed": 3.133662462234497,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9217161311332148,
+      "l0": 21.482177734375,
+      "n_seqs": 2,
+      "bi": 22
+    },
+    {
+      "loss_original": 3.509066104888916,
+      "loss_reconstructed": 3.8614981174468994,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9605951369692372,
+      "l0": 19.947248458862305,
+      "n_seqs": 2,
+      "bi": 23
+    },
+    {
+      "loss_original": 6.18070650100708,
+      "loss_reconstructed": 6.278467655181885,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9844136401858959,
+      "l0": 20.017045974731445,
+      "n_seqs": 2,
+      "bi": 24
+    },
+    {
+      "loss_original": 2.0103282928466797,
+      "loss_reconstructed": 2.920212507247925,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.9128680810220035,
+      "l0": 22.92738914489746,
+      "n_seqs": 2,
+      "bi": 25
+    },
+    {
+      "loss_original": 4.858970642089844,
+      "loss_reconstructed": 5.205660343170166,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9543466791847993,
+      "l0": 20.848222732543945,
+      "n_seqs": 2,
+      "bi": 26
+    },
+    {
+      "loss_original": 4.706455707550049,
+      "loss_reconstructed": 5.0208611488342285,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9594131390910485,
+      "l0": 20.924074172973633,
+      "n_seqs": 2,
+      "bi": 27
+    },
+    {
+      "loss_original": 4.218799114227295,
+      "loss_reconstructed": 4.568569660186768,
+      "loss_zero": 12.452927589416504,
+      "frac_recovered": 0.9575218498213394,
+      "l0": 20.306049346923828,
+      "n_seqs": 2,
+      "bi": 28
+    },
+    {
+      "loss_original": 4.236142635345459,
+      "loss_reconstructed": 4.771866798400879,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9348013341093373,
+      "l0": 19.417314529418945,
+      "n_seqs": 2,
+      "bi": 29
+    },
+    {
+      "loss_original": 2.944478750228882,
+      "loss_reconstructed": 3.659209728240967,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9248320411292088,
+      "l0": 21.468965530395508,
+      "n_seqs": 2,
+      "bi": 30
+    },
+    {
+      "loss_original": 4.908868789672852,
+      "loss_reconstructed": 5.070930480957031,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9785179979745982,
+      "l0": 22.0390682220459,
+      "n_seqs": 2,
+      "bi": 31
+    },
+    {
+      "loss_original": 3.2060368061065674,
+      "loss_reconstructed": 3.832695245742798,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9322304390318612,
+      "l0": 19.998538970947266,
+      "n_seqs": 2,
+      "bi": 32
+    },
+    {
+      "loss_original": 3.502511978149414,
+      "loss_reconstructed": 3.7935307025909424,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9674854651395096,
+      "l0": 19.471162796020508,
+      "n_seqs": 2,
+      "bi": 33
+    },
+    {
+      "loss_original": 4.950684070587158,
+      "loss_reconstructed": 5.397176742553711,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9404854769355268,
+      "l0": 20.42816162109375,
+      "n_seqs": 2,
+      "bi": 34
+    },
+    {
+      "loss_original": 4.033431529998779,
+      "loss_reconstructed": 4.424204349517822,
+      "loss_zero": 12.452939987182617,
+      "frac_recovered": 0.9535872169371573,
+      "l0": 19.863994598388672,
+      "n_seqs": 2,
+      "bi": 35
+    },
+    {
+      "loss_original": 3.377699375152588,
+      "loss_reconstructed": 3.669435501098633,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9678536140547405,
+      "l0": 19.27924156188965,
+      "n_seqs": 2,
+      "bi": 36
+    },
+    {
+      "loss_original": 3.6729822158813477,
+      "loss_reconstructed": 4.005565643310547,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9621201152279985,
+      "l0": 20.220699310302734,
+      "n_seqs": 2,
+      "bi": 37
+    },
+    {
+      "loss_original": 3.243135452270508,
+      "loss_reconstructed": 3.7637250423431396,
+      "loss_zero": 12.452936172485352,
+      "frac_recovered": 0.9434743914784198,
+      "l0": 21.948413848876953,
+      "n_seqs": 2,
+      "bi": 38
+    },
+    {
+      "loss_original": 4.907273292541504,
+      "loss_reconstructed": 4.9800944328308105,
+      "loss_zero": 12.452932357788086,
+      "frac_recovered": 0.9903492670872578,
+      "l0": 20.612947463989258,
+      "n_seqs": 2,
+      "bi": 39
+    },
+    {
+      "loss_original": 2.2141523361206055,
+      "loss_reconstructed": 2.7154853343963623,
+      "loss_zero": 12.452940940856934,
+      "frac_recovered": 0.9510359069193159,
+      "l0": 20.28271484375,
+      "n_seqs": 2,
+      "bi": 40
+    },
+    {
+      "loss_original": 4.258542060852051,
+      "loss_reconstructed": 4.363137722015381,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9872357023491456,
+      "l0": 20.68347930908203,
+      "n_seqs": 2,
+      "bi": 41
+    },
+    {
+      "loss_original": 2.8011746406555176,
+      "loss_reconstructed": 3.2145836353302,
+      "loss_zero": 12.452929496765137,
+      "frac_recovered": 0.9571674787810227,
+      "l0": 20.344789505004883,
+      "n_seqs": 2,
+      "bi": 42
+    },
+    {
+      "loss_original": 4.333498954772949,
+      "loss_reconstructed": 4.754201412200928,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9481857552978994,
+      "l0": 21.19110679626465,
+      "n_seqs": 2,
+      "bi": 43
+    },
+    {
+      "loss_original": 5.536235332489014,
+      "loss_reconstructed": 5.944162368774414,
+      "loss_zero": 12.452925682067871,
+      "frac_recovered": 0.941022799103586,
+      "l0": 20.586992263793945,
+      "n_seqs": 2,
+      "bi": 44
+    },
+    {
+      "loss_original": 4.264786720275879,
+      "loss_reconstructed": 4.598602294921875,
+      "loss_zero": 12.45292854309082,
+      "frac_recovered": 0.959231827944666,
+      "l0": 21.09853172302246,
+      "n_seqs": 2,
+      "bi": 45
+    },
+    {
+      "loss_original": 4.967886924743652,
+      "loss_reconstructed": 5.3523125648498535,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.9486408473315122,
+      "l0": 20.53900146484375,
+      "n_seqs": 2,
+      "bi": 46
+    },
+    {
+      "loss_original": 4.363393783569336,
+      "loss_reconstructed": 4.6825361251831055,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9605487908462867,
+      "l0": 20.0,
+      "n_seqs": 2,
+      "bi": 47
+    },
+    {
+      "loss_original": 5.748373508453369,
+      "loss_reconstructed": 6.574875831604004,
+      "loss_zero": 12.452927589416504,
+      "frac_recovered": 0.8767252358367278,
+      "l0": 20.3521728515625,
+      "n_seqs": 2,
+      "bi": 48
+    },
+    {
+      "loss_original": 2.5391483306884766,
+      "loss_reconstructed": 2.8377974033355713,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9698753761053732,
+      "l0": 19.753480911254883,
+      "n_seqs": 2,
+      "bi": 49
+    },
+    {
+      "loss_original": 4.591032028198242,
+      "loss_reconstructed": 4.952081680297852,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9540760273267216,
+      "l0": 20.814695358276367,
+      "n_seqs": 2,
+      "bi": 50
+    },
+    {
+      "loss_original": 5.20956563949585,
+      "loss_reconstructed": 5.5763678550720215,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9493602521954764,
+      "l0": 20.438356399536133,
+      "n_seqs": 2,
+      "bi": 51
+    },
+    {
+      "loss_original": 3.6164188385009766,
+      "loss_reconstructed": 3.897128105163574,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9682330258030781,
+      "l0": 20.395366668701172,
+      "n_seqs": 2,
+      "bi": 52
+    },
+    {
+      "loss_original": 4.126351833343506,
+      "loss_reconstructed": 4.682106971740723,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9332553129750822,
+      "l0": 20.371471405029297,
+      "n_seqs": 2,
+      "bi": 53
+    },
+    {
+      "loss_original": 5.56858491897583,
+      "loss_reconstructed": 5.996426582336426,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.937852973512558,
+      "l0": 21.749469757080078,
+      "n_seqs": 2,
+      "bi": 54
+    },
+    {
+      "loss_original": 5.019469261169434,
+      "loss_reconstructed": 5.406291484832764,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9479620576061257,
+      "l0": 20.097187042236328,
+      "n_seqs": 2,
+      "bi": 55
+    },
+    {
+      "loss_original": 3.589822769165039,
+      "loss_reconstructed": 3.9158880710601807,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9632109669337524,
+      "l0": 19.557659149169922,
+      "n_seqs": 2,
+      "bi": 56
+    },
+    {
+      "loss_original": 3.0415196418762207,
+      "loss_reconstructed": 3.5327229499816895,
+      "loss_zero": 12.45292854309082,
+      "frac_recovered": 0.9478076754223189,
+      "l0": 20.329421997070312,
+      "n_seqs": 2,
+      "bi": 57
+    },
+    {
+      "loss_original": 2.2358765602111816,
+      "loss_reconstructed": 2.6417863368988037,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9602713741327479,
+      "l0": 20.503400802612305,
+      "n_seqs": 2,
+      "bi": 58
+    },
+    {
+      "loss_original": 4.171988010406494,
+      "loss_reconstructed": 4.560579776763916,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9530739684315599,
+      "l0": 20.296968460083008,
+      "n_seqs": 2,
+      "bi": 59
+    },
+    {
+      "loss_original": 2.5656731128692627,
+      "loss_reconstructed": 2.800879716873169,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9762111559880536,
+      "l0": 18.65337562561035,
+      "n_seqs": 2,
+      "bi": 60
+    },
+    {
+      "loss_original": 3.4582571983337402,
+      "loss_reconstructed": 3.7598307132720947,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9664720055290704,
+      "l0": 20.7327880859375,
+      "n_seqs": 2,
+      "bi": 61
+    },
+    {
+      "loss_original": 3.8215653896331787,
+      "loss_reconstructed": 4.273970127105713,
+      "loss_zero": 12.452932357788086,
+      "frac_recovered": 0.9475859688110048,
+      "l0": 18.19774055480957,
+      "n_seqs": 2,
+      "bi": 62
+    },
+    {
+      "loss_original": 4.565986633300781,
+      "loss_reconstructed": 5.123548984527588,
+      "loss_zero": 12.452940940856934,
+      "frac_recovered": 0.9293057459845266,
+      "l0": 20.97216796875,
+      "n_seqs": 2,
+      "bi": 63
+    },
+    {
+      "loss_original": 4.3105669021606445,
+      "loss_reconstructed": 4.693498134613037,
+      "loss_zero": 12.452936172485352,
+      "frac_recovered": 0.9529705396870165,
+      "l0": 21.54350471496582,
+      "n_seqs": 2,
+      "bi": 64
+    },
+    {
+      "loss_original": 5.532278060913086,
+      "loss_reconstructed": 5.938119888305664,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9413578979483339,
+      "l0": 21.354459762573242,
+      "n_seqs": 2,
+      "bi": 65
+    },
+    {
+      "loss_original": 3.1630420684814453,
+      "loss_reconstructed": 3.564450979232788,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9567908113230422,
+      "l0": 19.642704010009766,
+      "n_seqs": 2,
+      "bi": 66
+    },
+    {
+      "loss_original": 3.8321168422698975,
+      "loss_reconstructed": 4.343715190887451,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9406554973685881,
+      "l0": 20.197811126708984,
+      "n_seqs": 2,
+      "bi": 67
+    },
+    {
+      "loss_original": 3.0993587970733643,
+      "loss_reconstructed": 3.568049192428589,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9498918516059814,
+      "l0": 20.701982498168945,
+      "n_seqs": 2,
+      "bi": 68
+    },
+    {
+      "loss_original": 3.858246326446533,
+      "loss_reconstructed": 4.250112533569336,
+      "loss_zero": 12.452940940856934,
+      "frac_recovered": 0.9544060348036363,
+      "l0": 20.773855209350586,
+      "n_seqs": 2,
+      "bi": 69
+    },
+    {
+      "loss_original": 4.401565074920654,
+      "loss_reconstructed": 4.631699562072754,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9714167434855467,
+      "l0": 21.954660415649414,
+      "n_seqs": 2,
+      "bi": 70
+    },
+    {
+      "loss_original": 5.959972381591797,
+      "loss_reconstructed": 6.356317520141602,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9389577290520894,
+      "l0": 20.764118194580078,
+      "n_seqs": 2,
+      "bi": 71
+    },
+    {
+      "loss_original": 5.177754878997803,
+      "loss_reconstructed": 6.2282891273498535,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.8556001517714745,
+      "l0": 20.250518798828125,
+      "n_seqs": 2,
+      "bi": 72
+    },
+    {
+      "loss_original": 2.1316781044006348,
+      "loss_reconstructed": 2.688112497329712,
+      "loss_zero": 12.452939987182617,
+      "frac_recovered": 0.9460885307195503,
+      "l0": 20.279556274414062,
+      "n_seqs": 2,
+      "bi": 73
+    },
+    {
+      "loss_original": 4.168394565582275,
+      "loss_reconstructed": 4.309455871582031,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9829729517389402,
+      "l0": 21.20683479309082,
+      "n_seqs": 2,
+      "bi": 74
+    },
+    {
+      "loss_original": 5.041263103485107,
+      "loss_reconstructed": 5.443091869354248,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9457843235209592,
+      "l0": 21.675065994262695,
+      "n_seqs": 2,
+      "bi": 75
+    },
+    {
+      "loss_original": 4.148195743560791,
+      "loss_reconstructed": 4.2366814613342285,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.989345151842553,
+      "l0": 19.883756637573242,
+      "n_seqs": 2,
+      "bi": 76
+    },
+    {
+      "loss_original": 4.531500816345215,
+      "loss_reconstructed": 4.883338928222656,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9555840402127271,
+      "l0": 20.361766815185547,
+      "n_seqs": 2,
+      "bi": 77
+    },
+    {
+      "loss_original": 3.548698663711548,
+      "loss_reconstructed": 4.028113842010498,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9461587727042808,
+      "l0": 20.622798919677734,
+      "n_seqs": 2,
+      "bi": 78
+    },
+    {
+      "loss_original": 2.9280381202697754,
+      "loss_reconstructed": 2.6912403106689453,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 1.0248609409621925,
+      "l0": 20.4741153717041,
+      "n_seqs": 2,
+      "bi": 79
+    },
+    {
+      "loss_original": 4.010188102722168,
+      "loss_reconstructed": 4.025132179260254,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9982299501471729,
+      "l0": 20.349145889282227,
+      "n_seqs": 2,
+      "bi": 80
+    },
+    {
+      "loss_original": 3.181654930114746,
+      "loss_reconstructed": 3.569990873336792,
+      "loss_zero": 12.452936172485352,
+      "frac_recovered": 0.9581141017007104,
+      "l0": 20.452381134033203,
+      "n_seqs": 2,
+      "bi": 81
+    },
+    {
+      "loss_original": 3.720428228378296,
+      "loss_reconstructed": 4.451451778411865,
+      "loss_zero": 12.452936172485352,
+      "frac_recovered": 0.9162871016307652,
+      "l0": 20.660320281982422,
+      "n_seqs": 2,
+      "bi": 82
+    },
+    {
+      "loss_original": 4.076982498168945,
+      "loss_reconstructed": 4.266271591186523,
+      "loss_zero": 12.452926635742188,
+      "frac_recovered": 0.9774008649164152,
+      "l0": 20.118335723876953,
+      "n_seqs": 2,
+      "bi": 83
+    },
+    {
+      "loss_original": 4.115035533905029,
+      "loss_reconstructed": 4.534763336181641,
+      "loss_zero": 12.452926635742188,
+      "frac_recovered": 0.9496601961874833,
+      "l0": 19.603403091430664,
+      "n_seqs": 2,
+      "bi": 84
+    },
+    {
+      "loss_original": 3.968773365020752,
+      "loss_reconstructed": 4.279537677764893,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.963371250073275,
+      "l0": 20.051395416259766,
+      "n_seqs": 2,
+      "bi": 85
+    },
+    {
+      "loss_original": 4.9537553787231445,
+      "loss_reconstructed": 5.443576335906982,
+      "loss_zero": 12.45292854309082,
+      "frac_recovered": 0.9346833382230427,
+      "l0": 19.960041046142578,
+      "n_seqs": 2,
+      "bi": 86
+    },
+    {
+      "loss_original": 4.640162467956543,
+      "loss_reconstructed": 4.852194309234619,
+      "loss_zero": 12.452939987182617,
+      "frac_recovered": 0.9728608883644392,
+      "l0": 20.58881187438965,
+      "n_seqs": 2,
+      "bi": 87
+    },
+    {
+      "loss_original": 6.087254047393799,
+      "loss_reconstructed": 6.403524875640869,
+      "loss_zero": 12.452929496765137,
+      "frac_recovered": 0.9503162184810562,
+      "l0": 21.399385452270508,
+      "n_seqs": 2,
+      "bi": 88
+    },
+    {
+      "loss_original": 4.862381458282471,
+      "loss_reconstructed": 5.148311138153076,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9623308347997055,
+      "l0": 20.87664794921875,
+      "n_seqs": 2,
+      "bi": 89
+    },
+    {
+      "loss_original": 2.502807140350342,
+      "loss_reconstructed": 2.950951337814331,
+      "loss_zero": 12.45294189453125,
+      "frac_recovered": 0.9549609921337311,
+      "l0": 21.274524688720703,
+      "n_seqs": 2,
+      "bi": 90
+    },
+    {
+      "loss_original": 4.231213569641113,
+      "loss_reconstructed": 4.450422763824463,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9733378083987629,
+      "l0": 20.557266235351562,
+      "n_seqs": 2,
+      "bi": 91
+    },
+    {
+      "loss_original": 4.3678059577941895,
+      "loss_reconstructed": 4.719527244567871,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9564977482850501,
+      "l0": 19.62518310546875,
+      "n_seqs": 2,
+      "bi": 92
+    },
+    {
+      "loss_original": 3.39739727973938,
+      "loss_reconstructed": 3.712726354598999,
+      "loss_zero": 12.452932357788086,
+      "frac_recovered": 0.9651783056283443,
+      "l0": 18.93895149230957,
+      "n_seqs": 2,
+      "bi": 93
+    },
+    {
+      "loss_original": 4.05222749710083,
+      "loss_reconstructed": 4.264266014099121,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.9747594402561036,
+      "l0": 19.57377052307129,
+      "n_seqs": 2,
+      "bi": 94
+    },
+    {
+      "loss_original": 4.141653060913086,
+      "loss_reconstructed": 4.757112979888916,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9259488599612783,
+      "l0": 20.050989151000977,
+      "n_seqs": 2,
+      "bi": 95
+    },
+    {
+      "loss_original": 2.616159677505493,
+      "loss_reconstructed": 3.2288601398468018,
+      "loss_zero": 12.452940940856934,
+      "frac_recovered": 0.937713318418086,
+      "l0": 22.26611328125,
+      "n_seqs": 2,
+      "bi": 96
+    },
+    {
+      "loss_original": 4.858348846435547,
+      "loss_reconstructed": 5.194361686706543,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9557562407264347,
+      "l0": 20.318498611450195,
+      "n_seqs": 2,
+      "bi": 97
+    },
+    {
+      "loss_original": 3.3024415969848633,
+      "loss_reconstructed": 3.003305196762085,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 1.0326907255368216,
+      "l0": 19.73572540283203,
+      "n_seqs": 2,
+      "bi": 98
+    },
+    {
+      "loss_original": 3.9234464168548584,
+      "loss_reconstructed": 4.281611919403076,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9580085382494473,
+      "l0": 20.826427459716797,
+      "n_seqs": 2,
+      "bi": 99
+    },
+    {
+      "loss_original": 4.34598970413208,
+      "loss_reconstructed": 4.722154140472412,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9535997057198585,
+      "l0": 18.465944290161133,
+      "n_seqs": 2,
+      "bi": 100
+    },
+    {
+      "loss_original": 3.6645119190216064,
+      "loss_reconstructed": 4.140563011169434,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9458320486764791,
+      "l0": 19.136682510375977,
+      "n_seqs": 2,
+      "bi": 101
+    },
+    {
+      "loss_original": 3.329683780670166,
+      "loss_reconstructed": 3.819460153579712,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.946315578538493,
+      "l0": 19.980270385742188,
+      "n_seqs": 2,
+      "bi": 102
+    },
+    {
+      "loss_original": 4.571465969085693,
+      "loss_reconstructed": 4.825554370880127,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9677612860636966,
+      "l0": 19.2708683013916,
+      "n_seqs": 2,
+      "bi": 103
+    },
+    {
+      "loss_original": 4.620110034942627,
+      "loss_reconstructed": 4.804677486419678,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9764366748649403,
+      "l0": 20.275819778442383,
+      "n_seqs": 2,
+      "bi": 104
+    },
+    {
+      "loss_original": 3.199247360229492,
+      "loss_reconstructed": 3.6895198822021484,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9470186608733828,
+      "l0": 19.829023361206055,
+      "n_seqs": 2,
+      "bi": 105
+    },
+    {
+      "loss_original": 6.7957258224487305,
+      "loss_reconstructed": 6.657371520996094,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 1.024456297275291,
+      "l0": 20.654970169067383,
+      "n_seqs": 2,
+      "bi": 106
+    },
+    {
+      "loss_original": 2.546088218688965,
+      "loss_reconstructed": 3.251356363296509,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9288100570210913,
+      "l0": 20.484760284423828,
+      "n_seqs": 2,
+      "bi": 107
+    },
+    {
+      "loss_original": 5.682049751281738,
+      "loss_reconstructed": 6.155482292175293,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9300781840356619,
+      "l0": 19.54060935974121,
+      "n_seqs": 2,
+      "bi": 108
+    },
+    {
+      "loss_original": 3.497464418411255,
+      "loss_reconstructed": 3.8275797367095947,
+      "loss_zero": 12.45292854309082,
+      "frac_recovered": 0.9631381116933287,
+      "l0": 18.687389373779297,
+      "n_seqs": 2,
+      "bi": 109
+    },
+    {
+      "loss_original": 4.367323398590088,
+      "loss_reconstructed": 4.91557502746582,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9321941849625645,
+      "l0": 21.120525360107422,
+      "n_seqs": 2,
+      "bi": 110
+    },
+    {
+      "loss_original": 4.018853187561035,
+      "loss_reconstructed": 4.297032356262207,
+      "loss_zero": 12.45293140411377,
+      "frac_recovered": 0.9670172410595841,
+      "l0": 21.1124267578125,
+      "n_seqs": 2,
+      "bi": 111
+    },
+    {
+      "loss_original": 4.959777355194092,
+      "loss_reconstructed": 5.145722389221191,
+      "loss_zero": 12.452929496765137,
+      "frac_recovered": 0.9751846712152686,
+      "l0": 19.280000686645508,
+      "n_seqs": 2,
+      "bi": 112
+    },
+    {
+      "loss_original": 2.2350821495056152,
+      "loss_reconstructed": 2.8801181316375732,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.9368716659007824,
+      "l0": 20.52340316772461,
+      "n_seqs": 2,
+      "bi": 113
+    },
+    {
+      "loss_original": 4.7216572761535645,
+      "loss_reconstructed": 5.315582752227783,
+      "loss_zero": 12.45292854309082,
+      "frac_recovered": 0.9231788077836386,
+      "l0": 20.399999618530273,
+      "n_seqs": 2,
+      "bi": 114
+    },
+    {
+      "loss_original": 5.7015252113342285,
+      "loss_reconstructed": 6.104937553405762,
+      "loss_zero": 12.452926635742188,
+      "frac_recovered": 0.9402476142785556,
+      "l0": 20.143468856811523,
+      "n_seqs": 2,
+      "bi": 115
+    },
+    {
+      "loss_original": 3.5389411449432373,
+      "loss_reconstructed": 3.8810043334960938,
+      "loss_zero": 12.452938079833984,
+      "frac_recovered": 0.9616262838038491,
+      "l0": 19.227006912231445,
+      "n_seqs": 2,
+      "bi": 116
+    },
+    {
+      "loss_original": 2.6045284271240234,
+      "loss_reconstructed": 3.0379765033721924,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.9559880173997636,
+      "l0": 21.82444190979004,
+      "n_seqs": 2,
+      "bi": 117
+    },
+    {
+      "loss_original": 5.087070941925049,
+      "loss_reconstructed": 4.883509635925293,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 1.0276357737610757,
+      "l0": 18.735294342041016,
+      "n_seqs": 2,
+      "bi": 118
+    },
+    {
+      "loss_original": 4.910986423492432,
+      "loss_reconstructed": 5.1766676902771,
+      "loss_zero": 12.452934265136719,
+      "frac_recovered": 0.964772858104685,
+      "l0": 19.477842330932617,
+      "n_seqs": 2,
+      "bi": 119
+    },
+    {
+      "loss_original": 3.241807460784912,
+      "loss_reconstructed": 3.5279860496520996,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.968931194471227,
+      "l0": 20.18373680114746,
+      "n_seqs": 2,
+      "bi": 120
+    },
+    {
+      "loss_original": 2.9513556957244873,
+      "loss_reconstructed": 3.340263843536377,
+      "loss_zero": 12.452937126159668,
+      "frac_recovered": 0.9590691138460224,
+      "l0": 19.71602439880371,
+      "n_seqs": 2,
+      "bi": 121
+    },
+    {
+      "loss_original": 3.911818265914917,
+      "loss_reconstructed": 4.38525915145874,
+      "loss_zero": 12.4529390335083,
+      "frac_recovered": 0.944569231787455,
+      "l0": 20.504833221435547,
+      "n_seqs": 2,
+      "bi": 122
+    },
+    {
+      "loss_original": 4.869480609893799,
+      "loss_reconstructed": 5.2050251960754395,
+      "loss_zero": 12.452930450439453,
+      "frac_recovered": 0.9557530420538132,
+      "l0": 19.367265701293945,
+      "n_seqs": 2,
+      "bi": 123
+    },
+    {
+      "loss_original": 3.0729472637176514,
+      "loss_reconstructed": 3.5989391803741455,
+      "loss_zero": 12.452935218811035,
+      "frac_recovered": 0.9439240306944234,
+      "l0": 20.087404251098633,
+      "n_seqs": 2,
+      "bi": 124
+    },
+    {
+      "loss_original": 4.991184711456299,
+      "loss_reconstructed": 4.979526519775391,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 1.0015623940587999,
+      "l0": 21.1663818359375,
+      "n_seqs": 2,
+      "bi": 125
+    },
+    {
+      "loss_original": 4.7985615730285645,
+      "loss_reconstructed": 5.35736608505249,
+      "loss_zero": 12.452933311462402,
+      "frac_recovered": 0.9269953784426124,
+      "l0": 20.20802879333496,
+      "n_seqs": 2,
+      "bi": 126
+    },
+    {
+      "loss_original": 4.018948078155518,
+      "loss_reconstructed": 4.383733749389648,
+      "loss_zero": 12.452926635742188,
+      "frac_recovered": 0.9567480912189428,
+      "l0": 20.65812110900879,
+      "n_seqs": 2,
+      "bi": 127
+    }
+  ]
+}
